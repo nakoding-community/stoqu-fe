@@ -1,0 +1,42 @@
+version: '3.6'
+
+services:
+  pos-frontend-development:
+    image: ${IMAGE}
+    networks:
+      - nakoding-overlay-net
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256m
+        reservations:
+          cpus: '0.25'
+          memory: 128m
+      restart_policy:
+        condition: on-failure
+      labels:
+        - traefik.enable=true
+        - traefik.docker.lbswarm=true
+        - traefik.http.services.pos-frontend-${BRANCH}.loadbalancer.server.port=80
+
+        #http
+        - traefik.http.routers.pos-frontend-${BRANCH}-router.entrypoints=http
+        - traefik.http.routers.pos-frontend-${BRANCH}-router.middlewares=pos-frontend-${BRANCH}-redirectscheme@docker
+        - traefik.http.routers.pos-frontend-${BRANCH}-router.rule=Host(`app.sandbox.inamawangi.com`)
+        - traefik.http.routers.pos-frontend-${BRANCH}-router.priority=1
+
+        # https
+        - traefik.http.routers.pos-frontend-${BRANCH}-router1.entrypoints=https
+        - traefik.http.routers.pos-frontend-${BRANCH}-router1.rule=Host(`app.sandbox.inamawangi.com`)
+        - traefik.http.routers.pos-frontend-${BRANCH}-router1.tls=true
+        - traefik.http.routers.pos-frontend-${BRANCH}-router1.tls.certresolver=letsencrypt
+        - traefik.http.routers.post-backend-${BRANCH}-router1.priority=1
+
+        - traefik.http.middlewares.pos-frontend-${BRANCH}-redirectscheme.redirectscheme.scheme=https
+networks:
+  nakoding-overlay-net:
+    external: true
