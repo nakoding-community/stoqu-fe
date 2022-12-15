@@ -7,7 +7,8 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 import 'react-lazy-load-image-component/src/effects/opacity.css';
 import 'react-lazy-load-image-component/src/effects/black-and-white.css';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
@@ -26,33 +27,38 @@ import App from './App';
 // ----------------------------------------------------------------------
 
 const Application = () => {
+  const queryClient = new QueryClient();
+
   return (
     <>
-      <ToastContainer />
-      <ConfirmProvider
-        defaultOptions={{
-          description: "You won't be able to revert this!",
-          confirmationButtonProps: {
-            color: 'error',
-          },
-        }}
-      >
-        <AuthProvider>
-          <DashboardContextProvider>
-            <HelmetProvider>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <SettingsProvider>
-                  <CollapseDrawerProvider>
-                    <BrowserRouter>
-                      <App />
-                    </BrowserRouter>
-                  </CollapseDrawerProvider>
-                </SettingsProvider>
-              </LocalizationProvider>
-            </HelmetProvider>
-          </DashboardContextProvider>
-        </AuthProvider>
-      </ConfirmProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastContainer />
+        <ConfirmProvider
+          defaultOptions={{
+            description: "You won't be able to revert this!",
+            confirmationButtonProps: {
+              color: 'error',
+            },
+          }}
+        >
+          <AuthProvider>
+            <DashboardContextProvider>
+              <HelmetProvider>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <SettingsProvider>
+                    <CollapseDrawerProvider>
+                      <BrowserRouter>
+                        <App />
+                      </BrowserRouter>
+                    </CollapseDrawerProvider>
+                  </SettingsProvider>
+                </LocalizationProvider>
+              </HelmetProvider>
+            </DashboardContextProvider>
+          </AuthProvider>
+        </ConfirmProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </>
   );
 };

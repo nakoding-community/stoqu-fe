@@ -1,7 +1,7 @@
 import { createContext, useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import { isValidToken, setSession } from '../utils/jwt';
-import { loginUser } from '../client/AuthClient';
+import { useLoginUser } from '../hooks/api/useAuth';
 
 const initialState = {
   isAuthenticated: false,
@@ -53,6 +53,45 @@ AuthProvider.propTypes = {
 function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // ** Hook to mutate user login data
+  const { mutateAsync: loginMutate } = useLoginUser();
+
+  // ** Function to handle login
+  const login = async (email, password) => {
+    let isSuccess = false;
+
+    const body = {
+      email,
+      password,
+    };
+
+    // ** Mutation
+    await loginMutate(body, {
+      onSuccess: (data) => {
+        if (data?.data) {
+          setSession(data?.data?.token, data?.data);
+          dispatch({
+            type: 'LOGIN',
+            payload: {
+              user: data?.data,
+            },
+          });
+
+          isSuccess = true;
+        }
+      },
+    });
+
+    return isSuccess;
+  };
+
+  // ** Function to handle logout
+  const logout = async () => {
+    setSession(null);
+    dispatch({ type: 'LOGOUT' });
+  };
+
+  // ** Function to initialize apps
   useEffect(() => {
     const initialize = async () => {
       const accessToken = window.localStorage.getItem('accessToken');
@@ -79,31 +118,11 @@ function AuthProvider({ children }) {
       }
     };
 
+    // ** Need this to display loading
     setTimeout(() => {
       initialize();
     }, 250);
   }, []);
-
-  const login = async (email, password) => {
-    const { data: userData, isSuccess } = await loginUser({ email, password });
-
-    if (isSuccess) {
-      setSession(userData.token, userData);
-      dispatch({
-        type: 'LOGIN',
-        payload: {
-          user: userData,
-        },
-      });
-    }
-
-    return isSuccess;
-  };
-
-  const logout = async () => {
-    setSession(null);
-    dispatch({ type: 'LOGOUT' });
-  };
 
   return (
     <AuthContext.Provider
