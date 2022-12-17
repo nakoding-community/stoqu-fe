@@ -96,7 +96,7 @@ const InfiniteCombobox = React.memo(
           return optionsData?.map((option) => {
             return {
               id: option?.id,
-              label: option?.brand,
+              label: option?.name,
             };
           });
         case 'types':
@@ -110,7 +110,7 @@ const InfiniteCombobox = React.memo(
           return optionsData?.map((option) => {
             return {
               id: option?.id,
-              label: option?.variant,
+              label: option?.name,
             };
           });
         case 'orders':
