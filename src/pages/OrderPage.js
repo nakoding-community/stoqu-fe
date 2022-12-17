@@ -27,9 +27,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { firebaseApp } from '../utils/firebase';
-// redux
 
-// hooks
 import useSettings from '../hooks/useSettings';
 
 import Page from '../components/Page';
@@ -41,9 +39,8 @@ import InfiniteCombobox from '../components/combobox/InfiniteCombobox';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 
 import { getOrders, readOrder } from '../client/ordersClient';
-
 import { convertToRupiah, getStatusColor } from '../utils/helperUtils';
-import useDashboardCount from '../hooks/useDashboardCount';
+import { useGetDashboardCount } from '../hooks/api/useDashboard';
 
 import '../styles/animation.css';
 
@@ -56,7 +53,9 @@ export default function OrderPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const { themeStretch } = useSettings();
-  const { totalOrder } = useDashboardCount();
+
+  const { data } = useGetDashboardCount();
+  const { totalOrder } = data?.data;
 
   const [search, setSearch] = useState('');
   const [searchDebounce] = useDebounce(search, 300);

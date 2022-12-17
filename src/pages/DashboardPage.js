@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
 import { Container, Grid, Typography } from '@mui/material';
 
 import useSettings from '../hooks/useSettings';
-// components
+
 import Page from '../components/Page';
 import DashboardOrderSummary from '../components/dashboard/DashboardOrderSummary';
 import DashboardRecentOrders from '../components/dashboard/DashboardRecentOrders';
 import DashboardOrderPerDays from '../components/dashboard/DashboardOrderPerDays';
-import useDashboardCount from '../hooks/useDashboardCount';
+import { useGetDashboardCount } from '../hooks/api/useDashboard';
 
 export default function GeneralApp() {
   const { themeStretch } = useSettings();
 
-  const { totalBrand, totalType, totalStock, totalProduct } = useDashboardCount();
+  // ** Fetch data on mount
+  const { data } = useGetDashboardCount();
+
+  const { totalBrand, totalPacket, totalStock, totalProduct } = data?.data || {};
 
   return (
     <Page title="Dasbor">
@@ -22,24 +24,29 @@ export default function GeneralApp() {
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={3}>
-            <DashboardOrderSummary title="Total Brand" total={totalBrand} icon={'ant-design:crown-filled'} />
+            <DashboardOrderSummary title="Total Brand" total={totalBrand || 0} icon={'ant-design:crown-filled'} />
           </Grid>
 
           <Grid item xs={12} md={3}>
             <DashboardOrderSummary
               title="Total Tipe"
-              total={totalType}
+              total={totalPacket || 0}
               color="info"
               icon={'mdi:format-list-bulleted'}
             />
           </Grid>
 
           <Grid item xs={12} md={3}>
-            <DashboardOrderSummary title="Total Produk" total={totalProduct} color="warning" icon={'mdi:shopping'} />
+            <DashboardOrderSummary
+              title="Total Produk"
+              total={totalProduct || 0}
+              color="warning"
+              icon={'mdi:shopping'}
+            />
           </Grid>
 
           <Grid item xs={12} md={3}>
-            <DashboardOrderSummary title="Total Stok" total={totalStock} color="error" icon={'mdi:basket'} />
+            <DashboardOrderSummary title="Total Stok" total={totalStock || 0} color="error" icon={'mdi:basket'} />
           </Grid>
 
           <Grid item xs={12} lg={7}>
