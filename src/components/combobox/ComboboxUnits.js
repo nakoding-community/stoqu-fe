@@ -8,7 +8,7 @@ const ComboboxUnits = ({ onChange, defaultValue, label = 'Unit' }) => {
   const options = useCallback(() => {
     return units?.map((unit) => {
       return {
-        label: unit?.unit,
+        label: unit?.name,
         id: unit?.id,
       };
     });
