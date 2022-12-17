@@ -25,6 +25,7 @@ import { useDebounce } from 'use-debounce';
 import { toast } from 'react-toastify';
 
 import KEY from '../../constant/queryKey';
+import { useGetPackets } from '../../hooks/api/usePacket';
 import { useTypeDetail, useTypes } from '../../api/useAttributeTypesClient';
 import Iconify from '../Iconify';
 import Scrollbar from '../Scrollbar';
@@ -59,7 +60,8 @@ const AttributeList = () => {
     ...(order && appendSortQuery(order, orderBy)),
   };
 
-  const { data, isFetching } = useTypes(queryParams);
+  // ** Fetch packets on component mount
+  const { data, isFetching } = useGetPackets(queryParams);
 
   const types = data?.data || [];
   const paginationMeta = data?.meta?.info;
