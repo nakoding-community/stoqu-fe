@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
-import { getPackets } from '../../clientv2/packetClient';
+import { deletePacket, getPackets } from '../../clientv2/packetClient';
 
 export const useGetPackets = (queryParams, options) => {
   const fetchData = () => {
@@ -7,4 +7,16 @@ export const useGetPackets = (queryParams, options) => {
   };
 
   return useQuery(['packets', 'list', queryParams], fetchData, options);
+};
+
+export const useDeletePacket = (id) => {
+  return useMutation(async () => {
+    const response = await deletePacket(id);
+
+    if (response?.isSuccess) {
+      return response;
+    }
+
+    throw response;
+  });
 };

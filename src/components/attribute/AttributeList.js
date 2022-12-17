@@ -25,15 +25,14 @@ import { useDebounce } from 'use-debounce';
 import { toast } from 'react-toastify';
 
 import KEY from '../../constant/queryKey';
-import { useGetPackets } from '../../hooks/api/usePacket';
-import { useTypeDetail, useTypes } from '../../api/useAttributeTypesClient';
+import { useDeletePacket, useGetPackets } from '../../hooks/api/usePacket';
+import { useTypeDetail } from '../../api/useAttributeTypesClient';
 import Iconify from '../Iconify';
 import Scrollbar from '../Scrollbar';
 import HeaderBreadcrumbs from '../HeaderBreadcrumbs';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ModalCreateEditAttribute } from '../modal/attribute/ModalCreateEditAttribute';
 
-import { deleteType } from '../../client/typesClient';
 import TableRowSkeleton from '../skeleton/TableRowSkeleton';
 import { appendSortQuery } from '../../utils/helperUtils';
 
@@ -191,6 +190,9 @@ const TableRowComponent = ({ number, row, setEditData, setEditId, showModalHandl
 
   const typeDetail = data?.data ? data?.data : data;
 
+  // ** Hook to delete packet
+  const { mutate: deletePacket } = useDeletePacket(typeDetail?.id);
+
   const onClickEditHandler = (data) => {
     setEditData({
       code: data?.code,
@@ -201,13 +203,15 @@ const TableRowComponent = ({ number, row, setEditData, setEditId, showModalHandl
     showModalHandler();
   };
 
-  const onClickDeleteHandler = (id) => {
+  const onClickDeleteHandler = () => {
     confirm().then(async () => {
-      const { isSuccess } = await deleteType(id);
-      if (isSuccess) {
-        toast.success('Berhasil menghapus tipe');
-        queryClient.invalidateQueries(KEY.attribute.types.all);
-      }
+      const body = {};
+      deletePacket(body, {
+        onSuccess: () => {
+          toast.success('Berhasil menghapus tipe');
+          queryClient.invalidateQueries(['packets', 'list']);
+        },
+      });
     });
   };
 
