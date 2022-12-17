@@ -219,6 +219,7 @@ const TableRowComponent = ({ row, number, setEditData, setEditId, showModalHandl
   });
 
   const productDetail = data?.data ? data?.data : data;
+  console.log('productDetail', productDetail);
 
   const onClickEditHandler = (data) => {
     setEditData({
@@ -252,14 +253,14 @@ const TableRowComponent = ({ row, number, setEditData, setEditId, showModalHandl
     <TableRow>
       <TableCell>{number}</TableCell>
       <TableCell>{productDetail?.code}</TableCell>
-      <TableCell>{productDetail?.brand?.brand}</TableCell>
-      <TableCell>{productDetail?.variant?.variant}</TableCell>
-      <TableCell>{`${productDetail?.type?.value} ${productDetail?.type?.unit?.unit}`}</TableCell>
-      <TableCell>-</TableCell>
+      <TableCell>{productDetail?.brandName}</TableCell>
+      <TableCell>{productDetail?.variantName}</TableCell>
+      <TableCell>{`${productDetail?.packetValue} ${productDetail?.unitName}`}</TableCell>
+      <TableCell>{productDetail?.supplierName}</TableCell>
       <TableCell>-</TableCell>
       <TableCell>
         <Label variant={'ghost'} color={'success'}>
-          {convertToRupiah(productDetail?.priceIdr)}
+          {convertToRupiah(productDetail?.priceFinal)}
         </Label>
       </TableCell>
       <TableCell>
