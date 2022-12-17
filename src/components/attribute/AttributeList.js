@@ -25,8 +25,7 @@ import { useDebounce } from 'use-debounce';
 import { toast } from 'react-toastify';
 
 import KEY from '../../constant/queryKey';
-import { useDeletePacket, useGetPackets } from '../../hooks/api/usePacket';
-import { useTypeDetail } from '../../api/useAttributeTypesClient';
+import { useDeletePacket, useGetPacket, useGetPackets } from '../../hooks/api/usePacket';
 import Iconify from '../Iconify';
 import Scrollbar from '../Scrollbar';
 import HeaderBreadcrumbs from '../HeaderBreadcrumbs';
@@ -184,7 +183,7 @@ const TableRowComponent = ({ number, row, setEditData, setEditId, showModalHandl
   const confirm = useConfirm();
   const queryClient = useQueryClient();
 
-  const { data } = useTypeDetail(row.id, {
+  const { data } = useGetPacket(row.id, {
     initialData: row,
   });
 
