@@ -1,9 +1,11 @@
-import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
+/* eslint-disable array-callback-return */
+import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
 import { Badge, Typography, ListItemText, ListItemButton, Stack } from '@mui/material';
 // utils
+import flatten from 'lodash/flatten';
 import { fToNow } from '../../../utils/formatTime';
 
 // components
@@ -11,92 +13,95 @@ import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
 import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
-import { getReminderNotification, getUnreadCountNotification, readNotification } from '../../../client/reminderClient';
 import { loadMoreValidator } from '../../../utils/helperUtils';
+import {
+  useBulkReadReminderStockHistories,
+  useGetReminderStockHistories,
+  useGetUnreadCountStockHistories,
+} from '../../../hooks/api/useReminderStockHistory';
 
 // ----------------------------------------------------------------------
 
 export default function NotificationsPopover() {
-  const [count, setCount] = useState(0);
-  const [notifications, setNotifications] = useState([]);
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(0);
+  // ** Hook to update unread notification data to read
+  const { mutate: bulkUnReadNotifications } = useBulkReadReminderStockHistories();
 
-  const [onLoadMore, setOnLoadMore] = useState(false);
-
-  const handleOpen = (event) => {
-    setOpen(event.currentTarget);
+  const notificationsParams = {
+    pageSize: 4,
+    page: 1,
   };
 
-  const handleClose = () => {
-    setOpen(null);
-  };
+  // ** Get notifications data
+  const {
+    data: notificationsData,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGetReminderStockHistories(notificationsParams, {
+    enabled: Boolean(open),
+    onSuccess: (data) => {
+      const notifications = flatten(
+        data?.pages?.map((page) => {
+          return page?.data?.map((d) => {
+            return d;
+          });
+        })
+      );
 
-  const getUnReadCountHandler = async () => {
-    const { data } = await getUnreadCountNotification();
-    if (data) {
-      setCount(data);
-    }
-  };
+      const unReadNotifications = notifications?.filter((notification) => !notification?.isRead);
 
-  const readNotificationHandler = async (data) => {
-    const ids = data?.map((d) => d?.id);
-    const { isSuccess } = await readNotification({ ids });
-    if (isSuccess) {
-      getUnReadCountHandler();
-    }
-  };
+      if (unReadNotifications?.length > 0) {
+        const body = {
+          ids: unReadNotifications?.map((notification) => notification?.id),
+        };
 
-  const getReminderNotificationHandler = async (page) => {
-    const query = {
-      dscField: 'created_at',
-      pageSize: 4,
-      page,
-    };
-    const { data, meta } = await getReminderNotification(query);
-    if (data) {
-      setNotifications((prev) => [...prev, ...data]);
-      readNotificationHandler(data);
-      setTotalPage(meta?.info?.totalPage);
-    }
-  };
+        bulkUnReadNotifications(body, {
+          onSuccess: () => {
+            // ** Refetch notifications un-read count data
+            queryClient.refetchQueries(['reminder-stock-histories', 'unread', 'count']);
+          },
+        });
+      }
+    },
+  });
 
+  // ** Mapping notifications data
+  const notifications = flatten(
+    notificationsData?.pages?.map((page) => {
+      return page?.data?.map((d) => {
+        return d;
+      });
+    })
+  );
+
+  // ** Get unread notifications data
+  const { data: unReadNotificationsCountData } = useGetUnreadCountStockHistories();
+
+  // ** Unread notifications count
+  const unReadNotificationsCount = unReadNotificationsCountData?.data?.count;
+
+  // ** Handle load more notifications
   const onScrollHandler = (e) => {
     const target = e.currentTarget;
 
-    if (currentPage < totalPage && !onLoadMore) {
+    if (hasNextPage && !isFetchingNextPage) {
       loadMoreValidator(target, 30, async () => {
-        setOnLoadMore(true);
-        await getReminderNotificationHandler(currentPage + 1);
-        setCurrentPage(currentPage + 1);
-        setOnLoadMore(false);
+        fetchNextPage();
       });
     }
   };
 
-  useEffect(() => {
-    if (open) {
-      getReminderNotificationHandler(currentPage);
-    } else {
-      setTimeout(() => {
-        setNotifications([]);
-        setTotalPage(0);
-        setCurrentPage(1);
-      }, 200);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  useEffect(() => {
-    getUnReadCountHandler();
-  }, []);
-
   return (
     <>
-      <IconButtonAnimate color={open ? 'primary' : 'default'} onClick={handleOpen} sx={{ width: 40, height: 40 }}>
-        <Badge badgeContent={count} color="error">
+      <IconButtonAnimate
+        color={open ? 'primary' : 'default'}
+        onClick={(e) => setOpen(e.currentTarget)}
+        sx={{ width: 40, height: 40 }}
+      >
+        <Badge badgeContent={unReadNotificationsCount} color="error">
           <Iconify icon="eva:bell-fill" width={20} height={20} />
         </Badge>
       </IconButtonAnimate>
@@ -104,7 +109,7 @@ export default function NotificationsPopover() {
       <MenuPopover
         open={Boolean(open)}
         anchorEl={open}
-        onClose={handleClose}
+        onClose={() => setOpen(null)}
         sx={{ width: 360, p: 0, mt: 1.5, ml: 0.75 }}
       >
         <Scrollbar sx={{ maxHeight: { sm: '320px' } }} onScroll={onScrollHandler}>
@@ -122,18 +127,6 @@ export default function NotificationsPopover() {
 }
 
 // ----------------------------------------------------------------------
-
-NotificationItem.propTypes = {
-  notification: PropTypes.shape({
-    createdAt: PropTypes.instanceOf(Date),
-    id: PropTypes.string,
-    isUnRead: PropTypes.bool,
-    title: PropTypes.string,
-    description: PropTypes.string,
-    type: PropTypes.string,
-    avatar: PropTypes.any,
-  }),
-};
 
 function NotificationItem({ notification }) {
   const navigate = useNavigate();
