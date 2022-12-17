@@ -25,14 +25,13 @@ import { useDebounce } from 'use-debounce';
 import { toast } from 'react-toastify';
 
 import KEY from '../../constant/queryKey';
-import { useTypeDetail, useTypes } from '../../api/useAttributeTypesClient';
+import { useDeletePacket, useGetPacket, useGetPackets } from '../../hooks/api/usePacket';
 import Iconify from '../Iconify';
 import Scrollbar from '../Scrollbar';
 import HeaderBreadcrumbs from '../HeaderBreadcrumbs';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ModalCreateEditAttribute } from '../modal/attribute/ModalCreateEditAttribute';
 
-import { deleteType } from '../../client/typesClient';
 import TableRowSkeleton from '../skeleton/TableRowSkeleton';
 import { appendSortQuery } from '../../utils/helperUtils';
 
@@ -59,7 +58,8 @@ const AttributeList = () => {
     ...(order && appendSortQuery(order, orderBy)),
   };
 
-  const { data, isFetching } = useTypes(queryParams);
+  // ** Fetch packets on component mount
+  const { data, isFetching } = useGetPackets(queryParams);
 
   const types = data?.data || [];
   const paginationMeta = data?.meta?.info;
@@ -183,15 +183,18 @@ const TableRowComponent = ({ number, row, setEditData, setEditId, showModalHandl
   const confirm = useConfirm();
   const queryClient = useQueryClient();
 
-  const { data } = useTypeDetail(row.id, {
+  const { data } = useGetPacket(row.id, {
     initialData: row,
   });
 
   const typeDetail = data?.data ? data?.data : data;
 
+  // ** Hook to delete packet
+  const { mutate: deletePacket } = useDeletePacket(typeDetail?.id);
+
   const onClickEditHandler = (data) => {
     setEditData({
-      code: data?.code,
+      id: data?.id,
       unitId: data?.unitId,
       value: data?.value,
     });
@@ -199,13 +202,15 @@ const TableRowComponent = ({ number, row, setEditData, setEditId, showModalHandl
     showModalHandler();
   };
 
-  const onClickDeleteHandler = (id) => {
+  const onClickDeleteHandler = () => {
     confirm().then(async () => {
-      const { isSuccess } = await deleteType(id);
-      if (isSuccess) {
-        toast.success('Berhasil menghapus tipe');
-        queryClient.invalidateQueries(KEY.attribute.types.all);
-      }
+      const body = {};
+      deletePacket(body, {
+        onSuccess: () => {
+          toast.success('Berhasil menghapus tipe');
+          queryClient.invalidateQueries(['packets', 'list']);
+        },
+      });
     });
   };
 

@@ -8,40 +8,58 @@ import { Card, CardHeader, Box } from '@mui/material';
 import { BaseOptionChart } from '../chart';
 import { fNumber } from '../../utils/formatNumber';
 import { getDashboardOrderLastWeek } from '../../client/dashboardClient';
+import { useGetDashboardCount } from '../../hooks/api/useDashboard';
 
 const initialChartData = [
   {
-    day: 'senin',
+    day: 'monday',
     total: 0,
   },
   {
-    day: 'selasa',
+    day: 'tuesday',
     total: 0,
   },
   {
-    day: 'rabu',
+    day: 'wednesday',
     total: 0,
   },
   {
-    day: 'kamis',
+    day: 'thursday',
     total: 0,
   },
   {
-    day: "jum'at",
+    day: 'friday',
     total: 0,
   },
   {
-    day: 'sabtu',
+    day: 'saturday',
     total: 0,
   },
   {
-    day: 'minggu',
+    day: 'sunday',
     total: 0,
   },
 ];
 
+const getFormattedChartData = (data) => {
+  if (data) {
+    const newChartData = [...initialChartData];
+    data?.forEach((d) => {
+      const updateIndex = newChartData?.findIndex((chart) => chart?.day === d?.day?.trim());
+      newChartData[updateIndex].total = d?.total;
+    });
+
+    return newChartData;
+  }
+};
+
 export default function DashboardOrderPerDays() {
-  const [chartData, setChartData] = useState(initialChartData);
+  // ** Fetch data on mount
+  const { data } = useGetDashboardCount();
+
+  const { orderDaily } = data?.data || {};
+
+  const chartData = getFormattedChartData(orderDaily);
 
   const days =
     chartData?.map((chart) => {
@@ -69,23 +87,6 @@ export default function DashboardOrderPerDays() {
       categories: days,
     },
   });
-
-  const getDashboardOrderLastWeekHandler = async () => {
-    const { data } = await getDashboardOrderLastWeek();
-
-    if (data) {
-      const copyChartData = [...chartData];
-      data?.forEach((d) => {
-        const updateIndex = copyChartData?.findIndex((chart) => chart?.day === d?.day);
-        copyChartData[updateIndex].total = d?.total;
-      });
-      setChartData(copyChartData);
-    }
-  };
-
-  useEffect(() => {
-    getDashboardOrderLastWeekHandler();
-  }, []);
 
   return (
     <Card>

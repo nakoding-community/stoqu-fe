@@ -20,14 +20,20 @@ import { ConfirmProvider } from 'material-ui-confirm';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { CollapseDrawerProvider } from './contexts/CollapseDrawerContext';
 import { AuthProvider } from './contexts/JWTContext';
-import { DashboardContextProvider } from './contexts/DashboardCountContext';
+
 //
 import App from './App';
 
 // ----------------------------------------------------------------------
 
 const Application = () => {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 3 * 60 * 1000, // 3minutes
+      },
+    },
+  });
 
   return (
     <>
@@ -42,19 +48,17 @@ const Application = () => {
           }}
         >
           <AuthProvider>
-            <DashboardContextProvider>
-              <HelmetProvider>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <SettingsProvider>
-                    <CollapseDrawerProvider>
-                      <BrowserRouter>
-                        <App />
-                      </BrowserRouter>
-                    </CollapseDrawerProvider>
-                  </SettingsProvider>
-                </LocalizationProvider>
-              </HelmetProvider>
-            </DashboardContextProvider>
+            <HelmetProvider>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <SettingsProvider>
+                  <CollapseDrawerProvider>
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                  </CollapseDrawerProvider>
+                </SettingsProvider>
+              </LocalizationProvider>
+            </HelmetProvider>
           </AuthProvider>
         </ConfirmProvider>
         <ReactQueryDevtools initialIsOpen={false} />

@@ -1,15 +1,15 @@
 import axios from '../utils/axios';
 
-export const getReminderStockHistories = (params, signal) => {
-  return axios.get('reminder-stock-histories', { params, signal });
+export const getReminderStockHistories = (params) => {
+  return axios.get('reminder-stock-histories', { params });
 };
 
 export const updateBulkReadReminderStockHistories = (body) => {
   return axios.put('reminder-stock-histories/bulk-read', body);
 };
 
-export const getCountUnreadReminderStockHistory = (params, signal) => {
-  return axios.get('reminder-stock-histories/count-read', { params, signal });
+export const getCountUnreadReminderStockHistory = (params) => {
+  return axios.get('reminder-stock-histories/count-unread', { params });
 };
 
 export const getReminderStockHistoryById = (id, params) => {

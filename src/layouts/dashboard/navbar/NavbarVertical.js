@@ -20,7 +20,7 @@ import { getSidebarConfig } from './NavConfig';
 import NavbarDocs from './NavbarDocs';
 import NavbarAccount from './NavbarAccount';
 import CollapseButton from './CollapseButton';
-import useDashboardCount from '../../../hooks/useDashboardCount';
+import { useGetDashboardCount } from '../../../hooks/api/useDashboard';
 
 // ----------------------------------------------------------------------
 
@@ -47,8 +47,10 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
 
   const isDesktop = useResponsive('up', 'lg');
 
-  const countData = useDashboardCount();
-  const navData = getSidebarConfig({ count: countData });
+  // ** Fetch data on mount
+  const { data } = useGetDashboardCount();
+
+  const navData = getSidebarConfig({ count: data?.data });
 
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
     useCollapseDrawer();
