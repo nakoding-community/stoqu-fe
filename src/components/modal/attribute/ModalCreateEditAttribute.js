@@ -6,9 +6,8 @@ import { LoadingButton } from '@mui/lab';
 import { toast } from 'react-toastify';
 import Modal from '../Modal';
 import ComboboxUnits from '../../combobox/ComboboxUnits';
-import { createType, editType } from '../../../client/typesClient';
 import { useForm } from '../../../hooks/useForm';
-import KEY from '../../../constant/queryKey';
+import { useCreatePacket, useEditPacket } from '../../../hooks/api/usePacket';
 
 export const ModalCreateEditAttribute = ({ open, onClose, editData, editId }) => {
   const title = editData ? 'Edit Tipe' : 'Tambah Tipe';
@@ -26,6 +25,9 @@ const DialogForm = ({ onClose, editData, editId }) => {
 
   const queryClient = useQueryClient();
 
+  const { mutate: createPacket } = useCreatePacket();
+  const { mutate: editPacket } = useEditPacket(editId);
+
   const isButtonDisabled = formState?.unitId === '' || formState?.value === '';
 
   const submitModalHandler = async (e) => {
@@ -36,17 +38,26 @@ const DialogForm = ({ onClose, editData, editId }) => {
       ...formState,
       value: parseInt(formState.value),
     };
-    const { isSuccess } = editData ? await editType(editId, body) : await createType(body);
-    if (isSuccess) {
-      toast.success(`Berhasil ${editData ? 'mengubah' : 'menambahkan'} tipe`);
-      onClose();
 
-      queryClient.invalidateQueries([KEY.attribute.types.all], { refetchType: editData ? 'none' : 'active' });
+    const mutateFn = editData ? editPacket : createPacket;
 
-      if (editData) {
-        queryClient.invalidateQueries([KEY.attribute.types.detail, editId]);
-      }
-    }
+    mutateFn(body, {
+      onSuccess: () => {
+        // ** Show toast success
+        toast.success(`Berhasil ${editData ? 'mengubah' : 'menambahkan'} tipe`);
+
+        // ** Close modal
+        onClose();
+
+        // ** Invalidate packets list data
+        queryClient.invalidateQueries(['packets', 'list'], { refetchType: editData ? 'none' : 'active' });
+
+        // ** Invalidate packet detail data
+        if (editData) {
+          queryClient.invalidateQueries(['packets', 'detail', editId]);
+        }
+      },
+    });
 
     setIsSubmitting(false);
   };
@@ -89,7 +100,6 @@ const DialogForm = ({ onClose, editData, editId }) => {
 };
 
 const initialFormInput = {
-  // code: '',
   unitId: '',
   value: '',
 };

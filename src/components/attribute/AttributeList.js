@@ -194,7 +194,7 @@ const TableRowComponent = ({ number, row, setEditData, setEditId, showModalHandl
 
   const onClickEditHandler = (data) => {
     setEditData({
-      code: data?.code,
+      id: data?.id,
       unitId: data?.unitId,
       value: data?.value,
     });

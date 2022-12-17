@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { deletePacket, getPacketById, getPackets } from '../../clientv2/packetClient';
+import { createPacket, deletePacket, getPacketById, getPackets, updatePacket } from '../../clientv2/packetClient';
 
 export const useGetPackets = (queryParams, options) => {
   const fetchData = () => {
@@ -23,6 +23,30 @@ export const useGetPacket = (id, options = {}) => {
 export const useDeletePacket = (id) => {
   return useMutation(async () => {
     const response = await deletePacket(id);
+
+    if (response?.isSuccess) {
+      return response;
+    }
+
+    throw response;
+  });
+};
+
+export const useCreatePacket = () => {
+  return useMutation(async (body) => {
+    const response = await createPacket(body);
+
+    if (response?.isSuccess) {
+      return response;
+    }
+
+    throw response;
+  });
+};
+
+export const useEditPacket = (id) => {
+  return useMutation(async (body) => {
+    const response = await updatePacket(id, body);
 
     if (response?.isSuccess) {
       return response;
