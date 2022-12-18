@@ -41,6 +41,7 @@ import { getOrdersReport } from '../client/ordersClient';
 import { HOST_API } from '../config';
 import { convertToRupiah, getStatusColor } from '../utils/helperUtils';
 import InfiniteCombobox from '../components/combobox/InfiniteCombobox';
+import { useGetReportOrders } from '../hooks/api/useReport';
 
 function isValidDate(d) {
   return d instanceof Date && !Number.isNaN(d);
@@ -165,9 +166,27 @@ export default function ReportPage() {
   };
 
   useEffect(() => {
-    getOrdersReportHandler();
+    // getOrdersReportHandler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowsPerPage, page, searchDebounce, order, dateFilter, filterStatus]);
+
+  const params = {
+    page: page + 1,
+    pageSize: rowsPerPage,
+    filterStatus,
+    search,
+    ...(order && appendSortQuery()),
+    ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
+    ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
+  };
+
+  const { data } = useGetReportOrders(params);
+  const { orders, totalIncome, totalOrder } = data?.data || {};
+  console.log({
+    orders,
+    totalIncome,
+    totalOrder,
+  });
 
   return (
     <Page title="Laporan">
@@ -210,7 +229,7 @@ export default function ReportPage() {
                     <Typography variant="h6">Total Pesanan</Typography>
 
                     <Typography variant="subtitle2">
-                      {totalItem}{' '}
+                      {totalOrder}{' '}
                       <Box component="span" sx={{ color: 'text.secondary', typography: 'body2' }}>
                         orders
                       </Box>
@@ -254,7 +273,7 @@ export default function ReportPage() {
                   <Stack spacing={0.5} sx={{ ml: 2 }}>
                     <Typography variant="h6">Total Pemasukan</Typography>
 
-                    <Typography variant="subtitle2">{convertToRupiah(totalPrice)}</Typography>
+                    <Typography variant="subtitle2">{convertToRupiah(totalIncome)}</Typography>
                   </Stack>
                 </Stack>
               </Stack>
@@ -318,12 +337,12 @@ export default function ReportPage() {
               <Table>
                 <TableHeadComponent orderBy={orderBy} order={order} onSortHandler={onSortHandler} />
                 <TableBody>
-                  {listReport?.map((row, index) => (
+                  {orders?.map((row, index) => (
                     <TableRow key={row.id}>
                       <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
                       <TableCell>{moment(row.date).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
                       <TableCell>{row.customerName}</TableCell>
-                      <TableCell>{row.phoneNumber}</TableCell>
+                      <TableCell>{row.customerPhone}</TableCell>
                       <TableCell>
                         <Label variant={'ghost'} color={'success'}>
                           {convertToRupiah(row.price)}

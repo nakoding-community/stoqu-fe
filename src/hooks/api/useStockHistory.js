@@ -6,5 +6,5 @@ export const useGetStockHistories = (queryParams) => {
     return getStockHistory(queryParams);
   };
 
-  return useQuery(['dashboard', queryParams], fetchData);
+  return useQuery(['stock-histories', 'list', queryParams], fetchData);
 };
