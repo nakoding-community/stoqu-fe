@@ -1,4 +1,4 @@
-# stoqu-be
+# stoqu-fe
 
 Stoqu WebApps
 
