@@ -77,7 +77,7 @@ export default function ReportPage() {
     const token = localStorage.getItem('accessToken');
 
     const config = {
-      url: `${HOST_API}/orders/report/excel`,
+      url: `${HOST_API}reports/orders/excel`,
       headers: {
         'Content-Type': 'blob',
         Authorization: token !== null ? `Bearer ${token}` : ``,
@@ -146,29 +146,6 @@ export default function ReportPage() {
       [key]: moment(key === 'startDate' ? dateFilter[0] : dateFilter[1]).format('YYYY-MM-DD'),
     };
   };
-
-  const getOrdersReportHandler = async () => {
-    const query = {
-      page: page + 1,
-      pageSize: rowsPerPage,
-      filterStatus,
-      search,
-      ...(order && appendSortQuery()),
-      ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
-      ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
-    };
-
-    const { data, meta } = await getOrdersReport(query);
-    setListReport(data?.orders || []);
-    setTotalItem(data?.totalItem);
-    setTotalPrice(data?.totalPrice);
-    setPaginationMeta(meta?.info);
-  };
-
-  useEffect(() => {
-    // getOrdersReportHandler();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowsPerPage, page, searchDebounce, order, dateFilter, filterStatus]);
 
   const params = {
     page: page + 1,
