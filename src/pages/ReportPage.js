@@ -1,6 +1,6 @@
 import moment from 'moment';
 import startCase from 'lodash/startCase';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DatePicker from '@mui/lab/DatePicker';
 import { useTheme } from '@mui/material/styles';
 
@@ -25,8 +25,6 @@ import {
   Grid,
   TableSortLabel,
 } from '@mui/material';
-import { useConfirm } from 'material-ui-confirm';
-import { useDebounce } from 'use-debounce';
 import axios from 'axios';
 import useSettings from '../hooks/useSettings';
 // components
@@ -37,7 +35,6 @@ import HeaderBreadcrumbs from '../components/HeaderBreadcrumbs';
 import Label from '../components/Label';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 
-import { getOrdersReport } from '../client/ordersClient';
 import { HOST_API } from '../config';
 import { convertToRupiah, getStatusColor } from '../utils/helperUtils';
 import InfiniteCombobox from '../components/combobox/InfiniteCombobox';
@@ -52,22 +49,11 @@ export default function ReportPage() {
 
   const { themeStretch } = useSettings();
 
-  const confirm = useConfirm();
-
   const [orderBy, setOrderBy] = useState('created_at');
   const [order, setOrder] = useState('desc');
 
-  const [search, setSearch] = useState('');
-  const [searchDebounce] = useDebounce(search, 300);
-
-  const [listReport, setListReport] = useState([]);
-  const [paginationMeta, setPaginationMeta] = useState(null);
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowPerPage] = useState(5);
-
-  const [totalItem, setTotalItem] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
 
   const [dateFilter, setDateFilter] = useState([moment().subtract(7, 'd'), moment()]);
 
@@ -147,28 +133,25 @@ export default function ReportPage() {
     };
   };
 
+  // ** Params to get report orders
   const params = {
     page: page + 1,
     pageSize: rowsPerPage,
     filterStatus,
-    search,
     ...(order && appendSortQuery()),
     ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
     ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
   };
 
+  // ** Get report orders data
   const { data } = useGetReportOrders(params);
   const { orders, totalIncome, totalOrder } = data?.data || {};
-  console.log({
-    orders,
-    totalIncome,
-    totalOrder,
-  });
+  const { meta } = data || {};
 
   return (
     <Page title="Laporan">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs heading="Laporan" useBadge badgeCount={paginationMeta?.count} />
+        <HeaderBreadcrumbs heading="Laporan" useBadge badgeCount={meta?.info?.count} />
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={3}>
@@ -344,7 +327,7 @@ export default function ReportPage() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={paginationMeta?.count || 0}
+              count={meta?.info?.count || 0}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={pageChangeHandler}
