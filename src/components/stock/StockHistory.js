@@ -27,7 +27,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import Label from '../Label';
 
 import ModalItems from '../modal/stock-history/ModalItems';
-import { useStockHistories } from '../../api/useStocksClient';
+import { useGetStockHistories } from '../../hooks/api/useStockHistory';
 import TableRowSkeleton from '../skeleton/TableRowSkeleton';
 import { appendSortQuery } from '../../utils/helperUtils';
 
@@ -80,7 +80,7 @@ const StockHistory = () => {
     ...(order && appendSortQuery(order, orderBy)),
   };
 
-  const { data, isFetching } = useStockHistories(queryParams);
+  const { data, isFetching } = useGetStockHistories(queryParams);
 
   const stocks = data?.data || [];
   const paginationMeta = data?.meta?.info;
