@@ -49,7 +49,7 @@ const DialogForm = ({ onClose, editData, editId }) => {
   useEffect(() => {
     if (editData) {
       setFormData({
-        brand: editData?.brandName,
+        name: editData?.brandName,
         supplierId: editData?.supplierId,
       });
       setSupplierLabel(editData?.supplierName);
@@ -64,7 +64,7 @@ const DialogForm = ({ onClose, editData, editId }) => {
           id="outlined-basic"
           label="Brand (*)"
           variant="outlined"
-          onChange={(e) => inputChangeHandler('brand', e.target.value)}
+          onChange={(e) => inputChangeHandler('name', e.target.value)}
         />
         <InfiniteCombobox
           value={supplierId}
@@ -94,5 +94,5 @@ const DialogForm = ({ onClose, editData, editId }) => {
 
 const initialFormInput = {
   supplierId: '',
-  brand: '',
+  name: '',
 };
