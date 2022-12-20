@@ -53,7 +53,6 @@ export default function ProductApp() {
   const [searchDebounce] = useDebounce(search, 300);
 
   const [editData, setEditData] = useState(null);
-  console.log('editData', editData);
   const [editId, setEditId] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -106,8 +105,8 @@ export default function ProductApp() {
     page: page + 1,
     pageSize: rowsPerPage,
     search: searchDebounce,
-    filterBrand,
-    filterValue,
+    brandName: filterBrand,
+    packetValue: parseFloat(filterValue),
     ...(order && appendSortQuery(order, orderBy)),
   };
 
@@ -220,7 +219,6 @@ const TableRowComponent = ({ row, number, setEditData, setEditId, showModalHandl
   });
 
   const productDetail = data?.data ? data?.data : data;
-  console.log('productDetail', productDetail);
 
   const onClickEditHandler = (data) => {
     setEditData({
