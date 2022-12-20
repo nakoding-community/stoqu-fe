@@ -27,15 +27,20 @@ const DialogForm = ({ onClose, editData, editId }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [supplierLabel, setSupplierLabel] = useState(null);
 
-  const { brand, supplierId } = formState;
+  const { name, supplierId } = formState;
 
-  const isButtonDisabled = brand === '';
+  const isButtonDisabled = name === '';
 
   const submitModalHandler = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const { isSuccess } = editData ? await editBrand(editId, formState) : await createBrand(formState);
+    const { isSuccess } = editData
+      ? await editBrand(editId, {
+          ...formState,
+          id: editData?.brandId,
+        })
+      : await createBrand(formState);
     if (isSuccess) {
       toast.success(`Berhasil ${editData ? 'mengubah' : 'menambahkan'} brand`);
       onClose();
@@ -49,7 +54,7 @@ const DialogForm = ({ onClose, editData, editId }) => {
   useEffect(() => {
     if (editData) {
       setFormData({
-        brand: editData?.brandName,
+        name: editData?.brandName,
         supplierId: editData?.supplierId,
       });
       setSupplierLabel(editData?.supplierName);
@@ -60,11 +65,11 @@ const DialogForm = ({ onClose, editData, editId }) => {
     <Stack component="form" onSubmit={submitModalHandler}>
       <Stack spacing={3} sx={{ p: 3 }}>
         <TextField
-          value={brand}
+          value={name}
           id="outlined-basic"
           label="Brand (*)"
           variant="outlined"
-          onChange={(e) => inputChangeHandler('brand', e.target.value)}
+          onChange={(e) => inputChangeHandler('name', e.target.value)}
         />
         <InfiniteCombobox
           value={supplierId}
@@ -94,5 +99,5 @@ const DialogForm = ({ onClose, editData, editId }) => {
 
 const initialFormInput = {
   supplierId: '',
-  brand: '',
+  name: '',
 };

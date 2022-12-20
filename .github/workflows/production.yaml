@@ -7,6 +7,11 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  REACT_APP_ENV: dev
+  REACT_APP_BASE_URL: http://api.inamawangi.com:3000/api/
+  REACT_APP_TIME_OUT: 30000
+  REACT_APP_VERSION: $npm_package_version
+  PUBLIC_URL: /
 
 jobs:
   build:
@@ -27,14 +32,21 @@ jobs:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      uses: docker/build-push-action@v3
       with:
         context: .
+        build-args: |
+          "REACT_APP_ENV=${{ env.REACT_APP_ENV }}"
+          "REACT_APP_BASE_URL=${{ env.REACT_APP_BASE_URL }}"
+          "REACT_APP_TIME_OUT=${{ env.REACT_APP_TIME_OUT }}"
+          "REACT_APP_VERSION=${{ env.REACT_APP_VERSION }}"
+          "PUBLIC_URL=${{ env.PUBLIC_URL }}"
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
   deploy:
     runs-on: ubuntu-latest
+    needs: build
     steps:
     - name: Deploy
       uses: appleboy/ssh-action@master

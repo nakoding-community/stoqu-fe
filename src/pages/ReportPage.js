@@ -36,7 +36,7 @@ import Label from '../components/Label';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 
 import { HOST_API } from '../config';
-import { convertToRupiah, getStatusColor } from '../utils/helperUtils';
+import { appendSortQuery, convertToRupiah, getStatusColor } from '../utils/helperUtils';
 import InfiniteCombobox from '../components/combobox/InfiniteCombobox';
 import { useGetReportOrders } from '../hooks/api/useReport';
 
@@ -121,12 +121,6 @@ export default function ReportPage() {
     setOrderBy(property);
   };
 
-  const appendSortQuery = () => {
-    return {
-      [order === 'asc' ? 'ascField' : 'dscField']: orderBy,
-    };
-  };
-
   const appeendFilterDateQuery = (key) => {
     return {
       [key]: moment(key === 'startDate' ? dateFilter[0] : dateFilter[1]).format('YYYY-MM-DD'),
@@ -137,8 +131,8 @@ export default function ReportPage() {
   const params = {
     page: page + 1,
     pageSize: rowsPerPage,
-    filterStatus,
-    ...(order && appendSortQuery()),
+    status: filterStatus,
+    ...(order && appendSortQuery(order, orderBy)),
     ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
     ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
   };
@@ -300,7 +294,7 @@ export default function ReportPage() {
                   {orders?.map((row, index) => (
                     <TableRow key={row.id}>
                       <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-                      <TableCell>{moment(row.date).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
+                      <TableCell>{moment(row.createdAt).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
                       <TableCell>{row.customerName}</TableCell>
                       <TableCell>{row.customerPhone}</TableCell>
                       <TableCell>
@@ -352,17 +346,17 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       withSort: false,
     },
     {
-      id: 'date',
+      id: 'createdAt',
       label: 'Tanggal',
       withSort: true,
     },
     {
-      id: 'customer_name',
+      id: 'customerName',
       label: 'Customer',
       withSort: true,
     },
     {
-      id: 'phone_number',
+      id: 'customerPhone',
       label: 'No. Handphone',
       withSort: true,
     },

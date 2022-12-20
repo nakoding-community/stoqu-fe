@@ -108,9 +108,9 @@ const AttributeBrand = () => {
           restructuredData.push({
             no: variantIndex === 0 ? variantIndex + brandIndex + 1 : null,
             brandCodeName: variantIndex === 0 ? brand.code : null,
-            brandName: variantIndex === 0 ? brand.brand : null,
+            brandName: variantIndex === 0 ? brand.name : null,
             codeVariant: variant?.code,
-            variantName: variant?.variant,
+            variantName: variant?.name,
             variantItl: variant?.itl,
             brandId: variantIndex === 0 ? brand.id : null,
             variantId: variant?.id,
@@ -239,13 +239,14 @@ const TableRowComponent = ({
   showModalBrandHandler,
   setShowModalVariant,
 }) => {
+  const queryClient = useQueryClient();
   const confirm = useConfirm();
 
   const onClickEditVariantHandler = (row) => {
     showModalVariantHandler();
     setEditVariantData({
       code: row?.codeVariant,
-      variant: row?.variantName,
+      name: row?.variantName,
       itl: row?.variantItl,
       uniqueCode: row?.uniqueCode,
     });
@@ -256,8 +257,8 @@ const TableRowComponent = ({
     confirm().then(async () => {
       const { isSuccess } = await deleteVariant(id);
       if (isSuccess) {
-        toast.success('Berhasil menghapus tipe');
-        // getBrandsHandler();
+        toast.success('Berhasil menghapus variant');
+        queryClient.invalidateQueries(['brands']);
       }
     });
   };

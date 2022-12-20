@@ -218,7 +218,7 @@ const TableRowComponent = ({ number, row, setEditData, setEditId, showModalHandl
     <TableRow>
       <TableCell>{number}</TableCell>
       <TableCell>{typeDetail?.code}</TableCell>
-      <TableCell>{typeDetail?.unit?.unit}</TableCell>
+      <TableCell>{typeDetail?.unitName}</TableCell>
       <TableCell>{typeDetail?.value}</TableCell>
       <TableCell>
         <Tooltip title="Edit Tipe">
@@ -253,7 +253,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       withSort: true,
     },
     {
-      id: 'unit',
+      id: 'unitName',
       label: 'Unit',
       withSort: true,
     },

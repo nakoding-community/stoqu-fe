@@ -27,9 +27,9 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import Label from '../Label';
 
 import ModalItems from '../modal/stock-history/ModalItems';
-import { useGetStockHistories } from '../../hooks/api/useStockHistory';
 import TableRowSkeleton from '../skeleton/TableRowSkeleton';
 import { appendSortQuery } from '../../utils/helperUtils';
+import { useGetStockHistories } from '../../hooks/api/useStockHistory';
 
 const StockHistory = () => {
   const [orderBy, setOrderBy] = useState('created_at');

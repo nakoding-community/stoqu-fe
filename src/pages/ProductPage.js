@@ -105,8 +105,8 @@ export default function ProductApp() {
     page: page + 1,
     pageSize: rowsPerPage,
     search: searchDebounce,
-    filterBrand,
-    filterValue,
+    brandName: filterBrand,
+    packetValue: parseFloat(filterValue),
     ...(order && appendSortQuery(order, orderBy)),
   };
 
@@ -219,20 +219,16 @@ const TableRowComponent = ({ row, number, setEditData, setEditId, showModalHandl
   });
 
   const productDetail = data?.data ? data?.data : data;
-  console.log('productDetail', productDetail);
 
   const onClickEditHandler = (data) => {
     setEditData({
-      brandId: data?.brandId,
-      variantId: data?.variantId,
-      typeId: data?.typeId,
+      ...data,
       priceUsd: data?.priceUsd,
-      priceIdr: data?.priceIdr,
-      estimatePriceIdr: '',
+      priceIdr: data?.priceFinal,
       labelText: {
-        brand: data?.brand?.brand,
-        variant: data?.variant?.variant,
-        type: `${data?.type?.value} ${data?.type?.unit?.unit}`,
+        brand: data?.brandName,
+        variant: data?.variantName,
+        type: `${data?.packetValue} ${data?.unitName}`,
       },
     });
     setEditId(data?.id);

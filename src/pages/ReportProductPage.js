@@ -99,7 +99,7 @@ export default function ReportPage() {
     const token = localStorage.getItem('accessToken');
 
     const config = {
-      url: `${HOST_API}/reports/summary-excel`,
+      url: `${HOST_API}reports/orders/excel`,
       headers: {
         'Content-Type': 'blob',
         Authorization: token !== null ? `Bearer ${token}` : ``,

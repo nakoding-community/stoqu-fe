@@ -29,6 +29,7 @@ import ModalSuccessCreateTransaction from '../modal/stock/ModalSuccessCreateTran
 import ConditionalWrapper from '../ConditionalWrapper';
 import InfiniteCombobox from '../combobox/InfiniteCombobox';
 import Label from '../Label';
+import { appendSortQuery } from '../../utils/helperUtils';
 
 const LIMIT = 5;
 
@@ -128,15 +129,9 @@ const StockList = ({
     setOrderBy(property);
   };
 
-  const appendSortQuery = () => {
-    return {
-      [order === 'asc' ? 'ascField' : 'dscField']: orderBy,
-    };
-  };
-
   const appendFilterBrandId = () => {
     return {
-      filterBrandId: brandId,
+      brandId,
     };
   };
 
@@ -145,7 +140,7 @@ const StockList = ({
       page: page + 1,
       pageSize: rowsPerPage,
       search,
-      ...(order && appendSortQuery()),
+      ...(order && appendSortQuery(order, orderBy)),
       ...(brandId && appendFilterBrandId()),
     };
 
@@ -199,10 +194,10 @@ const StockList = ({
                 {stocks.map((row, index) => (
                   <TableRow key={row.id}>
                     <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-                    <TableCell>{row?.product?.code}</TableCell>
-                    <TableCell>{row?.brand?.brand}</TableCell>
-                    <TableCell>{row?.variant?.variant}</TableCell>
-                    <TableCell>{`${row?.type?.value} ${row?.type?.unit?.unit}`}</TableCell>
+                    <TableCell>{row?.productCode}</TableCell>
+                    <TableCell>{row?.brandName}</TableCell>
+                    <TableCell>{row?.variantName}</TableCell>
+                    <TableCell>{`${row?.packetValue} ${row?.unitName}`}</TableCell>
                     <TableCell>
                       <Label variant={'ghost'} color="info">
                         {row?.totalSeal}
@@ -299,17 +294,17 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       withSort: false,
     },
     {
-      id: 'code',
+      id: 'productCode',
       label: 'Kode',
       withSort: true,
     },
     {
-      id: 'brand',
+      id: 'brandName',
       label: 'Brand',
       withSort: true,
     },
     {
-      id: 'variant',
+      id: 'variantName',
       label: 'Varian',
       withSort: true,
     },
