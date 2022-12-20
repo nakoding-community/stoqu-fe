@@ -131,7 +131,7 @@ const StockList = ({
 
   const appendFilterBrandId = () => {
     return {
-      filterBrandId: brandId,
+      brandId,
     };
   };
 
