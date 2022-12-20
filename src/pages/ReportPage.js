@@ -1,6 +1,6 @@
 import moment from 'moment';
 import startCase from 'lodash/startCase';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DatePicker from '@mui/lab/DatePicker';
 import { useTheme } from '@mui/material/styles';
 
@@ -25,8 +25,6 @@ import {
   Grid,
   TableSortLabel,
 } from '@mui/material';
-import { useConfirm } from 'material-ui-confirm';
-import { useDebounce } from 'use-debounce';
 import axios from 'axios';
 import useSettings from '../hooks/useSettings';
 // components
@@ -37,10 +35,10 @@ import HeaderBreadcrumbs from '../components/HeaderBreadcrumbs';
 import Label from '../components/Label';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 
-import { getOrdersReport } from '../client/ordersClient';
 import { HOST_API } from '../config';
 import { convertToRupiah, getStatusColor } from '../utils/helperUtils';
 import InfiniteCombobox from '../components/combobox/InfiniteCombobox';
+import { useGetReportOrders } from '../hooks/api/useReport';
 
 function isValidDate(d) {
   return d instanceof Date && !Number.isNaN(d);
@@ -51,22 +49,11 @@ export default function ReportPage() {
 
   const { themeStretch } = useSettings();
 
-  const confirm = useConfirm();
-
   const [orderBy, setOrderBy] = useState('created_at');
   const [order, setOrder] = useState('desc');
 
-  const [search, setSearch] = useState('');
-  const [searchDebounce] = useDebounce(search, 300);
-
-  const [listReport, setListReport] = useState([]);
-  const [paginationMeta, setPaginationMeta] = useState(null);
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowPerPage] = useState(5);
-
-  const [totalItem, setTotalItem] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
 
   const [dateFilter, setDateFilter] = useState([moment().subtract(7, 'd'), moment()]);
 
@@ -76,7 +63,7 @@ export default function ReportPage() {
     const token = localStorage.getItem('accessToken');
 
     const config = {
-      url: `${HOST_API}/orders/report/excel`,
+      url: `${HOST_API}reports/orders/excel`,
       headers: {
         'Content-Type': 'blob',
         Authorization: token !== null ? `Bearer ${token}` : ``,
@@ -146,33 +133,25 @@ export default function ReportPage() {
     };
   };
 
-  const getOrdersReportHandler = async () => {
-    const query = {
-      page: page + 1,
-      pageSize: rowsPerPage,
-      filterStatus,
-      search,
-      ...(order && appendSortQuery()),
-      ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
-      ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
-    };
-
-    const { data, meta } = await getOrdersReport(query);
-    setListReport(data?.orders || []);
-    setTotalItem(data?.totalItem);
-    setTotalPrice(data?.totalPrice);
-    setPaginationMeta(meta?.info);
+  // ** Params to get report orders
+  const params = {
+    page: page + 1,
+    pageSize: rowsPerPage,
+    filterStatus,
+    ...(order && appendSortQuery()),
+    ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
+    ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
   };
 
-  useEffect(() => {
-    getOrdersReportHandler();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowsPerPage, page, searchDebounce, order, dateFilter, filterStatus]);
+  // ** Get report orders data
+  const { data } = useGetReportOrders(params);
+  const { orders, totalIncome, totalOrder } = data?.data || {};
+  const { meta } = data || {};
 
   return (
     <Page title="Laporan">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs heading="Laporan" useBadge badgeCount={paginationMeta?.count} />
+        <HeaderBreadcrumbs heading="Laporan" useBadge badgeCount={meta?.info?.count} />
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={3}>
@@ -210,7 +189,7 @@ export default function ReportPage() {
                     <Typography variant="h6">Total Pesanan</Typography>
 
                     <Typography variant="subtitle2">
-                      {totalItem}{' '}
+                      {totalOrder}{' '}
                       <Box component="span" sx={{ color: 'text.secondary', typography: 'body2' }}>
                         orders
                       </Box>
@@ -254,7 +233,7 @@ export default function ReportPage() {
                   <Stack spacing={0.5} sx={{ ml: 2 }}>
                     <Typography variant="h6">Total Pemasukan</Typography>
 
-                    <Typography variant="subtitle2">{convertToRupiah(totalPrice)}</Typography>
+                    <Typography variant="subtitle2">{convertToRupiah(totalIncome)}</Typography>
                   </Stack>
                 </Stack>
               </Stack>
@@ -318,12 +297,12 @@ export default function ReportPage() {
               <Table>
                 <TableHeadComponent orderBy={orderBy} order={order} onSortHandler={onSortHandler} />
                 <TableBody>
-                  {listReport?.map((row, index) => (
+                  {orders?.map((row, index) => (
                     <TableRow key={row.id}>
                       <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
                       <TableCell>{moment(row.date).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
                       <TableCell>{row.customerName}</TableCell>
-                      <TableCell>{row.phoneNumber}</TableCell>
+                      <TableCell>{row.customerPhone}</TableCell>
                       <TableCell>
                         <Label variant={'ghost'} color={'success'}>
                           {convertToRupiah(row.price)}
@@ -348,7 +327,7 @@ export default function ReportPage() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={paginationMeta?.count || 0}
+              count={meta?.info?.count || 0}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={pageChangeHandler}
