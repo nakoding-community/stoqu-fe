@@ -27,9 +27,9 @@ const DialogForm = ({ onClose, editVariantId, brandId, editVariantData }) => {
   const [formState, inputChangeHandler, setFormData] = useForm(initialFormInput);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { code, variant, itl, uniqueCode } = formState;
+  const { code, name, itl, uniqueCode } = formState;
 
-  const isButtonDisabled = variant === '' || itl === '';
+  const isButtonDisabled = name === '' || itl === '';
 
   const submitModalHandler = async (e) => {
     e.preventDefault();
@@ -43,11 +43,13 @@ const DialogForm = ({ onClose, editVariantId, brandId, editVariantData }) => {
       delete body.brandId;
     }
 
-    if (!editVariantData) {
+    if (body?.code) {
       delete body.code;
     }
 
-    const { isSuccess } = editVariantData ? await editVariant(editVariantId, body) : await createVariant(body);
+    const { isSuccess } = editVariantData
+      ? await editVariant(editVariantId, { ...body, id: editVariantId })
+      : await createVariant(body);
     if (isSuccess) {
       toast.success(`Berhasil ${editVariantData ? 'mengubah' : 'menambahkan'} varian`);
       onClose();
@@ -76,10 +78,10 @@ const DialogForm = ({ onClose, editVariantId, brandId, editVariantData }) => {
           />
         )}
         <TextField
-          value={variant}
+          value={name}
           label="Varian (*)"
           variant="outlined"
-          onChange={(e) => inputChangeHandler('variant', e.target.value)}
+          onChange={(e) => inputChangeHandler('name', e.target.value)}
         />
         <TextField
           value={itl}
@@ -111,7 +113,7 @@ const DialogForm = ({ onClose, editVariantId, brandId, editVariantData }) => {
 
 const initialFormInput = {
   code: '',
-  variant: '',
+  name: '',
   itl: '',
   uniqueCode: '',
 };
