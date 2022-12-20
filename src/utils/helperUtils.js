@@ -51,6 +51,6 @@ export const getStatusColor = (status) => {
 
 export const appendSortQuery = (order, orderBy) => {
   return {
-    [order === 'asc' ? 'ascField' : 'dscField']: orderBy,
+    sortBy: order === 'asc' ? orderBy : `-${orderBy}`,
   };
 };
