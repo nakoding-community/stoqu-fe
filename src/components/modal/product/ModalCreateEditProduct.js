@@ -27,7 +27,7 @@ const DialogForm = ({ onClose, editData, editId }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { brandId, variantId, typeId, priceIdr, priceUsd, estimatePriceIdr, labelText } = formState;
+  const { name, brandId, variantId, typeId, priceIdr, priceUsd, estimatePriceIdr, labelText } = formState;
 
   const isButtonDisabled =
     brandId === '' ||
@@ -50,9 +50,12 @@ const DialogForm = ({ onClose, editData, editId }) => {
     e.preventDefault();
     const body = {
       ...formState,
-      priceIdr: parseInt(formState.priceIdr),
+      priceFinal: parseInt(formState.priceIdr),
       priceUsd: parseInt(formState.priceUsd),
+      packetId: typeId,
     };
+
+    delete body.typeId;
 
     delete body.estimatePriceIdr;
     delete body.labelText;
@@ -97,6 +100,13 @@ const DialogForm = ({ onClose, editData, editId }) => {
   return (
     <Stack component="form" onSubmit={submitModalHandler}>
       <Stack spacing={3} sx={{ p: 3 }}>
+        <TextField
+          type="text"
+          label="Nama Produk"
+          variant="outlined"
+          value={name}
+          onChange={(e) => inputChangeHandler('name', e.target.value)}
+        />
         <InfiniteCombobox
           value={brandId}
           label="Cari Brand (*)"
@@ -163,6 +173,7 @@ const DialogForm = ({ onClose, editData, editId }) => {
 };
 
 const initialFormInput = {
+  name: '',
   brandId: '',
   variantId: '',
   typeId: '',
