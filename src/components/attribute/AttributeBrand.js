@@ -108,7 +108,7 @@ const AttributeBrand = () => {
           restructuredData.push({
             no: variantIndex === 0 ? variantIndex + brandIndex + 1 : null,
             brandCodeName: variantIndex === 0 ? brand.code : null,
-            brandName: variantIndex === 0 ? brand.brand : null,
+            brandName: variantIndex === 0 ? brand.name : null,
             codeVariant: variant?.code,
             variantName: variant?.variant,
             variantItl: variant?.itl,
