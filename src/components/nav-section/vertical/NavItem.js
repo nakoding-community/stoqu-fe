@@ -24,7 +24,7 @@ NavItemRoot.propTypes = {
 };
 
 export function NavItemRoot({ item, isCollapse, open = false, active, onOpen }) {
-  const { title, path, icon, info, children } = item;
+  const { title, path, icon, info, children, disabled } = item;
 
   const renderContent = (
     <>
@@ -48,11 +48,11 @@ export function NavItemRoot({ item, isCollapse, open = false, active, onOpen }) 
   }
 
   return isExternalLink(path) ? (
-    <ListItemStyle component={Link} href={path} target="_blank" rel="noopener">
+    <ListItemStyle component={Link} href={path} target="_blank" rel="noopener" disabled={disabled}>
       {renderContent}
     </ListItemStyle>
   ) : (
-    <ListItemStyle component={RouterLink} to={path} activeRoot={active}>
+    <ListItemStyle component={RouterLink} to={path} activeRoot={active} disabled={disabled}>
       {renderContent}
     </ListItemStyle>
   );
@@ -73,7 +73,7 @@ NavItemSub.propTypes = {
 };
 
 export function NavItemSub({ item, open = false, active = false, onOpen }) {
-  const { title, path, info, children } = item;
+  const { title, path, info, children, disabled } = item;
 
   const renderContent = (
     <>
@@ -93,11 +93,11 @@ export function NavItemSub({ item, open = false, active = false, onOpen }) {
   }
 
   return isExternalLink(path) ? (
-    <ListItemStyle component={Link} href={path} target="_blank" rel="noopener" subItem>
+    <ListItemStyle component={Link} href={path} target="_blank" rel="noopener" subItem disabled={disabled}>
       {renderContent}
     </ListItemStyle>
   ) : (
-    <ListItemStyle component={RouterLink} to={path} activeSub={active} subItem>
+    <ListItemStyle component={RouterLink} to={path} activeSub={active} subItem disabled={disabled}>
       {renderContent}
     </ListItemStyle>
   );
