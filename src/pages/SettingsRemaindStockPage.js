@@ -1,5 +1,5 @@
 import parseInt from 'lodash/parseInt';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, Button, Container, Stack, TextField, Tabs, Tab, Divider, Grid } from '@mui/material';
 
 import { toast } from 'react-toastify';
@@ -10,37 +10,39 @@ import Page from '../components/Page';
 
 import HeaderBreadcrumbs from '../components/HeaderBreadcrumbs';
 
-import { getReminderStock, editReminderStock } from '../client/reminderClient';
+import { useEditReminderStock, useGetReminderStocks } from '../hooks/api/useReminderStock';
 
 export default function SettingsRemaindStockPage() {
   const { themeStretch } = useSettings();
   const { currentTab, onChangeTab } = useTabs('daily');
 
   const [minStock, setMinStock] = useState('');
+  const [id, setId] = useState(null);
+
+  const { mutate: editReminderStock } = useEditReminderStock(id);
 
   const TABS = [
     { value: 'daily', label: 'Harian' },
-    { value: 'monthly', label: 'Bulanan' },
+    // { value: 'monthly', label: 'Bulanan' },
   ];
 
-  const getReminderStockHandler = async () => {
-    const { data } = await getReminderStock();
-    if (data) {
-      setMinStock(data?.minStock);
-      onChangeTab(null, data?.reminderType);
-    }
-  };
-
   const editReminderStockHandler = async () => {
-    const { isSuccess } = await editReminderStock({ reminderType: currentTab, minStock: parseInt(minStock) });
-    if (isSuccess) {
-      toast.success('Berhasil mengubah data');
-    }
+    const body = { name: currentTab, minStock: parseInt(minStock), id };
+    editReminderStock(body, {
+      onSuccess: () => {
+        toast.success('Berhasil mengubah data');
+      },
+    });
   };
 
-  useEffect(() => {
-    getReminderStockHandler();
-  }, []);
+  useGetReminderStocks({
+    onSuccess: (data) => {
+      const filteredData = data?.data?.find((d) => d?.name === 'daily');
+      setId(filteredData?.id);
+      setMinStock(filteredData?.minStock);
+      onChangeTab(null, filteredData?.name);
+    },
+  });
 
   return (
     <Page title="Pengingat Stok">

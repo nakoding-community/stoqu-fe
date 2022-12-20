@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Box,
   Card,
@@ -30,11 +31,13 @@ import HeaderBreadcrumbs from '../components/HeaderBreadcrumbs';
 import Page from '../components/Page';
 import useSettings from '../hooks/useSettings';
 
-import { getConvertions, deleteConvertion } from '../client/convertionsClient';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 import { ModalCreateEditConvertion } from '../components/modal/settings-convertion/ModalCreateEditConvertion';
+import { useDeleteConvertionUnit, useGetConvertionUnits } from '../hooks/api/useConvertionUnit';
+import { appendSortQuery } from '../utils/helperUtils';
 
 function SettingsConversionTypePage() {
+  const queryClient = useQueryClient();
   const { themeStretch } = useSettings();
 
   const confirm = useConfirm();
@@ -48,12 +51,11 @@ function SettingsConversionTypePage() {
   const [editData, setEditData] = useState(null);
   const [editId, setEditId] = useState(null);
 
-  const [convertions, setConvertions] = useState([]);
-  const [paginationMeta, setPaginationMeta] = useState(null);
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowPerPage] = useState(5);
   const [showModal, setShowModal] = useState(false);
+
+  const { mutate: deleteConvertionUnit } = useDeleteConvertionUnit();
 
   const showModalHandler = () => {
     setShowModal(true);
@@ -98,39 +100,28 @@ function SettingsConversionTypePage() {
     showModalHandler();
   };
 
-  const appendSortQuery = () => {
-    return {
-      [order === 'asc' ? 'ascField' : 'dscField']: orderBy,
-    };
-  };
-
-  const getConvertionsHandler = async () => {
-    const query = {
-      page: page + 1,
-      pageSize: rowsPerPage,
-      search,
-      ...(order && appendSortQuery()),
-    };
-
-    const { data, meta } = await getConvertions(query);
-    setConvertions(data || []);
-    setPaginationMeta(meta?.info);
-  };
-
   const onClickDeleteHandler = (id) => {
     confirm().then(async () => {
-      const { isSuccess } = await deleteConvertion(id);
-      if (isSuccess) {
-        toast.success('Berhasil menghapus tipe konversi');
-        getConvertionsHandler();
-      }
+      deleteConvertionUnit(id, {
+        onSuccess: () => {
+          toast.success('Berhasil menghapus tipe konversi');
+
+          queryClient.invalidateQueries(['convertion-units', 'list']);
+        },
+      });
     });
   };
 
-  useEffect(() => {
-    getConvertionsHandler();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowsPerPage, page, searchDebounce, order]);
+  const params = {
+    page: page + 1,
+    pageSize: rowsPerPage,
+    search: searchDebounce,
+    ...(order && appendSortQuery(order, orderBy)),
+  };
+
+  const { data } = useGetConvertionUnits(params);
+  const convertions = data?.data;
+  const { meta } = data || {};
 
   return (
     <Page title="Tipe Konversi">
@@ -142,7 +133,7 @@ function SettingsConversionTypePage() {
               Tambah
             </Button>
           }
-          badgeCount={paginationMeta?.count || 0}
+          badgeCount={meta?.info?.count || 0}
           useBadge
         />
 
@@ -196,7 +187,7 @@ function SettingsConversionTypePage() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={paginationMeta?.count || 0}
+              count={meta?.info?.count || 0}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={pageChangeHandler}
@@ -205,13 +196,7 @@ function SettingsConversionTypePage() {
           </Box>
         </Card>
       </Container>
-      <ModalCreateEditConvertion
-        open={showModal}
-        onClose={closeModalHandler}
-        editData={editData}
-        editId={editId}
-        getConvertionsHandler={getConvertionsHandler}
-      />
+      <ModalCreateEditConvertion open={showModal} onClose={closeModalHandler} editData={editData} editId={editId} />
     </Page>
   );
 }

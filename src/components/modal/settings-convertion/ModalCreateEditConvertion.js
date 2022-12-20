@@ -1,35 +1,37 @@
 import React, { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 // import parseInt from 'lodash/parseInt';
 import { Stack, TextField, DialogActions, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { toast } from 'react-toastify';
 
 import Modal from '../Modal';
-import ComboboxUnits from '../../combobox/ComboboxUnits';
 
-import { createType, editType } from '../../../client/typesClient';
 import { useForm } from '../../../hooks/useForm';
 import InfiniteCombobox from '../../combobox/InfiniteCombobox';
 
-import { creteConvertion, editConvertion } from '../../../client/convertionsClient';
+import { useCreateConvertionUnit, useEditConvertionUnit } from '../../../hooks/api/useConvertionUnit';
 
-export const ModalCreateEditConvertion = ({ open, onClose, editData, editId, getConvertionsHandler }) => {
+export const ModalCreateEditConvertion = ({ open, onClose, editData, editId }) => {
   const title = editData ? 'Edit Tipe Konversi' : 'Tambah Tipe Konversi';
 
   return (
     <Modal title={title} open={open} onClose={onClose}>
-      <DialogForm onClose={onClose} editData={editData} editId={editId} getConvertionsHandler={getConvertionsHandler} />
+      <DialogForm onClose={onClose} editData={editData} editId={editId} />
     </Modal>
   );
 };
 
-const DialogForm = ({ onClose, editData, editId, getConvertionsHandler }) => {
+const DialogForm = ({ onClose, editData, editId }) => {
+  const queryClient = useQueryClient();
   const [formState, inputChangeHandler, setFormData] = useForm(initialFormInput);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { origin, destination, total, labelText } = formState;
 
   const isButtonDisabled = origin === '' || destination === '' || total === '';
+
+  const { mutate: createConvertionUnit, isLoading: isCreateSubmitting } = useCreateConvertionUnit();
+  const { mutate: editConvertionUnit, isLoading: isEditSubmitting } = useEditConvertionUnit(editId);
 
   const changeLabelText = (newObjValue) => {
     inputChangeHandler('labelText', {
@@ -39,8 +41,6 @@ const DialogForm = ({ onClose, editData, editId, getConvertionsHandler }) => {
   };
 
   const submitModalHandler = async (e) => {
-    setIsSubmitting(true);
-
     e.preventDefault();
     const body = {
       ...formState,
@@ -49,14 +49,19 @@ const DialogForm = ({ onClose, editData, editId, getConvertionsHandler }) => {
 
     delete body.labelText;
 
-    const { isSuccess } = editData ? await editType(editId, body) : await creteConvertion(body);
-    if (isSuccess) {
-      toast.success(`Berhasil ${editData ? 'mengubah' : 'menambahkan'} tipe konversi`);
-      onClose();
-      getConvertionsHandler();
+    if (editData) {
+      body.id = editId;
     }
 
-    setIsSubmitting(false);
+    const mutateFn = editData ? editConvertionUnit : createConvertionUnit;
+    mutateFn(body, {
+      onSuccess: () => {
+        toast.success(`Berhasil ${editData ? 'mengubah' : 'menambahkan'} tipe konversi`);
+        onClose();
+
+        queryClient.invalidateQueries(['convertion-units', 'list']);
+      },
+    });
   };
 
   useEffect(() => {
@@ -103,7 +108,12 @@ const DialogForm = ({ onClose, editData, editId, getConvertionsHandler }) => {
           Close
         </Button>
 
-        <LoadingButton type="submit" variant="contained" loading={isSubmitting} disabled={isButtonDisabled}>
+        <LoadingButton
+          type="submit"
+          variant="contained"
+          loading={isCreateSubmitting || isEditSubmitting}
+          disabled={isButtonDisabled}
+        >
           Save
         </LoadingButton>
       </DialogActions>

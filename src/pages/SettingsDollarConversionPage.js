@@ -1,4 +1,5 @@
 import parseInt from 'lodash/parseInt';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 // @mui
 import { Card, Button, Container, Stack, TextField, Tabs, Tab, Divider, Grid, Typography } from '@mui/material';
@@ -11,33 +12,34 @@ import useTabs from '../hooks/useTabs';
 import Page from '../components/Page';
 
 import HeaderBreadcrumbs from '../components/HeaderBreadcrumbs';
-import { getCurrencies, editCurrencies } from '../client/currenciesClient';
+import { useEditCurrency, useGetCurrencies } from '../hooks/api/useCurrency';
 
 export default function SettingsDollarConversionPage() {
   const { themeStretch } = useSettings();
-  const { currentTab: filterStatus, onChangeTab: onFilterStatus } = useTabs('auto');
+  const queryClient = useQueryClient();
+  const { currentTab: filterStatus, onChangeTab: onFilterStatus, setCurrentTab } = useTabs('auto');
 
   const [currencyData, setCurrencyData] = useState(null);
+  console.log('currencyData', currencyData);
   const [valueIdr, setValueIdr] = useState('');
+
+  const { mutate: editCurrency } = useEditCurrency(currencyData?.id);
 
   const editCurrenciesHandler = async () => {
     const body = {
+      id: currencyData?.id,
       isAuto: filterStatus === 'auto',
-      valueIdr: filterStatus === 'auto' ? 0 : parseInt(valueIdr),
+      name: currencyData?.name,
+      value: filterStatus === 'auto' ? 0 : parseInt(valueIdr),
     };
 
-    const { isSuccess } = await editCurrencies(currencyData?.id, body);
-    if (isSuccess) {
-      toast.success('Berhasil mengubah data');
-      getCurrenciesHandler();
-    }
-  };
+    editCurrency(body, {
+      onSuccess: () => {
+        toast.success('Berhasil mengubah data');
 
-  const getCurrenciesHandler = async () => {
-    const { data, meta } = await getCurrencies();
-    if (data) {
-      setCurrencyData(data);
-    }
+        queryClient.invalidateQueries(['currencies', 'list']);
+      },
+    });
   };
 
   const TABS = [
@@ -46,12 +48,17 @@ export default function SettingsDollarConversionPage() {
   ];
 
   useEffect(() => {
-    getCurrenciesHandler();
-  }, []);
+    setValueIdr(currencyData?.value);
+  }, [currencyData?.value]);
 
-  useEffect(() => {
-    setValueIdr(currencyData?.valueIdr);
-  }, [currencyData?.valueIdr]);
+  useGetCurrencies({
+    onSuccess: (data) => {
+      if (data?.data) {
+        setCurrencyData(data?.data?.[0]);
+        setCurrentTab(data?.data?.[0]?.isAuto ? 'auto' : 'manual');
+      }
+    },
+  });
 
   return (
     <Page title="Konversi Dollar">

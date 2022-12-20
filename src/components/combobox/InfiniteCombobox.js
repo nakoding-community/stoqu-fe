@@ -143,7 +143,7 @@ const InfiniteCombobox = React.memo(
           return optionsData?.map((option) => {
             return {
               id: option?.id,
-              label: option?.unit,
+              label: option?.name,
             };
           });
         case 'productTypes':

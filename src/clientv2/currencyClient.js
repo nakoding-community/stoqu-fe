@@ -16,6 +16,10 @@ export const getCurrencyById = (id) => {
   return axios.get(`currencies/${id}`);
 };
 
+export const editCurrency = (id, body) => {
+  return axios.put(`currencies/${id}`, body);
+};
+
 export const deleteCurrency = (id) => {
   return axios.delete(`currencies/${id}`);
 };
