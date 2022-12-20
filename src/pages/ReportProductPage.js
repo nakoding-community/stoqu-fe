@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DatePicker from '@mui/lab/DatePicker';
 import { useTheme } from '@mui/material/styles';
 
@@ -24,7 +24,6 @@ import {
   Grid,
   TableSortLabel,
 } from '@mui/material';
-import { useDebounce } from 'use-debounce';
 import axios from 'axios';
 import useSettings from '../hooks/useSettings';
 // components
@@ -34,9 +33,9 @@ import Scrollbar from '../components/Scrollbar';
 import HeaderBreadcrumbs from '../components/HeaderBreadcrumbs';
 import ConditionalWrapper from '../components/ConditionalWrapper';
 
-import { getOrdersReportSummary } from '../client/ordersClient';
 import { HOST_API } from '../config';
 import InfiniteCombobox from '../components/combobox/InfiniteCombobox';
+import { useGetReportProducts } from '../hooks/api/useReport';
 
 function isValidDate(d) {
   return d instanceof Date && !Number.isNaN(d);
@@ -83,12 +82,6 @@ export default function ReportPage() {
   const [orderBy, setOrderBy] = useState('created_at');
   const [order, setOrder] = useState('desc');
 
-  const [search, setSearch] = useState('');
-  const [searchDebounce] = useDebounce(search, 300);
-
-  const [listReport, setListReport] = useState([]);
-  const [paginationMeta, setPaginationMeta] = useState(null);
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowPerPage] = useState(5);
 
@@ -106,7 +99,7 @@ export default function ReportPage() {
     const token = localStorage.getItem('accessToken');
 
     const config = {
-      url: `${HOST_API}/reports/summary-excel`,
+      url: `${HOST_API}reports/orders/excel`,
       headers: {
         'Content-Type': 'blob',
         Authorization: token !== null ? `Bearer ${token}` : ``,
@@ -177,32 +170,25 @@ export default function ReportPage() {
     };
   };
 
-  const getOrdersReportSummaryHandler = async () => {
-    const query = {
-      page: page + 1,
-      pageSize: rowsPerPage,
-      category: filterType,
-      search,
-      ...(order && appendSortQuery()),
-      ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
-      ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
-    };
-
-    const { data, meta } = await getOrdersReportSummary(query);
-
-    setListReport(data || []);
-    setPaginationMeta(meta?.info);
+  // ** Params to get report orders
+  const params = {
+    page: page + 1,
+    pageSize: rowsPerPage,
+    category: filterType,
+    ...(order && appendSortQuery()),
+    ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
+    ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
   };
 
-  useEffect(() => {
-    getOrdersReportSummaryHandler();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowsPerPage, page, searchDebounce, order, dateFilter, filterType]);
+  // ** Get report orders products data
+  const { data } = useGetReportProducts(params);
+  const { orders } = data?.data || {};
+  const { meta } = data || {};
 
   return (
     <Page title="Laporan Produk">
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs heading="Laporan Produk" useBadge badgeCount={paginationMeta?.count} />
+        <HeaderBreadcrumbs heading="Laporan Produk" useBadge badgeCount={meta?.info?.count} />
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={3}>
@@ -240,7 +226,7 @@ export default function ReportPage() {
                     <Typography variant="h6">Total Jumlah</Typography>
 
                     <Typography variant="subtitle2">
-                      {paginationMeta?.count}{' '}
+                      {meta?.info?.count}{' '}
                       <Box component="span" sx={{ color: 'text.secondary', typography: 'body2' }}>
                         {filterType}
                       </Box>
@@ -308,7 +294,7 @@ export default function ReportPage() {
               <Table>
                 <TableHeadComponent orderBy={orderBy} order={order} onSortHandler={onSortHandler} type={filterType} />
                 <TableBody>
-                  {listReport?.map((row, index) => {
+                  {orders?.map((row, index) => {
                     const TableRowComponent = rowTemplate[filterType];
                     return (
                       <TableRowComponent key={index} row={row} index={index} page={page} rowsPerPage={rowsPerPage} />
@@ -323,7 +309,7 @@ export default function ReportPage() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={paginationMeta?.count || 0}
+              count={meta?.info?.count || 0}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={pageChangeHandler}
