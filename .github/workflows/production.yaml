@@ -8,7 +8,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   REACT_APP_ENV: dev
-  REACT_APP_BASE_URL: http://api.inamawangi.com:3000/api/
+  REACT_APP_BASE_URL: https://api.inamawangi.com/api/
   REACT_APP_TIME_OUT: 30000
   REACT_APP_VERSION: $npm_package_version
   PUBLIC_URL: /
