@@ -29,13 +29,14 @@ const DialogForm = ({ onClose, editData, editId }) => {
 
   const { name, brandId, variantId, typeId, priceIdr, priceUsd, estimatePriceIdr, labelText } = formState;
 
-  const isButtonDisabled =
-    brandId === '' ||
-    variantId === '' ||
-    typeId === '' ||
-    priceIdr === '' ||
-    priceUsd === '' ||
-    estimatePriceIdr === '';
+  const isButtonDisabled = editData
+    ? name === '' || priceUsd === '' || priceIdr === ''
+    : brandId === '' ||
+      variantId === '' ||
+      typeId === '' ||
+      priceIdr === '' ||
+      priceUsd === '' ||
+      estimatePriceIdr === '';
 
   const changeLabelText = (newObjValue) => {
     inputChangeHandler('labelText', {
@@ -48,23 +49,24 @@ const DialogForm = ({ onClose, editData, editId }) => {
     setIsSubmitting(true);
 
     e.preventDefault();
-    const body = {
-      ...formState,
+
+    const createBody = {
+      brandId,
+      name,
+      packetId: typeId,
       priceFinal: parseInt(formState.priceIdr),
       priceUsd: parseInt(formState.priceUsd),
-      packetId: typeId,
+      variantId,
     };
 
-    delete body.typeId;
+    const editBody = {
+      id: formState.id,
+      name: formState.name,
+      priceFinal: parseInt(formState.priceIdr),
+      priceUsd: parseInt(formState.priceUsd),
+    };
 
-    delete body.estimatePriceIdr;
-    delete body.labelText;
-
-    if (editData) {
-      delete body.labelText;
-    }
-
-    const { isSuccess } = editData ? await editProduct(editId, body) : await createProducts(body);
+    const { isSuccess } = editData ? await editProduct(editId, editBody) : await createProducts(createBody);
     if (isSuccess) {
       toast.success(`Berhasil ${editData ? 'mengubah' : 'menambahkan'} produk`);
       onClose();

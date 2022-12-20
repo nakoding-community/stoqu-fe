@@ -53,6 +53,7 @@ export default function ProductApp() {
   const [searchDebounce] = useDebounce(search, 300);
 
   const [editData, setEditData] = useState(null);
+  console.log('editData', editData);
   const [editId, setEditId] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -223,16 +224,13 @@ const TableRowComponent = ({ row, number, setEditData, setEditId, showModalHandl
 
   const onClickEditHandler = (data) => {
     setEditData({
-      brandId: data?.brandId,
-      variantId: data?.variantId,
-      typeId: data?.typeId,
+      ...data,
       priceUsd: data?.priceUsd,
-      priceIdr: data?.priceIdr,
-      estimatePriceIdr: '',
+      priceIdr: data?.priceFinal,
       labelText: {
-        brand: data?.brand?.brand,
-        variant: data?.variant?.variant,
-        type: `${data?.type?.value} ${data?.type?.unit?.unit}`,
+        brand: data?.brandName,
+        variant: data?.variantName,
+        type: `${data?.packetValue} ${data?.unitName}`,
       },
     });
     setEditId(data?.id);
