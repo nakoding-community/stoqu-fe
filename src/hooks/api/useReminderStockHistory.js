@@ -17,7 +17,6 @@ export const useGetReminderStockHistories = (queryParams, options) => {
 
   return useInfiniteQuery(['reminder-stock-histories', queryParams], ({ pageParam }) => fetchData(pageParam), {
     getNextPageParam: (lastPage) => {
-      console.log('lastPage', lastPage);
       return lastPage?.meta?.info?.page < lastPage?.meta?.info?.totalPage ? lastPage?.meta?.info?.page + 1 : null;
     },
     ...options,
