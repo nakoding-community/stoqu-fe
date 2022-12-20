@@ -5,7 +5,6 @@ import { TextField, Autocomplete, Box } from '@mui/material';
 
 import { getBrands } from '../../client/brandsClient';
 import { getVariants } from '../../client/variantsClient';
-import { getTypes } from '../../client/typesClient';
 import { getOrders } from '../../client/ordersClient';
 import { getProducts, searchProductType } from '../../client/productsClient';
 import { getLookupStocks } from '../../client/lookupStocksClient';
@@ -14,6 +13,8 @@ import { getUnits } from '../../client/unitsClient';
 import { getUsers, createUser } from '../../client/usersClient';
 import { loadMoreValidator } from '../../utils/helperUtils';
 import { useDeepEffect } from '../../hooks/useDeepEffect';
+
+import { getPackets } from '../../clientv2/packetClient';
 
 import Scrollbar from '../Scrollbar';
 
@@ -59,7 +60,7 @@ const InfiniteCombobox = React.memo(
         queryFn = getVariants;
         break;
       case 'types':
-        queryFn = getTypes;
+        queryFn = getPackets;
         break;
       case 'orders':
         queryFn = getOrders;
@@ -103,7 +104,7 @@ const InfiniteCombobox = React.memo(
           return optionsData?.map((option) => {
             return {
               id: option?.id,
-              label: `${option?.value} ${option?.unit?.unit}`,
+              label: option?.name,
             };
           });
         case 'variants':
