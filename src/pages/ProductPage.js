@@ -254,7 +254,7 @@ const TableRowComponent = ({ row, number, setEditData, setEditId, showModalHandl
       <TableCell>{productDetail?.variantName}</TableCell>
       <TableCell>{`${productDetail?.packetValue} ${productDetail?.unitName}`}</TableCell>
       <TableCell>{productDetail?.supplierName}</TableCell>
-      <TableCell>-</TableCell>
+      <TableCell>{productDetail?.variantUniqueCode}</TableCell>
       <TableCell>
         <Label variant={'ghost'} color={'success'}>
           {convertToRupiah(productDetail?.priceFinal)}
