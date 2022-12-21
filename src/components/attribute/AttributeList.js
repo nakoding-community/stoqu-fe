@@ -107,7 +107,7 @@ const AttributeList = () => {
   return (
     <>
       <HeaderBreadcrumbs
-        heading="Packet"
+        heading="Paket"
         useBadge
         badgeCount={paginationMeta?.count || 0}
         action={
@@ -221,12 +221,12 @@ const TableRowComponent = ({ number, row, setEditData, setEditId, showModalHandl
       <TableCell>{typeDetail?.unitName}</TableCell>
       <TableCell>{typeDetail?.value}</TableCell>
       <TableCell>
-        <Tooltip title="Edit Packet">
+        <Tooltip title="Edit Paket">
           <IconButton size="small" color="warning" onClick={() => onClickEditHandler(typeDetail)}>
             <Iconify icon="eva:edit-fill" />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Delete Packet">
+        <Tooltip title="Delete Paket">
           <IconButton size="small" color="error" onClick={() => onClickDeleteHandler(typeDetail?.id)}>
             <Iconify icon="eva:trash-2-outline" />
           </IconButton>
