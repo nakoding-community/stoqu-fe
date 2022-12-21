@@ -29,7 +29,7 @@ export default function GeneralApp() {
 
           <Grid item xs={12} md={3}>
             <DashboardOrderSummary
-              title="Total Tipe"
+              title="Total Paket"
               total={totalPacket || 0}
               color="info"
               icon={'mdi:format-list-bulleted'}
