@@ -128,7 +128,7 @@ const InfiniteCombobox = React.memo(
             return {
               ...option,
               id: option?.id,
-              label: option?.role,
+              label: option?.name,
             };
           });
         case 'products':
