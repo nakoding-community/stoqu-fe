@@ -30,6 +30,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import InfiniteCombobox from '../combobox/InfiniteCombobox';
 import Label from '../Label';
 import { appendSortQuery } from '../../utils/helperUtils';
+import ModalStockRack from '../modal/stock/ModalStockRack';
 
 const LIMIT = 5;
 
@@ -66,6 +67,9 @@ const StockList = ({
   const [modalCreatedTrxType, setModalCreatedTrxType] = useState(null);
   const [createdTrxData, setCreatedTrxData] = useState(null);
 
+  const [showStockRackModal, setShowStockRackModal] = useState(false);
+  const [rackData, setRackData] = useState(null);
+
   const [editConversionStockData, setEditConversionStockData] = useState(null);
 
   const onCloseConversionStockModalHandler = () => {
@@ -90,16 +94,6 @@ const StockList = ({
     setModalCreatedTrxType(null);
   };
 
-  const showLookupStockModalHandler = (data) => {
-    setShowLookupStockModal(true);
-    setDetailLookupStockData(data);
-  };
-
-  const closeLookupStockModalHandler = () => {
-    setShowLookupStockModal(false);
-    setDetailLookupStockData(null);
-  };
-
   const showModalDetailStockHandler = (data) => {
     setShowModalDetailStock(true);
     setDetailStockData(data);
@@ -108,6 +102,16 @@ const StockList = ({
   const closeModalDetailStockHandler = () => {
     setShowModalDetailStock(false);
     setDetailStockData(null);
+  };
+
+  const showStockRackModalHandler = (data) => {
+    setShowStockRackModal(true);
+    setRackData(data);
+  };
+
+  const closeStockRackModalHandler = () => {
+    setShowStockRackModal(false);
+    setRackData(null);
   };
 
   const rowsPerPageChangeHandler = (e) => {
@@ -221,7 +225,7 @@ const StockList = ({
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Rak">
-                        <IconButton size="small" color="info" onClick={() => onClickEditConversionStockData(row)}>
+                        <IconButton size="small" color="info" onClick={() => showStockRackModalHandler(row)}>
                           <Iconify icon="eva:bar-chart-outline" />
                         </IconButton>
                       </Tooltip>
@@ -267,11 +271,6 @@ const StockList = ({
         getStocksHandler={getStocksHandler}
         showModalSuccessCreateTrxHandler={showModalSuccessCreateTrxHandler}
       />
-      <ModalStockLookup
-        open={showLookupStockModal}
-        onClose={closeLookupStockModalHandler}
-        detailLookupStockData={detailLookupStockData}
-      />
       <ModalDetailStock
         open={showModalDetailStock}
         onClose={closeModalDetailStockHandler}
@@ -284,6 +283,7 @@ const StockList = ({
         createdTrxData={createdTrxData}
         type={modalCreatedTrxType}
       />
+      <ModalStockRack open={showStockRackModal} onClose={closeStockRackModalHandler} data={rackData} />
     </>
   );
 };
