@@ -220,7 +220,12 @@ const StockList = ({
                           <Iconify icon="eva:edit-fill" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Konversi Stok">
+                      <Tooltip title="Rak">
+                        <IconButton size="small" color="info" onClick={() => onClickEditConversionStockData(row)}>
+                          <Iconify icon="eva:bar-chart-outline" />
+                        </IconButton>
+                      </Tooltip>
+                      {/* <Tooltip title="Konversi Stok">
                         <IconButton size="small" color="info" onClick={() => onClickEditConversionStockData(row)}>
                           <Iconify icon="eva:arrow-forward-outline" />
                         </IconButton>
@@ -229,7 +234,7 @@ const StockList = ({
                         <IconButton size="small" color="success" onClick={() => showLookupStockModalHandler(row)}>
                           <Iconify icon="eva:search-outline" />
                         </IconButton>
-                      </Tooltip>
+                      </Tooltip> */}
                     </TableCell>
                   </TableRow>
                 ))}
