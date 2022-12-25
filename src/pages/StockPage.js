@@ -54,8 +54,17 @@ export default function StockApp() {
                 variant="contained"
                 startIcon={<Iconify icon="eva:plus-fill" />}
                 onClick={showConversionStockModalHandler}
+                sx={{ marginRight: '20px' }}
               >
                 Konversi
+              </Button>
+              <Button
+                color="info"
+                variant="contained"
+                startIcon={<Iconify icon="eva:plus-fill" />}
+                // onClick={showConversionStockModalHandler}
+              >
+                Movement
               </Button>
             </>
           }
