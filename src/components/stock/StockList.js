@@ -194,6 +194,7 @@ const StockList = ({
                 {stocks.map((row, index) => (
                   <TableRow key={row.id}>
                     <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                    <TableCell>{row?.productName}</TableCell>
                     <TableCell>{row?.productCode}</TableCell>
                     <TableCell>{row?.brandName}</TableCell>
                     <TableCell>{row?.variantName}</TableCell>
@@ -291,6 +292,11 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
     {
       id: 'no',
       label: 'No',
+      withSort: false,
+    },
+    {
+      id: 'productName',
+      label: 'Nama Produk',
       withSort: false,
     },
     {
