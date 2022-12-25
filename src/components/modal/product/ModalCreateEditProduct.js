@@ -130,12 +130,12 @@ const DialogForm = ({ onClose, editData, editId }) => {
             changeLabelText({ variant: e?.label });
           }}
           disabled={editData !== null}
-          additionalQuery={{ filterBrandId: brandId }}
+          additionalQuery={{ brandId }}
           labelText={labelText?.variant}
         />
         <InfiniteCombobox
           value={typeId}
-          label="Cari Tipe (*)"
+          label="Cari Paket (*)"
           type="types"
           onChange={(e) => {
             inputChangeHandler('typeId', e.id);
