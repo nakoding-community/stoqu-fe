@@ -17,6 +17,8 @@ export default function StockApp() {
   const [showConversionStockModal, setShowConversionStockModal] = useState(false);
   const [showTransactionStockModal, setShowTransactionStockModal] = useState(false);
 
+  const [showStockMovementModal, setShowStockMovementModal] = useState(false);
+
   const [totalStock, setTotalStock] = useState(0);
 
   const showConversionStockModalHandler = () => {
@@ -62,7 +64,7 @@ export default function StockApp() {
                 color="info"
                 variant="contained"
                 startIcon={<Iconify icon="eva:plus-fill" />}
-                // onClick={showConversionStockModalHandler}
+                onClick={() => setShowStockMovementModal(true)}
               >
                 Movement
               </Button>
@@ -77,6 +79,8 @@ export default function StockApp() {
           showTransactionStockModal={showTransactionStockModal}
           closeTransactionStockModalHandler={closeTransactionStockModalHandler}
           setTotalStock={setTotalStock}
+          showStockMovementModal={showStockMovementModal}
+          setShowStockMovementModal={setShowStockMovementModal}
         />
 
         <Stack sx={{ marginTop: '30px' }} />

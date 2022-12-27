@@ -190,13 +190,13 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
           labelText={productLabel}
         />
         <InfiniteCombobox
-          value={selectedProducts?.[0]?.id}
+          // value={selectedProducts?.[0]?.id}
           label="Cari Rak"
           type="types"
-          onChange={onChangeProductHandler}
+          // onChange={onChangeProductHandler}
           required
-          excludeIds={selectedProducts?.map(({ id }) => id)}
-          labelText={productLabel}
+          // excludeIds={selectedProducts?.map(({ id }) => id)}
+          // labelText={productLabel}
         />
         <TextField
           label="Jumlah"
@@ -209,10 +209,10 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
         />
         {currentTab === 'out' && (
           <InfiniteCombobox
-            value={selectedProducts?.[0]?.id}
+            // value={selectedProducts?.[0]?.id}
             label="Lookup"
             type="lookupStocks"
-            onChange={onChangeProductHandler}
+            // onChange={onChangeProductHandler}
             required
             // excludeIds={selectedProducts?.map(({ id }) => id)}
             // labelText={productLabel}

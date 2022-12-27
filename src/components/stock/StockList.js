@@ -31,6 +31,7 @@ import InfiniteCombobox from '../combobox/InfiniteCombobox';
 import Label from '../Label';
 import { appendSortQuery } from '../../utils/helperUtils';
 import ModalStockRack from '../modal/stock/ModalStockRack';
+import ModalStockMovement from '../modal/stock/ModalStockMovement';
 
 const LIMIT = 5;
 
@@ -41,6 +42,8 @@ const StockList = ({
   closeTransactionStockModalHandler,
   showConversionStockModalHandler,
   setTotalStock,
+  showStockMovementModal,
+  setShowStockMovementModal,
 }) => {
   const [brandId, setBrandId] = useState('');
   const [filterBrandLabel, setFilterBrandLabel] = useState('');
@@ -112,6 +115,10 @@ const StockList = ({
   const closeStockRackModalHandler = () => {
     setShowStockRackModal(false);
     setRackData(null);
+  };
+
+  const closeStockMovementModalHandler = () => {
+    setShowStockMovementModal(false);
   };
 
   const rowsPerPageChangeHandler = (e) => {
@@ -284,6 +291,8 @@ const StockList = ({
         type={modalCreatedTrxType}
       />
       <ModalStockRack open={showStockRackModal} onClose={closeStockRackModalHandler} data={rackData} />
+
+      <ModalStockMovement open={showStockMovementModal} onClose={closeStockMovementModalHandler} />
     </>
   );
 };
