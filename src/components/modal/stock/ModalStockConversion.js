@@ -158,7 +158,7 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
           labelText={productLabel}
           excludeIds={selectedProducts?.map((product) => product?.id)}
         />
-        {selectedProducts?.map((product, index) => (
+        {/* {selectedProducts?.map((product, index) => (
           <SelectedData
             key={product?.id}
             index={index}
@@ -167,14 +167,14 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
             withDelete={false}
             {...product}
           />
-        ))}
-        <Divider sx={{ borderStyle: 'dotted', borderSpacing: '2' }} />
+        ))} */}
+        {/* <Divider sx={{ borderStyle: 'dotted', borderSpacing: '2' }} /> */}
 
         <InfiniteCombobox
           label="Cari Lookup (*)"
           disabled={selectedProducts?.length === 0}
           type={'lookupStocks'}
-          additionalQuery={{ filterProductId: selectedProducts?.[0]?.id }}
+          additionalQuery={{ productId: selectedProducts?.[0]?.id }}
           onChange={onChangeLookupStockHandler}
           labelText={lookupLabel}
           excludeIds={selectedLookupStocks?.map((lookup) => lookup?.id)}
@@ -192,7 +192,7 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
         <InfiniteCombobox
           disabled={selectedProducts?.length === 0}
           label="Cari Tipe (*)"
-          type="productTypes"
+          type="types"
           additionalQuery={{ productId: selectedProducts?.[0]?.id }}
           onChange={onChangeProductTypeHandler}
           excludeIds={selectedProductType?.map((product) => product?.id) || []}

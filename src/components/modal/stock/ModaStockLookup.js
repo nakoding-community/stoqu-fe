@@ -7,8 +7,10 @@ import ModalV2 from '../ModaV2';
 import Iconify from '../../Iconify';
 import Scrollbar from '../../Scrollbar';
 import DownloadProductCodePDF from '../../PDF/DownloadProductCodePDF';
-import { getLookupStocks, getLookupStocksProduct } from '../../../client/lookupStocksClient';
+import { getLookupStocksProduct } from '../../../client/lookupStocksClient';
 import { loadMoreValidator } from '../../../utils/helperUtils';
+
+import { getStockLookups } from '../../../clientv2/stockLookup';
 
 const ModalStockLookup = ({ open, onClose, detailLookupStockData, type = 'stock' }) => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -31,7 +33,7 @@ const Header = ({ detailLookupStockData, onClose, setIsDownloading }) => {
   const [loading, setLoading] = useState(false);
 
   const getData = async (allData = [], currentPage = 1) => {
-    const { data, meta } = await getLookupStocks({
+    const { data, meta } = await getStockLookups({
       filterProductId: detailLookupStockData?.productId,
       page: currentPage,
     });
@@ -90,7 +92,7 @@ const Content = ({ detailLookupStockData, type }) => {
   let queryFn = () => {};
   switch (type) {
     case 'stock':
-      queryFn = getLookupStocks;
+      queryFn = getStockLookups;
       break;
     case 'product':
       queryFn = getLookupStocksProduct;
@@ -113,7 +115,7 @@ const Content = ({ detailLookupStockData, type }) => {
       search,
       pageSize: 5,
     };
-    const { data, meta } = await getLookupStocks(query);
+    const { data, meta } = await getStockLookups(query);
     if (data) {
       setListProducts((prev) => [...prev, ...data]);
       setTotalPage(meta?.info?.totalPage);

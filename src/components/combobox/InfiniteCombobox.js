@@ -7,10 +7,10 @@ import { getBrands } from '../../client/brandsClient';
 import { getVariants } from '../../client/variantsClient';
 import { getOrders } from '../../client/ordersClient';
 import { getProducts, searchProductType } from '../../client/productsClient';
-import { getLookupStocks } from '../../client/lookupStocksClient';
 import { getRoles } from '../../client/rolesClient';
 import { getUnits } from '../../client/unitsClient';
 import { getUsers, createUser } from '../../client/usersClient';
+import { getStockLookups } from '../../clientv2/stockLookup';
 import { loadMoreValidator } from '../../utils/helperUtils';
 import { useDeepEffect } from '../../hooks/useDeepEffect';
 
@@ -69,7 +69,7 @@ const InfiniteCombobox = React.memo(
         queryFn = getProducts;
         break;
       case 'lookupStocks':
-        queryFn = getLookupStocks;
+        queryFn = getStockLookups;
         break;
       case 'roles':
         queryFn = getRoles;
@@ -120,7 +120,7 @@ const InfiniteCombobox = React.memo(
             return {
               ...option,
               id: option?.id,
-              label: option?.code,
+              label: option?.name,
             };
           });
         case 'roles':
@@ -136,7 +136,7 @@ const InfiniteCombobox = React.memo(
             return {
               ...option,
               id: option?.id,
-              label: `${option?.brand?.brand} - ${option?.variant?.variant} ${option?.type?.value} ${option?.type?.unit?.unit}`,
+              label: option?.name,
             };
           });
         case 'units':
