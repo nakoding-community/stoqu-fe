@@ -189,7 +189,36 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
           excludeIds={selectedProducts?.map(({ id }) => id)}
           labelText={productLabel}
         />
-        {selectedProducts?.map((product, index) => (
+        <InfiniteCombobox
+          value={selectedProducts?.[0]?.id}
+          label="Cari Rak"
+          type="types"
+          onChange={onChangeProductHandler}
+          required
+          excludeIds={selectedProducts?.map(({ id }) => id)}
+          labelText={productLabel}
+        />
+        <TextField
+          label="Jumlah"
+          variant="outlined"
+          size="small"
+          sx={{ marginBottom: '8px' }}
+          // value={productQuantity}
+          // onChange={onChangeProductQuantityHandler}
+          required
+        />
+        {currentTab === 'out' && (
+          <InfiniteCombobox
+            value={selectedProducts?.[0]?.id}
+            label="Lookup"
+            type="lookupStocks"
+            onChange={onChangeProductHandler}
+            required
+            // excludeIds={selectedProducts?.map(({ id }) => id)}
+            // labelText={productLabel}
+          />
+        )}
+        {/* {selectedProducts?.map((product, index) => (
           <SelectedProduct
             key={product?.id}
             index={index}
@@ -198,7 +227,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
             currentTab={currentTab}
             {...product}
           />
-        ))}
+        ))} */}
       </Stack>
       <DialogActions>
         <Button variant="outlined" color="inherit" onClick={onClose}>
