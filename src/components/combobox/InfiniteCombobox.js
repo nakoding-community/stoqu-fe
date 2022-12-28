@@ -11,6 +11,7 @@ import { getRoles } from '../../client/rolesClient';
 import { getUnits } from '../../client/unitsClient';
 import { getUsers, createUser } from '../../client/usersClient';
 import { getStockLookups } from '../../clientv2/stockLookup';
+import { getRacks } from '../../clientv2/rackClient';
 import { loadMoreValidator } from '../../utils/helperUtils';
 import { useDeepEffect } from '../../hooks/useDeepEffect';
 
@@ -82,6 +83,9 @@ const InfiniteCombobox = React.memo(
         break;
       case 'users':
         queryFn = getUsers;
+        break;
+      case 'racks':
+        queryFn = getRacks;
         break;
       default:
         break;
@@ -155,6 +159,13 @@ const InfiniteCombobox = React.memo(
             };
           });
         case 'users':
+          return optionsData?.map((option) => {
+            return {
+              id: option?.id,
+              label: option?.name,
+            };
+          });
+        case 'racks':
           return optionsData?.map((option) => {
             return {
               id: option?.id,
@@ -305,7 +316,6 @@ const InfiniteCombobox = React.memo(
     return (
       <Autocomplete
         id="combo-box-demo"
-        // inputValue={inputValue}
         onOpen={onOpenHandler}
         onClose={onCloseHandler}
         noOptionsText={
