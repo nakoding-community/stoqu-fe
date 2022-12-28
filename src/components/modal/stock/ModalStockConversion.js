@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useConfirm } from 'material-ui-confirm';
-import { Box, Stack, Typography, IconButton, Divider, TextField, DialogActions, Button } from '@mui/material';
+import { Box, Stack, Typography, IconButton, TextField, DialogActions, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useTheme, alpha } from '@mui/material/styles';
 import { toast } from 'react-toastify';
@@ -34,6 +34,7 @@ function ModalStockConversion({
 const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showModalSuccessCreateTrxHandler }) => {
   const confirm = useConfirm();
   const queryClient = useQueryClient();
+  const theme = useTheme();
 
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [productLabel, setProductLabel] = useState('');
@@ -105,14 +106,27 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
 
   const submitModalHandler = async (e) => {
     e.preventDefault();
+    // const body = {
+    //   trxType: 'convert',
+    //   productOriginId: selectedProducts?.[0]?.id,
+    //   productLookupOriginIds: getProductLookupStocksIds(),
+    //   productDestinationId: selectedProductType?.[0]?.id,
+    //   quantity: parseFloat(quantity),
+    //   orderTrxId: null,
+    // };
+
     const body = {
-      trxType: 'convert',
-      productOriginId: selectedProducts?.[0]?.id,
-      productLookupOriginIds: getProductLookupStocksIds(),
-      productDestinationId: selectedProductType?.[0]?.id,
-      quantity: parseFloat(quantity),
-      orderTrxId: null,
+      destination: {
+        packetId: '',
+        total: 0,
+      },
+      origin: {
+        productId: '',
+        rackId: '',
+        stockLookupIds: [],
+      },
     };
+
     const { data, isSuccess } = await stockConvertion(body);
     if (isSuccess) {
       onClose();
@@ -158,40 +172,57 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
           labelText={productLabel}
           excludeIds={selectedProducts?.map((product) => product?.id)}
         />
-        {/* {selectedProducts?.map((product, index) => (
-          <SelectedData
-            key={product?.id}
-            index={index}
-            selectedData={selectedProducts}
-            setSelectedData={setSelectedProducts}
-            withDelete={false}
-            {...product}
-          />
-        ))} */}
-        {/* <Divider sx={{ borderStyle: 'dotted', borderSpacing: '2' }} /> */}
+
+        <InfiniteCombobox
+          label="Cari Rak"
+          type="racks"
+          // onChange={onChangeRackHandler}
+          required
+          // value={rackId}
+          // labelText={rackLabel}
+        />
 
         <InfiniteCombobox
           label="Cari Lookup (*)"
-          disabled={selectedProducts?.length === 0}
+          // disabled={selectedProducts?.length === 0}
           type={'lookupStocks'}
-          additionalQuery={{ productId: selectedProducts?.[0]?.id }}
+          // additionalQuery={{ productId: selectedProducts?.[0]?.id }}
           onChange={onChangeLookupStockHandler}
-          labelText={lookupLabel}
-          excludeIds={selectedLookupStocks?.map((lookup) => lookup?.id)}
+          // labelText={lookupLabel}
+          // excludeIds={selectedLookupStocks?.map((lookup) => lookup?.id)}
         />
-        {selectedLookupStocks?.map((lookup, index) => (
-          <SelectedData
-            key={lookup?.id}
-            index={index}
-            selectedData={selectedLookupStocks}
-            setSelectedData={setSelectedLookupStocks}
-            {...lookup}
-          />
-        ))}
+
+        <Stack direction="row" alignItems={'center'}>
+          <Box
+            sx={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '16px',
+              color: theme.palette.success.dark,
+              backgroundColor: alpha(theme.palette.success.main, 0.16),
+            }}
+          >
+            <Iconify icon="mdi:office-building-settings" sx={{ width: '20px', height: '20px' }} />
+          </Box>
+          <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
+            <Box>
+              <Typography variant="body1">Lookup 1</Typography>
+            </Box>
+            <Stack flexDirection="row" alignItems={'center'}>
+              <IconButton size="small" color="error" onClick={() => null}>
+                <Iconify icon="eva:trash-2-outline" />
+              </IconButton>
+            </Stack>
+          </Stack>
+        </Stack>
 
         <InfiniteCombobox
           disabled={selectedProducts?.length === 0}
-          label="Cari Tipe (*)"
+          label="Paket Destination (*)"
           type="types"
           additionalQuery={{ productId: selectedProducts?.[0]?.id }}
           onChange={onChangeProductTypeHandler}
