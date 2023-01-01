@@ -8,14 +8,16 @@ const ModalStockRack = ({ open, onClose, data }) => {
   const title = 'Stok Rak';
 
   return (
-    <Modal title={title} open={open} onClose={onClose} data={data} maxWidth="md">
-      <DialogForm />
+    <Modal title={title} open={open} onClose={onClose} maxWidth="md">
+      <DialogForm data={data} />
     </Modal>
   );
 };
 
-const DialogForm = (data) => {
+const DialogForm = ({ data }) => {
   const [showLookupStockModal, setShowLookupStockModal] = useState(false);
+
+  const { stockRacks } = data || {};
 
   return (
     <>
@@ -32,19 +34,22 @@ const DialogForm = (data) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
-                <TableCell>Cell 1</TableCell>
-                <TableCell>Cell 1</TableCell>
-                <TableCell>Cell 1</TableCell>
-                <TableCell>Cell 1</TableCell>
-                <TableCell>
-                  <Tooltip title="Lookup Stok">
-                    <IconButton size="small" color="success" onClick={() => setShowLookupStockModal(true)}>
-                      <Iconify icon="eva:search-outline" />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
+              {stockRacks?.length > 0 &&
+                stockRacks?.map((rack) => (
+                  <TableRow key={rack?.id}>
+                    <TableCell>{rack?.rack?.name}</TableCell>
+                    <TableCell>{rack?.totalSeal}</TableCell>
+                    <TableCell>{rack?.totalNotSeal}</TableCell>
+                    <TableCell>{rack?.total}</TableCell>
+                    <TableCell>
+                      <Tooltip title="Lookup Stok">
+                        <IconButton size="small" color="success" onClick={() => setShowLookupStockModal(true)}>
+                          <Iconify icon="eva:search-outline" />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </Stack>
