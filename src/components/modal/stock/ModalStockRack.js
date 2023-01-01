@@ -16,6 +16,7 @@ const ModalStockRack = ({ open, onClose, data }) => {
 
 const DialogForm = ({ data }) => {
   const [showLookupStockModal, setShowLookupStockModal] = useState(false);
+  const [stockRackId, setStockRackId] = useState(null);
 
   const { stockRacks } = data || {};
 
@@ -43,7 +44,14 @@ const DialogForm = ({ data }) => {
                     <TableCell>{rack?.total}</TableCell>
                     <TableCell>
                       <Tooltip title="Lookup Stok">
-                        <IconButton size="small" color="success" onClick={() => setShowLookupStockModal(true)}>
+                        <IconButton
+                          size="small"
+                          color="success"
+                          onClick={() => {
+                            setShowLookupStockModal(true);
+                            setStockRackId(rack?.id);
+                          }}
+                        >
                           <Iconify icon="eva:search-outline" />
                         </IconButton>
                       </Tooltip>
@@ -55,8 +63,13 @@ const DialogForm = ({ data }) => {
         </Stack>
       </Stack>
       <ModalStockLookup
+        data={data}
+        stockRackId={stockRackId}
         open={showLookupStockModal}
-        onClose={() => setShowLookupStockModal(false)}
+        onClose={() => {
+          setShowLookupStockModal(false);
+          setStockRackId(null);
+        }}
         detailLookupStockData={data}
       />
     </>
