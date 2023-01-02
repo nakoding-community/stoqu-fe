@@ -34,6 +34,8 @@ const InfiniteCombobox = React.memo(
     useCreateOnEnter = false,
     labelText,
     excludeIds = [],
+    queryFunction,
+    restructureOptions,
     ...other
   }) => {
     const [inputValue, setInputValue] = useState('');
@@ -52,7 +54,8 @@ const InfiniteCombobox = React.memo(
       labelText ||
       '';
 
-    let queryFn = () => {};
+    // eslint-disable-next-line no-unneeded-ternary
+    let queryFn = queryFunction ? queryFunction : () => {};
     switch (type) {
       case 'brands':
         queryFn = getBrands;
@@ -119,12 +122,19 @@ const InfiniteCombobox = React.memo(
             };
           });
         case 'orders':
-        case 'lookupStocks':
           return optionsData?.map((option) => {
             return {
               ...option,
               id: option?.id,
               label: option?.name,
+            };
+          });
+        case 'lookupStocks':
+          return optionsData?.map((option) => {
+            return {
+              ...option,
+              id: option?.id,
+              label: option?.code,
             };
           });
         case 'roles':
@@ -201,7 +211,7 @@ const InfiniteCombobox = React.memo(
 
       const { data, meta } = await queryFn(query);
 
-      const restructuredData = getRestructuredOptions(data || []);
+      const restructuredData = restructureOptions ? restructureOptions(data) : getRestructuredOptions(data || []);
       const filteredOptions = getFilteredOptions(restructuredData);
       setOptions(filteredOptions || []);
       setTotalPage(meta?.info?.totalPage);
@@ -217,7 +227,7 @@ const InfiniteCombobox = React.memo(
 
       const { data, meta } = await queryFn(query);
       if (data) {
-        const restructuredData = getRestructuredOptions(data || []);
+        const restructuredData = restructureOptions ? restructureOptions(data) : getRestructuredOptions(data || []);
         const filteredOptions = getFilteredOptions(restructuredData);
         setOptions((prev) => [...prev, ...filteredOptions]);
         setTotalPage(meta?.info?.totalPage);

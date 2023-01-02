@@ -6,14 +6,14 @@ import { toast } from 'react-toastify';
 import { Box, Stack, Typography, IconButton, Tabs, Tab, TextField, DialogActions, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useTheme, alpha } from '@mui/material/styles';
+import isEmpty from 'lodash/isEmpty';
 import InfiniteCombobox from '../../combobox/InfiniteCombobox';
 import Modal from '../Modal';
 import useTabs from '../../../hooks/useTabs';
 
-import { createStockTransaction } from '../../../client/stocksClient';
-
 import KEY from '../../../constant/queryKey';
 import Iconify from '../../Iconify';
+import { getStocks, stockTransaction } from '../../../clientv2/stockClient';
 
 // eslint-disable-next-line react/prop-types
 function ModalStockTransaction({ open, onClose, getStocksHandler, showModalSuccessCreateTrxHandler }) {
@@ -39,6 +39,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
   const [orderLabel, setOrderLabel] = useState('');
 
   const [productId, setProductId] = useState('');
+  console.log('productId', productId);
   const [productLabel, setProductLabel] = useState('');
 
   const [rackId, setRackId] = useState('');
@@ -46,10 +47,22 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
   const [quantity, setQuantity] = useState('');
 
+  const [lookupStocks, setLookupStocks] = useState([]);
+
   const TABS = [
     { value: 'in', label: 'Masuk' },
     { value: 'out', label: 'Keluar' },
   ];
+
+  const isButtonDisabled = () => {
+    if (currentTab === 'in') {
+      return isEmpty(productId) || isEmpty(rackId) || isEmpty(quantity);
+    }
+
+    if (currentTab === 'out') {
+      return isEmpty(productId) || isEmpty(rackId) || isEmpty(quantity) || isEmpty(lookupStocks);
+    }
+  };
 
   const onChangeOrderHandler = (e) => {
     setOrderId(e?.id);
@@ -58,36 +71,41 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
   const onChangeProductHandler = (e) => {
     setProductId(e?.id);
-    setProductLabel(e?.name);
+    setProductLabel(e?.label);
+    setLookupStocks([]);
   };
 
   const onChangeRackHandler = (e) => {
     setRackId(e?.id);
     setRackLabel(e?.label);
+    setLookupStocks([]);
+  };
+
+  const onChangeLookupStocksHandler = (e) => {
+    setLookupStocks([...lookupStocks, e]);
+  };
+
+  const removeLookupHandler = (item) => {
+    const newData = lookupStocks?.filter((data) => data?.id !== item?.id);
+    setLookupStocks(newData);
   };
 
   const submitModalHandler = async () => {
-    // const body = {
-    //   trxType: currentTab,
-    //   orderTrxId: orderId,
-    //   products: getRestructuedProduct(),
-    // };
-
     const body = {
-      orderTrxId: '', // perlu confirm ambil dari mana
+      orderTrxId: '',
       products: [
         {
-          id: '',
-          quantity: 0,
-          rackId: '',
-          stockLookupIds: [],
+          id: productId,
+          quantity: parseInt(quantity),
+          rackId,
+          stockLookupIds: lookupStocks?.map((stock) => stock?.id),
           stockTrxItemLookup_ids: [],
         },
       ],
       trxType: currentTab,
     };
 
-    const { data, isSuccess } = await createStockTransaction(body);
+    const { data, isSuccess } = await stockTransaction(body);
     if (isSuccess) {
       onClose();
       toast.success(`Berhasil membuat transaksi`);
@@ -147,17 +165,26 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
           onChange={onChangeOrderHandler}
           disabled={currentTab === 'out'}
           labelText={orderLabel}
+          required
         />
         <InfiniteCombobox
-          label="Cari Produk"
-          type="products"
+          label="Cari Produk *"
           onChange={onChangeProductHandler}
           required
           value={productId}
           labelText={productLabel}
+          queryFunction={getStocks}
+          restructureOptions={(options) =>
+            options?.map((option) => {
+              return {
+                id: option?.productId,
+                label: `${option?.productCode} - ${option?.brandName} - ${option?.variantName} - ${option?.packetValue}${option?.unitName}`,
+              };
+            })
+          }
         />
         <InfiniteCombobox
-          label="Cari Rak"
+          label="Cari Rak *"
           type="racks"
           onChange={onChangeRackHandler}
           required
@@ -177,42 +204,45 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
         {currentTab === 'out' && (
           <InfiniteCombobox
             // value={selectedProducts?.[0]?.id}
-            label="Lookup"
+            label="Lookup *"
             type="lookupStocks"
-            // onChange={onChangeProductHandler}
+            onChange={onChangeLookupStocksHandler}
             required
-            // excludeIds={selectedProducts?.map(({ id }) => id)}
-            // labelText={productLabel}
+            additionalQuery={{ productId, rackId }}
           />
         )}
         {currentTab === 'out' && (
-          <Stack direction="row" alignItems={'center'}>
-            <Box
-              sx={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: '16px',
-                color: theme.palette.success.dark,
-                backgroundColor: alpha(theme.palette.success.main, 0.16),
-              }}
-            >
-              <Iconify icon="mdi:office-building-settings" sx={{ width: '20px', height: '20px' }} />
-            </Box>
-            <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
-              <Box>
-                <Typography variant="body1">Lookup 1</Typography>
-              </Box>
-              <Stack flexDirection="row" alignItems={'center'}>
-                <IconButton size="small" color="error" onClick={() => null}>
-                  <Iconify icon="eva:trash-2-outline" />
-                </IconButton>
+          <>
+            {lookupStocks?.map((lookupStock) => (
+              <Stack direction="row" alignItems={'center'} key={lookupStock?.id}>
+                <Box
+                  sx={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: '16px',
+                    color: theme.palette.success.dark,
+                    backgroundColor: alpha(theme.palette.success.main, 0.16),
+                  }}
+                >
+                  <Iconify icon="mdi:office-building-settings" sx={{ width: '20px', height: '20px' }} />
+                </Box>
+                <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
+                  <Box>
+                    <Typography variant="body1">{lookupStock?.label}</Typography>
+                  </Box>
+                  <Stack flexDirection="row" alignItems={'center'}>
+                    <IconButton size="small" color="error" onClick={() => removeLookupHandler(lookupStock)}>
+                      <Iconify icon="eva:trash-2-outline" />
+                    </IconButton>
+                  </Stack>
+                </Stack>
               </Stack>
-            </Stack>
-          </Stack>
+            ))}
+          </>
         )}
       </Stack>
       <DialogActions>
@@ -220,7 +250,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
           Close
         </Button>
 
-        <LoadingButton type="submit" variant="contained" loading={false}>
+        <LoadingButton type="submit" variant="contained" loading={false} disabled={isButtonDisabled()}>
           Save
         </LoadingButton>
       </DialogActions>

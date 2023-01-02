@@ -226,7 +226,7 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
           type="types"
           additionalQuery={{ productId: selectedProducts?.[0]?.id }}
           onChange={onChangeProductTypeHandler}
-          excludeIds={selectedProductType?.map((product) => product?.id) || []}
+          // excludeIds={selectedProductType?.map((product) => product?.id) || []}
           labelText={productTypeLabel}
         />
         {selectedProductType?.map((product, index) => (
