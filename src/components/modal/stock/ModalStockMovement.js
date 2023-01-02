@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useConfirm } from 'material-ui-confirm';
 import { useTheme, alpha } from '@mui/material/styles';
+import isEmpty from 'lodash/isEmpty';
 
 import { Stack, DialogActions, Button, Box, Typography, IconButton } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -36,6 +37,9 @@ function DialogForm({ onClose, getStocksHandler }) {
   const [rackDestinationLabel, setRackDestinationLabel] = useState('');
 
   const [lookupStocks, setLookupStocks] = useState([]);
+
+  const isButtonDisabled =
+    isEmpty(productId) || isEmpty(rackOriginId) || isEmpty(rackDestinationId) || isEmpty(lookupStocks);
 
   const submitModalHandler = async () => {
     const body = {
@@ -122,7 +126,7 @@ function DialogForm({ onClose, getStocksHandler }) {
           labelText={rackOriginLabel}
         />
         <InfiniteCombobox
-          label="Rak Destination"
+          label="Rak Destination *"
           type="racks"
           onChange={onChangeRackDestinationHandler}
           required
@@ -171,7 +175,7 @@ function DialogForm({ onClose, getStocksHandler }) {
           Close
         </Button>
 
-        <LoadingButton type="submit" variant="contained" loading={false}>
+        <LoadingButton type="submit" variant="contained" loading={false} disabled={isButtonDisabled}>
           Save
         </LoadingButton>
       </DialogActions>

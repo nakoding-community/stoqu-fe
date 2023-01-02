@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import parseInt from 'lodash/parseInt';
+import isEmpty from 'lodash/isEmpty';
 import { useQueryClient } from '@tanstack/react-query';
 import { useConfirm } from 'material-ui-confirm';
 import { Box, Stack, Typography, IconButton, TextField, DialogActions, Button } from '@mui/material';
@@ -8,8 +10,7 @@ import { toast } from 'react-toastify';
 import InfiniteCombobox from '../../combobox/InfiniteCombobox';
 import Modal from '../Modal';
 import Iconify from '../../Iconify';
-import { stockConvertion } from '../../../client/stocksClient';
-import KEY from '../../../constant/queryKey';
+import { getStocks, stockConvertion } from '../../../clientv2/stockClient';
 
 // eslint-disable-next-line react/prop-types
 function ModalStockConversion({
@@ -36,94 +37,60 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
   const queryClient = useQueryClient();
   const theme = useTheme();
 
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [productLabel, setProductLabel] = useState('');
-
-  const [selectedLookupStocks, setSelectedLookupStocks] = useState([]);
-  const [lookupLabel, setLookupLabel] = useState('');
-
-  const [selectedProductType, setSelectedProductType] = useState([]);
-  const [productTypeLabel, setProductTypeLabel] = useState('');
-
   const [quantity, setQuantity] = useState('');
 
-  const isNoQuantity = quantity === '' || parseFloat(quantity) === 0 || quantity === null || quantity === undefined;
+  const [productId, setProductId] = useState('');
+  const [productLabel, setProductLabel] = useState('');
 
-  const isButtonDisabled = selectedProducts?.length === 0 || selectedLookupStocks?.length === 0 || isNoQuantity;
+  const [rackId, setRackId] = useState('');
+  const [rackLabel, setRackLabel] = useState('');
 
-  const onChangeQuantityHandler = (e) => {
-    setQuantity(e.target.value);
-  };
+  const [lookupStocks, setLookupStocks] = useState([]);
+
+  const [packetId, setPacketId] = useState('');
+  const [packetLabel, setPacketLabel] = useState('');
+
+  const isButtonDisabled =
+    isEmpty(productId) || isEmpty(rackId) || isEmpty(lookupStocks) || isEmpty(packetId) || isEmpty(quantity);
 
   const onChangeProductHandler = (e) => {
+    setProductId(e?.id);
     setProductLabel(e?.label);
-    if (e) {
-      const product = {
-        id: e?.id,
-        title: `${e?.brand?.brand} - ${e?.variant?.variant} ${e?.type?.value} ${e?.type?.unit?.unit}`,
-        subTitle: e?.code,
-      };
-
-      setSelectedProducts([product]);
-    }
+    setLookupStocks([]);
   };
 
-  const isLookupStocksAlreadySelected = (id) => {
-    return selectedLookupStocks?.filter((sel) => sel?.id === id)?.length > 0;
+  const onChangeRackHandler = (e) => {
+    setRackId(e?.id);
+    setRackLabel(e?.label);
+    setLookupStocks([]);
   };
 
-  const onChangeLookupStockHandler = (e) => {
-    setLookupLabel(e?.label);
-    if (e && !isLookupStocksAlreadySelected(e?.id)) {
-      const lookupStock = {
-        id: e?.id,
-        title: e?.code,
-        subTitle: `Sisa: ${e?.name} `,
-      };
-
-      setSelectedLookupStocks((prev) => [...prev, lookupStock]);
-    }
+  const onChangeLookupStocksHandler = (e) => {
+    setLookupStocks([...lookupStocks, e]);
   };
 
-  const onChangeProductTypeHandler = (e) => {
-    setProductTypeLabel(e?.label);
-    if (e) {
-      const productType = {
-        id: e?.id,
-        title: e?.name,
-        subTitle: e?.code,
-      };
-
-      setSelectedProductType([productType]);
-    }
+  const removeLookupHandler = (item) => {
+    const newData = lookupStocks?.filter((data) => data?.id !== item?.id);
+    setLookupStocks(newData);
   };
 
-  const getProductLookupStocksIds = () => {
-    return selectedLookupStocks?.map((stock) => {
-      return stock?.id;
-    });
+  const onChangePacketHandler = (e) => {
+    setPacketId(e?.id);
+    setPacketLabel(e?.label);
   };
 
   const submitModalHandler = async (e) => {
     e.preventDefault();
-    // const body = {
-    //   trxType: 'convert',
-    //   productOriginId: selectedProducts?.[0]?.id,
-    //   productLookupOriginIds: getProductLookupStocksIds(),
-    //   productDestinationId: selectedProductType?.[0]?.id,
-    //   quantity: parseFloat(quantity),
-    //   orderTrxId: null,
-    // };
 
     const body = {
       destination: {
-        packetId: '',
-        total: 0,
+        packetId,
+        total: parseInt(quantity),
       },
       origin: {
-        productId: '',
-        rackId: '',
-        stockLookupIds: [],
+        productId,
+        rackId,
+        stockLookupIds: lookupStocks?.map((stock) => stock?.id),
       },
     };
 
@@ -132,8 +99,8 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
       onClose();
       toast.success(`Berhasil mengkonversi stok`);
 
-      await getStocksHandler();
-      queryClient.invalidateQueries([KEY.stocks.histories.all]);
+      getStocksHandler();
+      queryClient.invalidateQueries(['stock-histories', 'list']);
 
       // need timeout because be need time to refetch data
       setTimeout(() => {
@@ -150,98 +117,90 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
     });
   };
 
-  useEffect(() => {
-    if (editConversionStockData) {
-      setSelectedProducts([
-        {
-          id: editConversionStockData?.product?.id,
-          title: `${editConversionStockData?.brand?.brand} - ${editConversionStockData?.variant?.variant} ${editConversionStockData?.type?.value} ${editConversionStockData?.type?.unit?.unit}`,
-          subTitle: editConversionStockData?.product?.code,
-        },
-      ]);
-    }
-  }, [editConversionStockData]);
-
   return (
     <Stack component="form" onSubmit={confrimHandler}>
       <Stack spacing={3} sx={{ p: 3 }}>
         <InfiniteCombobox
-          label="Cari Produk (*)"
-          type="products"
+          label="Cari Produk *"
           onChange={onChangeProductHandler}
-          labelText={productLabel}
-          excludeIds={selectedProducts?.map((product) => product?.id)}
-        />
-
-        <InfiniteCombobox
-          label="Cari Rak"
-          type="racks"
-          // onChange={onChangeRackHandler}
           required
-          // value={rackId}
-          // labelText={rackLabel}
+          value={productId}
+          labelText={productLabel}
+          queryFunction={getStocks}
+          restructureOptions={(options) =>
+            options?.map((option) => {
+              return {
+                id: option?.productId,
+                label: `${option?.productCode} - ${option?.brandName} - ${option?.variantName} - ${option?.packetValue}${option?.unitName}`,
+              };
+            })
+          }
         />
 
         <InfiniteCombobox
-          label="Cari Lookup (*)"
-          // disabled={selectedProducts?.length === 0}
-          type={'lookupStocks'}
-          // additionalQuery={{ productId: selectedProducts?.[0]?.id }}
-          onChange={onChangeLookupStockHandler}
-          // labelText={lookupLabel}
-          // excludeIds={selectedLookupStocks?.map((lookup) => lookup?.id)}
+          label="Cari Rak *"
+          type="racks"
+          onChange={onChangeRackHandler}
+          required
+          value={rackId}
+          labelText={rackLabel}
         />
 
-        <Stack direction="row" alignItems={'center'}>
-          <Box
-            sx={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: '16px',
-              color: theme.palette.success.dark,
-              backgroundColor: alpha(theme.palette.success.main, 0.16),
-            }}
-          >
-            <Iconify icon="mdi:office-building-settings" sx={{ width: '20px', height: '20px' }} />
-          </Box>
-          <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
-            <Box>
-              <Typography variant="body1">Lookup 1</Typography>
+        <InfiniteCombobox
+          label="Lookup *"
+          type="lookupStocks"
+          onChange={onChangeLookupStocksHandler}
+          required
+          additionalQuery={{ productId, rackId }}
+        />
+
+        {lookupStocks?.map((lookupStock) => (
+          <Stack direction="row" alignItems={'center'} key={lookupStock?.id}>
+            <Box
+              sx={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '16px',
+                color: theme.palette.success.dark,
+                backgroundColor: alpha(theme.palette.success.main, 0.16),
+              }}
+            >
+              <Iconify icon="mdi:office-building-settings" sx={{ width: '20px', height: '20px' }} />
             </Box>
-            <Stack flexDirection="row" alignItems={'center'}>
-              <IconButton size="small" color="error" onClick={() => null}>
-                <Iconify icon="eva:trash-2-outline" />
-              </IconButton>
+            <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
+              <Box>
+                <Typography variant="body1">{lookupStock?.label}</Typography>
+              </Box>
+              <Stack flexDirection="row" alignItems={'center'}>
+                <IconButton size="small" color="error" onClick={() => removeLookupHandler(lookupStock)}>
+                  <Iconify icon="eva:trash-2-outline" />
+                </IconButton>
+              </Stack>
             </Stack>
           </Stack>
-        </Stack>
+        ))}
 
         <InfiniteCombobox
-          disabled={selectedProducts?.length === 0}
           label="Paket Destination (*)"
           type="types"
-          additionalQuery={{ productId: selectedProducts?.[0]?.id }}
-          onChange={onChangeProductTypeHandler}
-          // excludeIds={selectedProductType?.map((product) => product?.id) || []}
-          labelText={productTypeLabel}
+          onChange={onChangePacketHandler}
+          labelText={packetLabel}
+          value={packetId}
         />
-        {selectedProductType?.map((product, index) => (
-          <SelectedData
-            key={product?.id}
-            index={index}
-            selectedData={selectedProductType}
-            setSelectedData={setSelectedProductType}
-            iconType="warning"
-            onChangeQuantityHandler={onChangeQuantityHandler}
-            quantity={quantity}
-            withDelete={false}
-            {...product}
-          />
-        ))}
+
+        <TextField
+          label="Jumlah"
+          variant="outlined"
+          size="small"
+          sx={{ marginBottom: '8px' }}
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          required
+        />
       </Stack>
       <DialogActions>
         <Button variant="outlined" color="inherit" onClick={onClose}>
@@ -252,77 +211,6 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
           Save
         </LoadingButton>
       </DialogActions>
-    </Stack>
-  );
-};
-
-const SelectedData = ({
-  index,
-  subTitle,
-  title,
-
-  selectedData,
-  setSelectedData,
-  withDelete = true,
-  iconType = 'success',
-  onChangeQuantityHandler,
-  quantity,
-}) => {
-  const theme = useTheme();
-
-  const onDeleteProductHandler = () => {
-    const newSelectedProducts = [...selectedData];
-    newSelectedProducts.splice(index, 1);
-    setSelectedData(newSelectedProducts);
-  };
-
-  return (
-    <Stack direction="row" alignItems={'center'}>
-      <Box
-        sx={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: '16px',
-          color: iconType === 'success' ? theme.palette.success.dark : theme.palette.warning.dark,
-          backgroundColor: alpha(
-            iconType === 'success' ? theme.palette.success.main : theme.palette.warning.main,
-            0.16
-          ),
-        }}
-      >
-        <Iconify
-          icon={iconType === 'success' ? 'mdi:office-building-settings' : 'mdi:cart'}
-          sx={{ width: '20px', height: '20px' }}
-        />
-      </Box>
-      <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
-        <Box>
-          <Typography variant="body1">{title}</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {subTitle}
-          </Typography>
-        </Box>
-        {iconType === 'warning' && (
-          <TextField
-            id="outlined-basic"
-            label="Jumlah (*)"
-            variant="outlined"
-            size="small"
-            value={quantity}
-            onChange={onChangeQuantityHandler}
-            type="number"
-          />
-        )}
-        {withDelete && (
-          <IconButton size="small" color="error" onClick={onDeleteProductHandler}>
-            <Iconify icon="eva:trash-2-outline" />
-          </IconButton>
-        )}
-      </Stack>
     </Stack>
   );
 };
