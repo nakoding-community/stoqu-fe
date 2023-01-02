@@ -39,7 +39,6 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
   const [orderLabel, setOrderLabel] = useState('');
 
   const [productId, setProductId] = useState('');
-  console.log('productId', productId);
   const [productLabel, setProductLabel] = useState('');
 
   const [rackId, setRackId] = useState('');
@@ -110,8 +109,8 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
       onClose();
       toast.success(`Berhasil membuat transaksi`);
 
-      await getStocksHandler();
-      queryClient.invalidateQueries([KEY.stocks.histories.all]);
+      getStocksHandler();
+      queryClient.invalidateQueries(['stock-histories', 'list']);
 
       // need timeout because be need time to refetch data
       setTimeout(() => {
@@ -203,7 +202,6 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
         {currentTab === 'out' && (
           <InfiniteCombobox
-            // value={selectedProducts?.[0]?.id}
             label="Lookup *"
             type="lookupStocks"
             onChange={onChangeLookupStocksHandler}
