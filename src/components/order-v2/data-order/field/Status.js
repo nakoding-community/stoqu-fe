@@ -3,10 +3,10 @@ import { shallow } from 'zustand/shallow';
 import { useConfirm } from 'material-ui-confirm';
 import startCase from 'lodash/startCase';
 import { Box, Typography } from '@mui/material';
-import InfiniteCombobox from '../../combobox/InfiniteCombobox';
-import Label from '../../Label';
-import { getStatusColor } from '../../../utils/helperUtils';
-import { useCreateOrder } from '../../../hooks/useCreateOrderV2';
+import InfiniteCombobox from '../../../combobox/InfiniteCombobox';
+import Label from '../../../Label';
+import { getStatusColor } from '../../../../utils/helperUtils';
+import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
 
 const Status = () => {
   const [showCombobox, setShowCombobox] = useState(false);

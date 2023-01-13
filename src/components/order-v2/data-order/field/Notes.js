@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField } from '@mui/material';
 import { shallow } from 'zustand/shallow';
 import { useLocation } from 'react-router';
-import { useCreateOrder } from '../../../hooks/useCreateOrderV2';
+import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
 
 export const Notes = () => {
   const location = useLocation();

@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
-import Label from '../../Label';
+import Label from '../../../Label';
 
 const StockStatus = () => {
   return (

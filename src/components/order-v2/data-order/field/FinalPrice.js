@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'zustand/shallow';
 import { TextField } from '@mui/material';
-import { useCreateOrder } from '../../../hooks/useCreateOrderV2';
+import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
 
 const FinalPrice = () => {
   const { finalPrice } = useCreateOrder(

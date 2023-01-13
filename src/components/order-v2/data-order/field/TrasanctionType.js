@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'zustand/shallow';
-import InfiniteCombobox from '../../combobox/InfiniteCombobox';
-import { useCreateOrder } from '../../../hooks/useCreateOrderV2';
+import InfiniteCombobox from '../../../combobox/InfiniteCombobox';
+import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
 
 const TrasanctionType = () => {
   const { trxType, immerSetState } = useCreateOrder(

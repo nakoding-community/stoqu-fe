@@ -1,9 +1,9 @@
 import { IconButton, Link, Stack, TextField } from '@mui/material';
 import { shallow } from 'zustand/shallow';
 import React, { useState } from 'react';
-import Iconify from '../../Iconify';
+import Iconify from '../../../Iconify';
 
-import { useCreateOrder } from '../../../hooks/useCreateOrderV2';
+import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
 
 const Receipts = () => {
   const [inputLinkPayment, setInputLinkPayment] = useState('');

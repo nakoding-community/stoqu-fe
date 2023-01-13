@@ -1,12 +1,12 @@
 import React from 'react';
 import { shallow } from 'zustand/shallow';
 import { TextField } from '@mui/material';
-import { useCreateOrder } from '../../../hooks/useCreateOrderV2';
+import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
 
-const ShipmentPrice = () => {
-  const { shipmentPrice, immerSetState } = useCreateOrder(
+const ShipmentNumber = () => {
+  const { shipmentNumber, immerSetState } = useCreateOrder(
     (state) => ({
-      shipmentPrice: state.payloadBody.shipmentPrice,
+      shipmentNumber: state.payloadBody.shipmentNumber,
       immerSetState: state.immerSetState,
     }),
     shallow
@@ -14,16 +14,16 @@ const ShipmentPrice = () => {
 
   const onChange = (e) => {
     immerSetState((draft) => {
-      draft.payloadBody.shipmentPrice = e.target.value;
+      draft.payloadBody.shipmentNumber = e.target.value;
     });
   };
 
   return (
     <TextField
-      value={shipmentPrice}
+      value={shipmentNumber}
       id="outlined-basic"
       type="number"
-      label="Harga Pengiriman"
+      label="No. Pengiriman"
       variant="outlined"
       size="medium"
       sx={{ mb: '20px', width: '100%' }}
@@ -32,4 +32,4 @@ const ShipmentPrice = () => {
   );
 };
 
-export default ShipmentPrice;
+export default ShipmentNumber;

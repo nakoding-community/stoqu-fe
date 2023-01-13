@@ -10,7 +10,7 @@ import useSettings from '../hooks/useSettings';
 import Page from '../components/Page';
 
 import Header from '../components/order-v2/Header';
-import DataOrder from '../components/order-v2/DataOrder';
+import DataOrder from '../components/order-v2/data-order/DataOrder';
 import DataProduct from '../components/order-v2/DataProduct';
 import Iconify from '../components/Iconify';
 import { CreateOrderProvider, useCreateOrder } from '../hooks/useCreateOrderV2';
@@ -19,9 +19,6 @@ const OrderDetailPageV2 = () => {
   const { themeStretch } = useSettings();
   const location = useLocation();
   const isCreatePage = location.pathname.includes('new');
-
-  // const payloadBody = useCreateOrder((state) => state.payloadBody);
-  // console.log('payloadBody', payloadBody);
 
   return (
     <Page title={`${isCreatePage ? 'Tambah' : 'Ubah'} Pesanan`}>
