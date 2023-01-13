@@ -1,4 +1,5 @@
 import React from 'react';
+import { shallow } from 'zustand/shallow';
 import { useLocation } from 'react-router';
 import { Table, TableBody, TableContainer, TableRow, TableCell, TableHead, IconButton, Tooltip } from '@mui/material';
 import Iconify from '../../../Iconify';
@@ -9,7 +10,24 @@ const TableComponent = () => {
   const location = useLocation();
   const isCreatePage = location.pathname.includes('new');
 
-  const items = useCreateOrder((state) => state.payloadBody.items);
+  const { items, immerSetState } = useCreateOrder(
+    (state) => ({ items: state.payloadBody.items, immerSetState: state.immerSetState }),
+    shallow
+  );
+
+  const deleteProduct = (uuid) => {
+    const newItems = [...items];
+
+    const deleteItemIndex = newItems?.findIndex((item) => item.uuid === uuid);
+    const deleteItem = newItems[deleteItemIndex];
+
+    if (deleteItem?.action === 'insert' || deleteItem?.id === '') {
+      newItems.splice(deleteItemIndex, 1);
+      immerSetState((draft) => {
+        draft.payloadBody.items = newItems;
+      });
+    }
+  };
 
   return (
     <TableContainer sx={{ minWidth: 720, pt: '12px' }}>
@@ -43,7 +61,7 @@ const TableComponent = () => {
                     <IconButton
                       size="small"
                       color="error"
-                      // onClick={() => onDeleteProductHandler(index, row?.id)}
+                      onClick={() => deleteProduct(row?.uuid)}
                       // disabled={!isUserAbleToEdit}
                     >
                       <Iconify icon="eva:trash-2-outline" />

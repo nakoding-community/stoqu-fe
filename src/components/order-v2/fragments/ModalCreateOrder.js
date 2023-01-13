@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 import { Stack, TextField, DialogActions, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -49,6 +50,7 @@ const DialogForm = ({ onClose }) => {
       total: formData?.total,
 
       product: formData?.selectedProduct,
+      uuid: uuidv4(),
     };
 
     immerSetState((draft) => {
