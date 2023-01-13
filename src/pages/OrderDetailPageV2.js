@@ -11,7 +11,7 @@ import Page from '../components/Page';
 
 import Header from '../components/order-v2/Header';
 import DataOrder from '../components/order-v2/data-order/DataOrder';
-import DataProduct from '../components/order-v2/DataProduct';
+import DataProduct from '../components/order-v2/data-product/DataProduct';
 import Iconify from '../components/Iconify';
 import { CreateOrderProvider, useCreateOrder } from '../hooks/useCreateOrderV2';
 
