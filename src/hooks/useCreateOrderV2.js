@@ -1,6 +1,7 @@
 import { createContext, useRef, useContext } from 'react';
 import { createStore, useStore } from 'zustand';
 import produce from 'immer';
+import parseInt from 'lodash/parseInt';
 
 import { devtools } from 'zustand/middleware';
 
@@ -38,6 +39,16 @@ const createBearStore = (initProps) => {
       ...initProps,
       immerSetState: (newState) => {
         set((currentState) => produce(currentState, newState));
+      },
+      getTotalProductAmount: () => {
+        const items = get().payloadBody?.items || [];
+
+        return items?.reduce((curr, array) => curr + parseInt(array?.total), 0);
+      },
+      getTotalProductPrice: () => {
+        const items = get().payloadBody?.items || [];
+
+        return items?.reduce((curr, array) => curr + parseInt(array?.price), 0);
       },
     }))
   );

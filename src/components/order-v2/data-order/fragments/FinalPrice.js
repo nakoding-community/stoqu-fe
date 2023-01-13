@@ -4,12 +4,18 @@ import { TextField } from '@mui/material';
 import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
 
 const FinalPrice = () => {
-  const { finalPrice } = useCreateOrder(
+  const { getTotalProductPrice, shipmentPrice } = useCreateOrder(
     (state) => ({
-      finalPrice: state.payloadBody.finalPrice,
+      getTotalProductPrice: state.getTotalProductPrice,
+      shipmentPrice: state.payloadBody.shipmentPrice,
+      items: state.payloadBody.items,
     }),
     shallow
   );
+
+  const totalProductPrice = getTotalProductPrice();
+
+  const finalPrice = parseFloat(totalProductPrice) + parseFloat(shipmentPrice || 0);
 
   return (
     <TextField

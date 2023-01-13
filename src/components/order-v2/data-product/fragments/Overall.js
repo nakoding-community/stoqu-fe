@@ -2,9 +2,19 @@ import React from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Box, Card, Stack, Grid, Typography, Divider, CircularProgress } from '@mui/material';
 import Iconify from '../../../Iconify';
+import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
+import { convertToRupiah } from '../../../../utils/helperUtils';
 
 export const Overall = () => {
   const theme = useTheme();
+
+  const { getTotalProductAmount, getTotalProductPrice } = useCreateOrder((state) => ({
+    getTotalProductAmount: state.getTotalProductAmount,
+    getTotalProductPrice: state.getTotalProductPrice,
+  }));
+
+  const totalProductAmount = getTotalProductAmount();
+  const totalProductPrice = getTotalProductPrice();
 
   return (
     <Grid container spacing={3}>
@@ -43,7 +53,7 @@ export const Overall = () => {
                 <Typography variant="h6">Total Produk</Typography>
 
                 <Typography variant="subtitle2">
-                  {/* {totalProductAmount}{' '} */}
+                  {totalProductAmount}{' '}
                   <Box component="span" sx={{ color: 'text.secondary', typography: 'body2' }}>
                     Produk
                   </Box>
@@ -87,7 +97,7 @@ export const Overall = () => {
               <Stack spacing={0.5} sx={{ ml: 2 }}>
                 <Typography variant="h6">Total Harga</Typography>
 
-                <Typography variant="subtitle2">{/* {convertToRupiah(totalProductPrice)} */}</Typography>
+                <Typography variant="subtitle2">{convertToRupiah(totalProductPrice)}</Typography>
               </Stack>
             </Stack>
           </Stack>
