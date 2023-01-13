@@ -11,6 +11,7 @@ import Page from '../components/Page';
 
 import Header from '../components/order-v2/Header';
 import DataOrder from '../components/order-v2/DataOrder';
+import DataProduct from '../components/order-v2/DataProduct';
 
 const OrderDetailPageV2 = () => {
   const { themeStretch } = useSettings();
@@ -23,7 +24,7 @@ const OrderDetailPageV2 = () => {
         <CreateOrderContextProvider>
           <Header isCreatePage={isCreatePage} />
           <DataOrder />
-          {/* <DataProduct /> */}
+          <DataProduct />
           {/* {isCreatePage && <ButtonSubmit />} */}
         </CreateOrderContextProvider>
       </Container>
