@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 // @mui
-import { Container } from '@mui/material';
+import { Box, Button, Container } from '@mui/material';
 
 import { CreateOrderContextProvider } from '../contexts/CreateOrderContext';
 
@@ -12,11 +12,16 @@ import Page from '../components/Page';
 import Header from '../components/order-v2/Header';
 import DataOrder from '../components/order-v2/DataOrder';
 import DataProduct from '../components/order-v2/DataProduct';
+import Iconify from '../components/Iconify';
+import { CreateOrderProvider, useCreateOrder } from '../hooks/useCreateOrderV2';
 
 const OrderDetailPageV2 = () => {
   const { themeStretch } = useSettings();
   const location = useLocation();
   const isCreatePage = location.pathname.includes('new');
+
+  // const payloadBody = useCreateOrder((state) => state.payloadBody);
+  // console.log('payloadBody', payloadBody);
 
   return (
     <Page title={`${isCreatePage ? 'Tambah' : 'Ubah'} Pesanan`}>
@@ -26,10 +31,29 @@ const OrderDetailPageV2 = () => {
           <DataOrder />
           <DataProduct />
           {/* {isCreatePage && <ButtonSubmit />} */}
+          <Box sx={{ mt: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon="eva:edit-fill" />}
+              // sx={{ marginTop: '20px' }}
+              // onClick={processOrderHandler}
+              // disabled={!isAbleToSubmit || items?.length === 0}
+            >
+              Submit
+            </Button>
+          </Box>
         </CreateOrderContextProvider>
       </Container>
     </Page>
   );
 };
 
-export default OrderDetailPageV2;
+const OrderDetailWrapper = () => {
+  return (
+    <CreateOrderProvider>
+      <OrderDetailPageV2 />
+    </CreateOrderProvider>
+  );
+};
+
+export default OrderDetailWrapper;
