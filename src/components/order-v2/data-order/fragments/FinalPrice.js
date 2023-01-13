@@ -2,6 +2,7 @@ import React from 'react';
 import { shallow } from 'zustand/shallow';
 import { TextField } from '@mui/material';
 import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
+import { convertToRupiah } from '../../../../utils/helperUtils';
 
 const FinalPrice = () => {
   const { getTotalProductPrice, shipmentPrice } = useCreateOrder(
@@ -19,9 +20,8 @@ const FinalPrice = () => {
 
   return (
     <TextField
-      value={finalPrice}
+      value={convertToRupiah(finalPrice)}
       id="outlined-basic"
-      type="number"
       label="Harga Akhir"
       variant="outlined"
       size="medium"
