@@ -23,7 +23,7 @@ const DataProduct = () => {
         </Scrollbar>
       </Card>
 
-      {/* <ModalCreateOrder open={showModal} onClose={closeModalHandler} />
+      {/* 
       <ModalStockLookup
         type="product"
         open={showLookupStockModal}
