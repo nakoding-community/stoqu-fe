@@ -6,6 +6,8 @@ import { Table, TableBody, TableContainer, TableRow, TableCell, TableHead, IconB
 import Iconify from '../../../Iconify';
 import { convertToRupiah } from '../../../../utils/helperUtils';
 import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
+import { ModalAddLookup } from '../../fragments/ModalAddLookup';
+import { ModalSelectLookup } from '../../fragments/ModalSelectLookup';
 
 const TableComponent = ({ setShowModalCreateProduct, setProductDetail }) => {
   const location = useLocation();
@@ -38,68 +40,75 @@ const TableComponent = ({ setShowModalCreateProduct, setProductDetail }) => {
   };
 
   return (
-    <TableContainer sx={{ minWidth: 720, pt: '12px' }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>No</TableCell>
-            <TableCell>Brand</TableCell>
-            <TableCell>Varian</TableCell>
-            <TableCell>Paket</TableCell>
-            <TableCell>Jumlah</TableCell>
-            <TableCell>Jumlah Diproses</TableCell>
-            <TableCell>Total Harga</TableCell>
-            <TableCell>Aksi</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items
-            ?.filter((item) => item?.action !== 'delete')
-            ?.map((row, index) => (
-              <TableRow key={row.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{row?.product?.brandName || row?.product?.brand?.name}</TableCell>
-                <TableCell>{row?.product?.variantName || row?.product?.variant?.name}</TableCell>
-                <TableCell>
-                  {isCreatePage ? `${row?.product?.packetValue} ${row?.product?.unitName}` : row?.product?.packet?.name}
-                </TableCell>
-                <TableCell>{row?.total}</TableCell>
-                <TableCell>{isCreatePage ? '-' : row?.totalPacked}</TableCell>
-                <TableCell>{convertToRupiah(row?.price)}</TableCell>
-                <TableCell>
-                  <Tooltip title="Edit Produk">
-                    <IconButton
-                      size="small"
-                      color="warning"
-                      onClick={() => {
-                        setShowModalCreateProduct(true);
-                        setProductDetail(row);
-                      }}
-                    >
-                      <Iconify icon="eva:edit-fill" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Hapus Produk">
-                    <IconButton size="small" color="error" onClick={() => deleteProduct(row?.uuid)}>
-                      <Iconify icon="eva:trash-2-outline" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Lookup">
-                    <IconButton
-                      size="small"
-                      color="success"
-                      // onClick={() => showLookupStockModalHandler(row)}
-                      // disabled={!isUserAbleToEdit}
-                    >
-                      <Iconify icon="eva:plus-fill" />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      <TableContainer sx={{ minWidth: 720, pt: '12px' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>No</TableCell>
+              <TableCell>Brand</TableCell>
+              <TableCell>Varian</TableCell>
+              <TableCell>Paket</TableCell>
+              <TableCell>Jumlah</TableCell>
+              <TableCell>Jumlah Diproses</TableCell>
+              <TableCell>Total Harga</TableCell>
+              <TableCell>Aksi</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {items
+              ?.filter((item) => item?.action !== 'delete')
+              ?.map((row, index) => (
+                <TableRow key={row.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{row?.product?.brandName || row?.product?.brand?.name}</TableCell>
+                  <TableCell>{row?.product?.variantName || row?.product?.variant?.name}</TableCell>
+                  <TableCell>
+                    {isCreatePage
+                      ? `${row?.product?.packetValue} ${row?.product?.unitName}`
+                      : row?.product?.packet?.name}
+                  </TableCell>
+                  <TableCell>{row?.total}</TableCell>
+                  <TableCell>{isCreatePage ? '-' : row?.totalPacked}</TableCell>
+                  <TableCell>{convertToRupiah(row?.price)}</TableCell>
+                  <TableCell>
+                    <Tooltip title="Edit Produk">
+                      <IconButton
+                        size="small"
+                        color="warning"
+                        onClick={() => {
+                          setShowModalCreateProduct(true);
+                          setProductDetail(row);
+                        }}
+                      >
+                        <Iconify icon="eva:edit-fill" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Hapus Produk">
+                      <IconButton size="small" color="error" onClick={() => deleteProduct(row?.uuid)}>
+                        <Iconify icon="eva:trash-2-outline" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Lookup">
+                      <IconButton
+                        size="small"
+                        color="success"
+                        // onClick={() => showLookupStockModalHandler(row)}
+                        // disabled={!isUserAbleToEdit}
+                      >
+                        <Iconify icon="eva:plus-fill" />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <ModalAddLookup open />
+      <ModalSelectLookup open />
+    </>
   );
 };
 

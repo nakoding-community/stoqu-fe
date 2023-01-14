@@ -28,15 +28,6 @@ function Modal({ title, open, onClose, maxWidth, children, badgeCount, useBadge,
             )}
           </Box>
           {headerButtonComponent && headerButtonComponent}
-          {/* {headerButton && (
-            <Button
-              variant="outlined"
-              startIcon={<Iconify icon={headerButton?.iconName} />}
-              onClick={(e) => headerButton?.onClick && headerButton?.onClick(e)}
-            >
-              {headerButton?.text}
-            </Button>
-          )} */}
         </DialogTitle>
       </Box>
 
