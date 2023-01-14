@@ -1,9 +1,7 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
-// @mui
-import { Box, Button, Container } from '@mui/material';
-
-import { CreateOrderContextProvider } from '../contexts/CreateOrderContext';
+import { useLocation, useParams } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
+import { Container } from '@mui/material';
 
 import useSettings from '../hooks/useSettings';
 
@@ -12,8 +10,9 @@ import Page from '../components/Page';
 import Header from '../components/order-v2/Header';
 import DataOrder from '../components/order-v2/data-order/DataOrder';
 import DataProduct from '../components/order-v2/data-product/DataProduct';
-import Iconify from '../components/Iconify';
-import { CreateOrderProvider, useCreateOrder } from '../hooks/useCreateOrderV2';
+import { CreateOrderProvider } from '../hooks/useCreateOrderV2';
+import SubmitButton from '../components/order-v2/fragments/SubmitButton';
+import { useGetOrderById } from '../api/userOrder';
 
 const OrderDetailPageV2 = () => {
   const { themeStretch } = useSettings();
@@ -23,33 +22,86 @@ const OrderDetailPageV2 = () => {
   return (
     <Page title={`${isCreatePage ? 'Tambah' : 'Ubah'} Pesanan`}>
       <Container maxWidth={themeStretch ? false : 'lg'}>
-        <CreateOrderContextProvider>
-          <Header isCreatePage={isCreatePage} />
-          <DataOrder />
-          <DataProduct />
-          {/* {isCreatePage && <ButtonSubmit />} */}
-          <Box sx={{ mt: '16px', display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="eva:edit-fill" />}
-              // sx={{ marginTop: '20px' }}
-              // onClick={processOrderHandler}
-              // disabled={!isAbleToSubmit || items?.length === 0}
-            >
-              Submit
-            </Button>
-          </Box>
-        </CreateOrderContextProvider>
+        <Header />
+        <DataOrder />
+        <DataProduct />
+        <SubmitButton />
       </Container>
     </Page>
   );
 };
 
 const OrderDetailWrapper = () => {
+  const { id } = useParams();
+  const location = useLocation();
+  const isCreatePage = location.pathname.includes('new');
+
+  const { data, isFetched } = useGetOrderById(id);
+
+  const getRestructuredItems = (items) => {
+    const newItems = items?.map((item) => ({
+      action: 'update',
+      id: item?.id,
+
+      price: item?.price,
+      productId: item?.productId,
+      rackId: item?.rackId,
+      status: item?.status,
+      stockLookups: [], // ashandi todo
+      total: item?.total,
+
+      product: item?.product,
+      rack: item?.rack,
+      uuid: uuidv4(),
+    }));
+
+    return newItems?.length > 0 ? newItems : [];
+  };
+
+  const getRestructuredReceipts = (receipts) => {
+    const newReceipts = receipts?.map((receipt) => ({
+      action: 'update',
+      id: receipt?.id,
+      receiptUrl: receipt?.receiptUrl,
+    }));
+
+    return newReceipts?.length > 0 ? newReceipts : [];
+  };
+
+  const payloadBody = {
+    customerId: data?.data?.customerId,
+    finalPrice: data?.data?.finalPrice,
+    id: data?.data?.id,
+    isRead: data?.data?.isRead,
+    items: getRestructuredItems(data?.data?.items),
+    notes: data?.data?.notes,
+    paymentStatus: data?.data?.paymentStatus,
+    picId: data?.data?.picId,
+    price: data?.data?.price,
+    receipts: getRestructuredReceipts(data?.data?.receipts),
+    shipmentNumber: data?.data?.shipmentNumber,
+    shipmentPrice: data?.data?.shipmentPrice,
+    shipmentType: data?.data?.shipmentType,
+    status: data?.data?.status,
+    stockStatus: data?.data?.stockStatus,
+    supplierId: data?.data?.supplierId,
+    trxType: data?.data?.trxType,
+  };
+
+  const labelText = {
+    customerName: data?.data?.customerName,
+    supplierName: data?.data?.supplierName,
+    picName: data?.data?.picName,
+  };
+
   return (
-    <CreateOrderProvider>
-      <OrderDetailPageV2 />
-    </CreateOrderProvider>
+    <>
+      {(isCreatePage ? true : isFetched) && (
+        <CreateOrderProvider payloadBody={payloadBody} labelText={labelText}>
+          <OrderDetailPageV2 />
+        </CreateOrderProvider>
+      )}
+    </>
   );
 };
 

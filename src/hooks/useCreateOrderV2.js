@@ -22,7 +22,7 @@ const createBearStore = (initProps) => {
       shipmentPrice: 0,
       shipmentType: '',
       status: 'PROGRESS',
-      stockStatus: '',
+      stockStatus: 'NORMAL',
       supplierId: '',
       trxType: '',
     },

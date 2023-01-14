@@ -5,7 +5,7 @@ export const getOrders = (params) => {
 };
 
 export const upsertOrder = (body) => {
-  return axios.post('orders', body);
+  return axios.put('orders', body);
 };
 
 export const getOrderById = (id, params) => {
