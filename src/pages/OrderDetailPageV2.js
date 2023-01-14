@@ -101,7 +101,7 @@ const OrderDetailWrapper = () => {
   return (
     <>
       {(isCreatePage ? true : isFetched) && (
-        <CreateOrderProvider payloadBody={payloadBody} labelText={labelText}>
+        <CreateOrderProvider {...(!isCreatePage && { payloadBody, labelText })}>
           <OrderDetailPageV2 />
         </CreateOrderProvider>
       )}
