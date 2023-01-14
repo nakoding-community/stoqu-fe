@@ -1,14 +1,17 @@
 import React from 'react';
 import { shallow } from 'zustand/shallow';
+import { useConfirm } from 'material-ui-confirm';
 import { useLocation } from 'react-router';
 import { Table, TableBody, TableContainer, TableRow, TableCell, TableHead, IconButton, Tooltip } from '@mui/material';
 import Iconify from '../../../Iconify';
 import { convertToRupiah } from '../../../../utils/helperUtils';
 import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
 
-const TableComponent = () => {
+const TableComponent = ({ setShowModalCreateProduct, setProductDetail }) => {
   const location = useLocation();
   const isCreatePage = location.pathname.includes('new');
+
+  const confirm = useConfirm();
 
   const { items, immerSetState } = useCreateOrder(
     (state) => ({ items: state.payloadBody.items, immerSetState: state.immerSetState }),
@@ -16,17 +19,19 @@ const TableComponent = () => {
   );
 
   const deleteProduct = (uuid) => {
-    const newItems = [...items];
+    confirm().then(() => {
+      const newItems = [...items];
 
-    const deleteItemIndex = newItems?.findIndex((item) => item.uuid === uuid);
-    const deleteItem = newItems[deleteItemIndex];
+      const deleteItemIndex = newItems?.findIndex((item) => item.uuid === uuid);
+      const deleteItem = newItems[deleteItemIndex];
 
-    if (deleteItem?.action === 'insert' || deleteItem?.id === '') {
-      newItems.splice(deleteItemIndex, 1);
-      immerSetState((draft) => {
-        draft.payloadBody.items = newItems;
-      });
-    }
+      if (deleteItem?.action === 'insert' || deleteItem?.id === '') {
+        newItems.splice(deleteItemIndex, 1);
+        immerSetState((draft) => {
+          draft.payloadBody.items = newItems;
+        });
+      }
+    });
   };
 
   return (
@@ -57,42 +62,27 @@ const TableComponent = () => {
                 <TableCell>{isCreatePage ? '-' : ''}</TableCell>
                 <TableCell>{convertToRupiah(row?.price)}</TableCell>
                 <TableCell>
-                  <Tooltip title="Hapus Produk">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => deleteProduct(row?.uuid)}
-                      // disabled={!isUserAbleToEdit}
-                    >
-                      <Iconify icon="eva:trash-2-outline" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Lihat Lookup">
-                    <IconButton
-                      size="small"
-                      color="success"
-                      // onClick={() => showLookupStockModalHandler(row)}
-                      // disabled={!isUserAbleToEdit}
-                    >
-                      <Iconify icon="eva:search-outline" />
-                    </IconButton>
-                  </Tooltip>
-                  {row?.isOrderSync && (
-                    <Tooltip title="Sync Pesanan">
-                      <IconButton
-                        size="small"
-                        color="info"
-                        // onClick={() => onClickSyncOrderHandler(row)}
-                        // disabled={!isUserAbleToEdit}
-                      >
-                        <Iconify icon="eva:refresh-outline" />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Tambah Lookup">
+                  <Tooltip title="Edit Produk">
                     <IconButton
                       size="small"
                       color="warning"
+                      onClick={() => {
+                        setShowModalCreateProduct(true);
+                        setProductDetail(row);
+                      }}
+                    >
+                      <Iconify icon="eva:edit-fill" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Hapus Produk">
+                    <IconButton size="small" color="error" onClick={() => deleteProduct(row?.uuid)}>
+                      <Iconify icon="eva:trash-2-outline" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Lookup">
+                    <IconButton
+                      size="small"
+                      color="success"
                       // onClick={() => showLookupStockModalHandler(row)}
                       // disabled={!isUserAbleToEdit}
                     >

@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@mui/material';
 import HeaderBreadcrumbs from '../../../HeaderBreadcrumbs';
 import Iconify from '../../../Iconify';
-import { ModalCreateOrder } from '../../fragments/ModalCreateOrder';
 
-const Header = () => {
-  const [showModal, setShowModal] = useState(false);
+const Header = ({ setShowModalCreateProduct, setProductDetail }) => {
   return (
     <>
       <HeaderBreadcrumbs
@@ -13,12 +11,18 @@ const Header = () => {
         heading={`Data Produk`}
         links={[]}
         action={
-          <Button variant="contained" startIcon={<Iconify icon="eva:edit-fill" />} onClick={() => setShowModal(true)}>
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="eva:edit-fill" />}
+            onClick={() => {
+              setShowModalCreateProduct(true);
+              setProductDetail(null);
+            }}
+          >
             Tambah
           </Button>
         }
       />
-      <ModalCreateOrder open={showModal} onClose={() => setShowModal(false)} />
     </>
   );
 };

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+/* eslint-disable no-lonely-if */
+import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import isEmpty from 'lodash/isEmpty';
 
 import { Stack, TextField, DialogActions, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -9,10 +11,10 @@ import Modal from '../../modal/Modal';
 import InfiniteCombobox from '../../combobox/InfiniteCombobox';
 import { useCreateOrder } from '../../../hooks/useCreateOrderV2';
 
-export const ModalCreateOrder = ({ open, onClose }) => {
+export const ModalCreateProduct = ({ open, onClose, productDetail }) => {
   return (
     <Modal title={'Tambah Produk'} open={open} onClose={onClose}>
-      <DialogForm onClose={onClose} />
+      <DialogForm onClose={onClose} productDetail={productDetail} />
     </Modal>
   );
 };
@@ -30,8 +32,10 @@ const initialForm = {
   },
 };
 
-const DialogForm = ({ onClose }) => {
+const DialogForm = ({ onClose, productDetail }) => {
   const [formData, setFormData] = useState(initialForm);
+
+  const isCreate = isEmpty(productDetail);
 
   const productPrice = parseFloat(formData?.selectedProduct?.priceFinal || 0);
 
@@ -39,9 +43,8 @@ const DialogForm = ({ onClose }) => {
 
   const save = (e) => {
     e.preventDefault();
+
     const newData = {
-      action: 'insert',
-      id: '',
       price: formData?.price,
       productId: formData?.selectedProduct?.id,
       rackId: formData?.rack?.id,
@@ -50,17 +53,56 @@ const DialogForm = ({ onClose }) => {
       total: formData?.total,
 
       product: formData?.selectedProduct,
+      rack: formData?.rack,
       uuid: uuidv4(),
     };
 
+    if (isCreate) {
+      newData.action = 'insert';
+      newData.id = '';
+    } else {
+      if (productDetail?.id === '') {
+        newData.action = 'insert';
+        newData.id = '';
+      } else {
+        newData.action = 'update';
+        newData.id = productDetail?.id;
+      }
+    }
+
     immerSetState((draft) => {
-      draft.payloadBody.items = [...draft.payloadBody.items, newData];
+      let newItems = [...draft.payloadBody.items];
+
+      if (isCreate) {
+        newItems = [...newItems, newData];
+      } else {
+        const editIndex = newItems?.findIndex((item) => item?.uuid === productDetail?.uuid);
+        newItems[editIndex] = newData;
+      }
+
+      draft.payloadBody.items = newItems;
     });
 
     onClose();
 
     setFormData(initialForm);
   };
+
+  useEffect(() => {
+    setFormData({
+      selectedProduct: {
+        ...productDetail?.product,
+        id: productDetail?.productId,
+        label: productDetail?.product?.name,
+      },
+      total: productDetail?.total,
+      price: productDetail?.price,
+      rack: {
+        id: productDetail?.rackId,
+        label: productDetail?.rack?.label,
+      },
+    });
+  }, [productDetail]);
 
   return (
     <Stack component="form">
@@ -80,6 +122,7 @@ const DialogForm = ({ onClose }) => {
               },
             });
           }}
+          disabled={!isEmpty(productDetail)}
         />
 
         <TextField

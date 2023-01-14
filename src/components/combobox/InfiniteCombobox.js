@@ -36,6 +36,7 @@ const InfiniteCombobox = React.memo(
     excludeIds = [],
     queryFunction,
     restructureOptions,
+    disabled = false,
     ...other
   }) => {
     const [inputValue, setInputValue] = useState('');
@@ -335,7 +336,7 @@ const InfiniteCombobox = React.memo(
         options={options}
         onChange={onChangeHandler}
         renderInput={(params) => (
-          <TextField {...params} label={label} autoFocus={autoFocus} onKeyDown={onKeyDownHandler} />
+          <TextField {...params} label={label} autoFocus={autoFocus} onKeyDown={onKeyDownHandler} disabled={disabled} />
         )}
         renderOption={(props, option) => {
           return (
@@ -350,6 +351,7 @@ const InfiniteCombobox = React.memo(
           id: 'listBox',
         }}
         ListboxComponent={ListBox}
+        disabled={disabled}
         {...other}
       />
     );
