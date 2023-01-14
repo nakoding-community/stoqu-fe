@@ -6,7 +6,5 @@ export const useGetDashboardCount = (queryParams) => {
     return getDashboardCount(queryParams);
   };
 
-  return useQuery(['dashboard', queryParams], fetchData, {
-    staleTime: 3600, // 1minutes
-  });
+  return useQuery(['dashboard', queryParams], fetchData);
 };

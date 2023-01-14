@@ -1,4 +1,7 @@
+/* eslint-disable prefer-const */
 import { IconButton, Link, Stack, TextField } from '@mui/material';
+import cloneDeep from 'lodash/cloneDeep';
+import { v4 as uuidv4 } from 'uuid';
 import { shallow } from 'zustand/shallow';
 import React, { useState } from 'react';
 import Iconify from '../../../Iconify';
@@ -16,14 +19,15 @@ const Receipts = () => {
     shallow
   );
 
-  const updateReceiptsStateHandler = (method, deleteIndex) => {
+  const updateReceiptsStateHandler = (method, uuid) => {
     if (method === 'add') {
       if (inputLinkPayment) {
-        const copyReceipts = [...receipts];
+        const copyReceipts = cloneDeep(receipts);
         const newData = {
           id: '',
           action: 'insert',
           receiptUrl: inputLinkPayment,
+          uuid: uuidv4(),
         };
         copyReceipts.push(newData);
         immerSetState((draft) => {
@@ -32,20 +36,18 @@ const Receipts = () => {
         setInputLinkPayment('');
       }
     } else {
-      const copyReceipts = [...receipts];
+      const copyReceipts = cloneDeep(receipts);
+      const deleteIndex = copyReceipts?.findIndex((receipt) => receipt?.uuid === uuid);
 
       if (copyReceipts[deleteIndex].id === '') {
         copyReceipts.splice(deleteIndex, 1);
-        immerSetState((draft) => {
-          draft.payloadBody.receipts = copyReceipts;
-        });
       } else {
         copyReceipts[deleteIndex].action = 'delete';
-
-        immerSetState((draft) => {
-          draft.payloadBody.receipts = copyReceipts;
-        });
       }
+
+      immerSetState((draft) => {
+        draft.payloadBody.receipts = copyReceipts;
+      });
     }
   };
 
@@ -84,7 +86,7 @@ const Receipts = () => {
             <IconButton
               size="small"
               color="error"
-              onClick={() => updateReceiptsStateHandler('delete', index)}
+              onClick={() => updateReceiptsStateHandler('delete', receipt?.uuid)}
               // disabled={!isUserAbleToEdit}
             >
               <Iconify icon="eva:trash-2-outline" />

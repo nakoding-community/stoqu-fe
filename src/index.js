@@ -30,7 +30,8 @@ const Application = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 3 * 60 * 1000, // 3minutes
+        cacheTime: 0,
+        staleTime: 0,
       },
     },
   });

@@ -8,9 +8,7 @@ const useProducts = (queryParams) => {
     return getProducts(queryParams, signal);
   };
 
-  return useQuery([KEY.products.all, queryParams], fetchProducts, {
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  return useQuery([KEY.products.all, queryParams], fetchProducts);
 };
 
 const useProductDetail = (productId, queryConfig = {}) => {

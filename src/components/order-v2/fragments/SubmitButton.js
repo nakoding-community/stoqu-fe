@@ -1,5 +1,6 @@
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { Box, Button } from '@mui/material';
+import { toast } from 'react-toastify';
 import parseInt from 'lodash/parseInt';
 import React from 'react';
 import Iconify from '../../Iconify';
@@ -8,6 +9,8 @@ import { useUpsertOrder } from '../../../api/userOrder';
 
 const SubmitButton = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isCreatePage = location.pathname.includes('new');
 
   const payloadBody = useCreateOrder((state) => state.payloadBody);
   const getTotalProductPrice = useCreateOrder((state) => state.getTotalProductPrice);
@@ -47,12 +50,24 @@ const SubmitButton = () => {
     return { finalPrice };
   };
 
+  const getStockStatus = (items) => {
+    if (isCreatePage) {
+      return { stockStatus: 'NORMAL' };
+    }
+
+    const abnormal = items?.filter((item) => {
+      return item?.total !== item?.totalPacked;
+    });
+
+    return { stockStatus: abnormal?.length > 0 ? 'ABNORMAL' : 'NORMAL' };
+  };
+
   const onClick = () => {
     const body = {
       ...payloadBody,
       shipmentPrice: parseFloat(payloadBody?.shipmentPrice),
-      stockStatus: 'NORMAL',
       price: parseFloat(getTotalProductPrice()),
+      ...getStockStatus(payloadBody?.items),
       ...getFinalPrice(payloadBody?.shipmentPrice),
       ...getRestructuredItems(payloadBody?.items),
       ...getRestructuredReceipts(payloadBody?.receipts),
@@ -61,10 +76,9 @@ const SubmitButton = () => {
     mutate(body, {
       onSuccess: () => {
         navigate('/dashboard/order');
+        toast.success(`Berhasil ${isCreatePage ? 'membuat' : 'mengubah'} pesanan`);
       },
     });
-
-    console.log('body', body);
   };
 
   return (

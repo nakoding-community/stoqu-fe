@@ -64,6 +64,7 @@ const OrderDetailWrapper = () => {
       action: 'update',
       id: receipt?.id,
       receiptUrl: receipt?.receiptUrl,
+      uuid: uuidv4(),
     }));
 
     return newReceipts?.length > 0 ? newReceipts : [];
