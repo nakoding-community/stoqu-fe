@@ -49,6 +49,7 @@ const OrderDetailWrapper = () => {
       status: item?.status,
       stockLookups: [], // ashandi todo
       total: item?.total,
+      totalPacked: item?.totalPacked,
 
       product: item?.product,
       rack: item?.rack,

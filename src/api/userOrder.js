@@ -18,5 +18,5 @@ export const useGetOrderById = (id) => {
     return getOrderById(id, signal);
   };
 
-  return useQuery([`order-detail-${id}`], fetchData);
+  return useQuery(['order-detail', id], fetchData);
 };

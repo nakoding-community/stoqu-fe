@@ -55,11 +55,13 @@ const TableComponent = ({ setShowModalCreateProduct, setProductDetail }) => {
             ?.map((row, index) => (
               <TableRow key={row.id}>
                 <TableCell>{index + 1}</TableCell>
-                <TableCell>{row?.product?.brandName}</TableCell>
-                <TableCell>{row?.product?.variantName}</TableCell>
-                <TableCell>{`${row?.product?.packetValue} ${row?.product?.unitName}`}</TableCell>
+                <TableCell>{row?.product?.brandName || row?.product?.brand?.name}</TableCell>
+                <TableCell>{row?.product?.variantName || row?.product?.variant?.name}</TableCell>
+                <TableCell>
+                  {isCreatePage ? `${row?.product?.packetValue} ${row?.product?.unitName}` : row?.product?.packet?.name}
+                </TableCell>
                 <TableCell>{row?.total}</TableCell>
-                <TableCell>{isCreatePage ? '-' : ''}</TableCell>
+                <TableCell>{isCreatePage ? '-' : row?.totalPacked}</TableCell>
                 <TableCell>{convertToRupiah(row?.price)}</TableCell>
                 <TableCell>
                   <Tooltip title="Edit Produk">
