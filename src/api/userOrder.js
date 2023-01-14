@@ -13,10 +13,10 @@ export const useUpsertOrder = () => {
   });
 };
 
-export const useGetOrderById = (id) => {
+export const useGetOrderById = (id, options) => {
   const fetchData = ({ signal }) => {
     return getOrderById(id, signal);
   };
 
-  return useQuery(['order-detail', id], fetchData);
+  return useQuery(['order-detail', id], fetchData, options);
 };

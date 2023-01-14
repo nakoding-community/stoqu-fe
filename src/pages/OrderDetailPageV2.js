@@ -36,7 +36,9 @@ const OrderDetailWrapper = () => {
   const location = useLocation();
   const isCreatePage = location.pathname.includes('new');
 
-  const { data, isFetched } = useGetOrderById(id);
+  const { data, isFetched } = useGetOrderById(id, {
+    enabled: !isCreatePage,
+  });
 
   const getRestructuredItems = (items) => {
     const newItems = items?.map((item) => ({
