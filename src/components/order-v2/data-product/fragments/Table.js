@@ -27,10 +27,13 @@ const TableComponent = ({ setShowModalCreateProduct, setProductDetail }) => {
 
       if (deleteItem?.action === 'insert' || deleteItem?.id === '') {
         newItems.splice(deleteItemIndex, 1);
-        immerSetState((draft) => {
-          draft.payloadBody.items = newItems;
-        });
+      } else {
+        newItems[deleteItemIndex].action = 'delete';
       }
+
+      immerSetState((draft) => {
+        draft.payloadBody.items = newItems;
+      });
     });
   };
 
