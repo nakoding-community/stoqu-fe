@@ -1,16 +1,20 @@
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { Box, Button } from '@mui/material';
 import { toast } from 'react-toastify';
 import parseInt from 'lodash/parseInt';
-import React from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import Iconify from '../../Iconify';
 import { useCreateOrder } from '../../../hooks/useCreateOrderV2';
 import { useUpsertOrder } from '../../../api/userOrder';
 
 const SubmitButton = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const location = useLocation();
   const isCreatePage = location.pathname.includes('new');
+
+  const queryClient = useQueryClient();
 
   const payloadBody = useCreateOrder((state) => state.payloadBody);
   const getTotalProductPrice = useCreateOrder((state) => state.getTotalProductPrice);
@@ -42,28 +46,34 @@ const SubmitButton = () => {
     return { receipts: newReceipts?.length > 0 ? newReceipts : [] };
   };
 
-  const getFinalPrice = (shipmentPrice) => {
-    const totalProductPrice = getTotalProductPrice();
+  const getFinalPrice = useCallback(
+    (shipmentPrice) => {
+      const totalProductPrice = getTotalProductPrice();
 
-    const finalPrice = parseFloat(totalProductPrice) + parseFloat(shipmentPrice || 0);
+      const finalPrice = parseFloat(totalProductPrice) + parseFloat(shipmentPrice || 0);
 
-    return { finalPrice };
-  };
+      return { finalPrice };
+    },
+    [getTotalProductPrice]
+  );
 
-  const getStockStatus = (items) => {
-    if (isCreatePage) {
-      return { stockStatus: 'NORMAL' };
-    }
+  const getStockStatus = useCallback(
+    (items) => {
+      if (isCreatePage) {
+        return { stockStatus: 'NORMAL' };
+      }
 
-    const abnormal = items?.filter((item) => {
-      return item?.total !== item?.totalPacked;
-    });
+      const abnormal = items?.filter((item) => {
+        return item?.total !== item?.totalPacked;
+      });
 
-    return { stockStatus: abnormal?.length > 0 ? 'ABNORMAL' : 'NORMAL' };
-  };
+      return { stockStatus: abnormal?.length > 0 ? 'ABNORMAL' : 'NORMAL' };
+    },
+    [isCreatePage]
+  );
 
-  const onClick = () => {
-    const body = {
+  const body = useMemo(
+    () => ({
       ...payloadBody,
       shipmentPrice: parseFloat(payloadBody?.shipmentPrice),
       price: parseFloat(getTotalProductPrice()),
@@ -71,8 +81,11 @@ const SubmitButton = () => {
       ...getFinalPrice(payloadBody?.shipmentPrice),
       ...getRestructuredItems(payloadBody?.items),
       ...getRestructuredReceipts(payloadBody?.receipts),
-    };
+    }),
+    [getFinalPrice, getStockStatus, getTotalProductPrice, payloadBody]
+  );
 
+  const onClick = () => {
     mutate(body, {
       onSuccess: () => {
         navigate('/dashboard/order');
@@ -80,6 +93,20 @@ const SubmitButton = () => {
       },
     });
   };
+
+  useEffect(() => {
+    if (!isCreatePage) {
+      const queryData = queryClient.getQueryData(['order-detail', id]);
+      if (!queryData?.data?.isRead) {
+        const withIsReadBody = {
+          ...body,
+          isRead: true,
+        };
+
+        mutate(withIsReadBody);
+      }
+    }
+  }, [isCreatePage, id, queryClient, body, mutate]);
 
   return (
     <Box sx={{ mt: '16px', display: 'flex', justifyContent: 'flex-end' }}>
