@@ -1,6 +1,7 @@
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { Box, Button } from '@mui/material';
+import { Box } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 import { toast } from 'react-toastify';
 import parseInt from 'lodash/parseInt';
 import React, { useCallback, useEffect, useMemo } from 'react';
@@ -110,9 +111,14 @@ const SubmitButton = () => {
 
   return (
     <Box sx={{ mt: '16px', display: 'flex', justifyContent: 'flex-end' }}>
-      <Button variant="contained" startIcon={<Iconify icon="eva:edit-fill" />} onClick={onClick} disabled={isLoading}>
+      <LoadingButton
+        variant="contained"
+        startIcon={<Iconify icon="eva:edit-fill" />}
+        onClick={onClick}
+        loading={isLoading}
+      >
         Submit
-      </Button>
+      </LoadingButton>
     </Box>
   );
 };
