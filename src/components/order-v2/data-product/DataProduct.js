@@ -23,7 +23,11 @@ const DataProduct = () => {
 
       <Card sx={{ marginTop: '0px' }}>
         <Scrollbar>
-          <TableComponent setShowModalCreateProduct={setShowModalCreateProduct} setProductDetail={setProductDetail} />
+          <TableComponent
+            setShowModalCreateProduct={setShowModalCreateProduct}
+            setProductDetail={setProductDetail}
+            productDetail={productDetail}
+          />
         </Scrollbar>
       </Card>
 
@@ -32,14 +36,6 @@ const DataProduct = () => {
         open={showModalCreateProduct}
         onClose={() => setShowModalCreateProduct(false)}
       />
-
-      {/* 
-      <ModalStockLookup
-        type="product"
-        open={showLookupStockModal}
-        onClose={closeLookupStockModalHandler}
-        detailLookupStockData={detailLookupStockData}
-      /> */}
     </>
   );
 };

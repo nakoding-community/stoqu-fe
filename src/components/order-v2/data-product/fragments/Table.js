@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { shallow } from 'zustand/shallow';
 import { useConfirm } from 'material-ui-confirm';
 import { useLocation } from 'react-router';
@@ -6,14 +6,15 @@ import { Table, TableBody, TableContainer, TableRow, TableCell, TableHead, IconB
 import Iconify from '../../../Iconify';
 import { convertToRupiah } from '../../../../utils/helperUtils';
 import { useCreateOrder } from '../../../../hooks/useCreateOrderV2';
-import { ModalAddLookup } from '../../fragments/ModalAddLookup';
-import { ModalSelectLookup } from '../../fragments/ModalSelectLookup';
+import { ModalLookup } from '../../fragments/ModalLookup';
 
-const TableComponent = ({ setShowModalCreateProduct, setProductDetail }) => {
+const TableComponent = ({ setShowModalCreateProduct, setProductDetail, productDetail }) => {
   const location = useLocation();
   const isCreatePage = location.pathname.includes('new');
 
   const confirm = useConfirm();
+
+  const [showModalLookup, setShowModalLookup] = useState(false);
 
   const { items, immerSetState } = useCreateOrder(
     (state) => ({ items: state.payloadBody.items, immerSetState: state.immerSetState }),
@@ -89,12 +90,14 @@ const TableComponent = ({ setShowModalCreateProduct, setProductDetail }) => {
                         <Iconify icon="eva:trash-2-outline" />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Lookup">
+                    <Tooltip title="Tambah Lookup">
                       <IconButton
                         size="small"
                         color="success"
-                        // onClick={() => showLookupStockModalHandler(row)}
-                        // disabled={!isUserAbleToEdit}
+                        onClick={() => {
+                          setShowModalLookup(true);
+                          setProductDetail(row);
+                        }}
                       >
                         <Iconify icon="eva:plus-fill" />
                       </IconButton>
@@ -106,8 +109,7 @@ const TableComponent = ({ setShowModalCreateProduct, setProductDetail }) => {
         </Table>
       </TableContainer>
 
-      <ModalAddLookup open />
-      <ModalSelectLookup open />
+      <ModalLookup open={showModalLookup} onClose={() => setShowModalLookup(false)} productDetail={productDetail} />
     </>
   );
 };

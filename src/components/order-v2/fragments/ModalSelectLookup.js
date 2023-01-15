@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
+import { useDebounce } from 'use-debounce';
 
 import {
   Stack,
@@ -20,36 +21,48 @@ import { useGetStockLookups } from '../../../hooks/api/useStockLookup';
 import Scrollbar from '../../Scrollbar';
 import { loadMoreValidator } from '../../../utils/helperUtils';
 
-export const ModalSelectLookup = ({ open, onClose, productDetail }) => {
+export const ModalSelectLookup = ({ open, onClose, saveCallback, selectedLookups }) => {
   return (
     <Modal title={'Pilih Lookup'} open={open} onClose={onClose}>
-      <DialogForm onClose={onClose} productDetail={productDetail} />
+      <DialogForm onClose={onClose} saveCallback={saveCallback} selectedLookups={selectedLookups} />
     </Modal>
   );
 };
 
-const DialogForm = ({ onClose }) => {
+const DialogForm = ({ onClose, saveCallback, selectedLookups }) => {
   const [lookups, setLookups] = useState([]);
-  console.log('lookups', lookups);
+  const [search, setSearch] = useState('');
+  const [searchDebounce] = useDebounce(search, 250);
 
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = useGetStockLookups(
-    { pageSize: 10, page: 1 },
-    {
-      onSuccess: (data) => {
-        if (data) {
-          const hash = {};
+  const params = {
+    pageSize: 10,
+    page: 1,
+    ...(searchDebounce && { search: searchDebounce }),
+  };
 
-          lookups?.forEach((lookup) => {
-            hash[lookup.id] = lookup;
-          });
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = useGetStockLookups(params, {
+    onSuccess: (data) => {
+      if (data) {
+        const hash = {};
+        const selectedLookupsHash = {};
 
-          const newLookups = data?.pages?.flatMap((d) => d?.data?.map((d) => (hash[d?.id] ? hash[d?.id] : d)));
+        lookups?.forEach((lookup) => {
+          hash[lookup.id] = lookup;
+        });
 
-          setLookups(newLookups);
-        }
-      },
-    }
-  );
+        selectedLookups?.forEach((lookup) => {
+          selectedLookupsHash[lookup.id] = lookup;
+        });
+
+        const newLookups = data?.pages?.flatMap((d) =>
+          // eslint-disable-next-line no-nested-ternary
+          d?.data?.map((d) => (hash[d?.id] ? hash[d?.id] : selectedLookupsHash[d?.id] ? selectedLookupsHash[d?.id] : d))
+        );
+
+        setLookups(newLookups);
+      }
+    },
+  });
 
   const onScroll = (e) => {
     const target = e.currentTarget;
@@ -65,16 +78,22 @@ const DialogForm = ({ onClose }) => {
     const clickIndex = lookups?.findIndex((lookup) => lookup.id === item.id);
     const newLookups = cloneDeep(lookups);
 
-    console.log('item', item);
-
     if (item.isChecked) {
       newLookups[clickIndex].isChecked = false;
     } else {
-      console.log('masuk sini dong');
       newLookups[clickIndex].isChecked = true;
     }
 
     setLookups(newLookups);
+  };
+
+  const onClickSave = (e) => {
+    e.preventDefault();
+    const selectedLookups = lookups?.filter((lookup) => lookup.isChecked);
+
+    // eslint-disable-next-line no-unused-expressions
+    saveCallback && saveCallback(selectedLookups);
+    onClose();
   };
 
   return (
@@ -83,6 +102,7 @@ const DialogForm = ({ onClose }) => {
         <TextField
           sx={{ px: 3, mt: '16px' }}
           placeholder="Cari..."
+          onChange={(e) => setSearch(e.target.value)}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -103,9 +123,9 @@ const DialogForm = ({ onClose }) => {
                 display: 'flex',
                 alignItems: 'center',
                 cursor: 'pointer',
-                backgroundColor: lookup?.isChecked ? '#eceff1' : '',
+                backgroundColor: lookup?.isChecked ? '#fafafa !important' : '',
                 '&:hover': {
-                  backgroundColor: '#eceff1',
+                  backgroundColor: '#fafafa !important',
                 },
               }}
               htmlFor={`checkbox-${lookup?.id}`}
@@ -126,10 +146,10 @@ const DialogForm = ({ onClose }) => {
 
       <DialogActions>
         <Button variant="outlined" color="inherit" onClick={onClose}>
-          Close
+          Tutup
         </Button>
-        <LoadingButton type="submit" variant="contained" disabled={false}>
-          Save
+        <LoadingButton type="submit" variant="contained" disabled={false} onClick={onClickSave}>
+          Simpan
         </LoadingButton>
       </DialogActions>
     </Stack>
