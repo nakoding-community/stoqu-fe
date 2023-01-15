@@ -7,10 +7,11 @@ import { getBrands } from '../../client/brandsClient';
 import { getVariants } from '../../client/variantsClient';
 import { getOrders } from '../../client/ordersClient';
 import { getProducts, searchProductType } from '../../client/productsClient';
-import { getLookupStocks } from '../../client/lookupStocksClient';
 import { getRoles } from '../../client/rolesClient';
 import { getUnits } from '../../client/unitsClient';
 import { getUsers, createUser } from '../../client/usersClient';
+import { getStockLookups } from '../../clientv2/stockLookup';
+import { getRacks } from '../../clientv2/rackClient';
 import { loadMoreValidator } from '../../utils/helperUtils';
 import { useDeepEffect } from '../../hooks/useDeepEffect';
 
@@ -33,6 +34,9 @@ const InfiniteCombobox = React.memo(
     useCreateOnEnter = false,
     labelText,
     excludeIds = [],
+    queryFunction,
+    restructureOptions,
+    disabled = false,
     ...other
   }) => {
     const [inputValue, setInputValue] = useState('');
@@ -51,7 +55,8 @@ const InfiniteCombobox = React.memo(
       labelText ||
       '';
 
-    let queryFn = () => {};
+    // eslint-disable-next-line no-unneeded-ternary
+    let queryFn = queryFunction ? queryFunction : () => {};
     switch (type) {
       case 'brands':
         queryFn = getBrands;
@@ -69,7 +74,7 @@ const InfiniteCombobox = React.memo(
         queryFn = getProducts;
         break;
       case 'lookupStocks':
-        queryFn = getLookupStocks;
+        queryFn = getStockLookups;
         break;
       case 'roles':
         queryFn = getRoles;
@@ -82,6 +87,9 @@ const InfiniteCombobox = React.memo(
         break;
       case 'users':
         queryFn = getUsers;
+        break;
+      case 'racks':
+        queryFn = getRacks;
         break;
       default:
         break;
@@ -115,6 +123,13 @@ const InfiniteCombobox = React.memo(
             };
           });
         case 'orders':
+          return optionsData?.map((option) => {
+            return {
+              ...option,
+              id: option?.id,
+              label: option?.name,
+            };
+          });
         case 'lookupStocks':
           return optionsData?.map((option) => {
             return {
@@ -136,7 +151,7 @@ const InfiniteCombobox = React.memo(
             return {
               ...option,
               id: option?.id,
-              label: `${option?.brand?.brand} - ${option?.variant?.variant} ${option?.type?.value} ${option?.type?.unit?.unit}`,
+              label: option?.name,
             };
           });
         case 'units':
@@ -155,6 +170,13 @@ const InfiniteCombobox = React.memo(
             };
           });
         case 'users':
+          return optionsData?.map((option) => {
+            return {
+              id: option?.id,
+              label: option?.name,
+            };
+          });
+        case 'racks':
           return optionsData?.map((option) => {
             return {
               id: option?.id,
@@ -190,7 +212,7 @@ const InfiniteCombobox = React.memo(
 
       const { data, meta } = await queryFn(query);
 
-      const restructuredData = getRestructuredOptions(data || []);
+      const restructuredData = restructureOptions ? restructureOptions(data) : getRestructuredOptions(data || []);
       const filteredOptions = getFilteredOptions(restructuredData);
       setOptions(filteredOptions || []);
       setTotalPage(meta?.info?.totalPage);
@@ -206,7 +228,7 @@ const InfiniteCombobox = React.memo(
 
       const { data, meta } = await queryFn(query);
       if (data) {
-        const restructuredData = getRestructuredOptions(data || []);
+        const restructuredData = restructureOptions ? restructureOptions(data) : getRestructuredOptions(data || []);
         const filteredOptions = getFilteredOptions(restructuredData);
         setOptions((prev) => [...prev, ...filteredOptions]);
         setTotalPage(meta?.info?.totalPage);
@@ -305,7 +327,6 @@ const InfiniteCombobox = React.memo(
     return (
       <Autocomplete
         id="combo-box-demo"
-        // inputValue={inputValue}
         onOpen={onOpenHandler}
         onClose={onCloseHandler}
         noOptionsText={
@@ -315,7 +336,7 @@ const InfiniteCombobox = React.memo(
         options={options}
         onChange={onChangeHandler}
         renderInput={(params) => (
-          <TextField {...params} label={label} autoFocus={autoFocus} onKeyDown={onKeyDownHandler} />
+          <TextField {...params} label={label} autoFocus={autoFocus} onKeyDown={onKeyDownHandler} disabled={disabled} />
         )}
         renderOption={(props, option) => {
           return (
@@ -330,6 +351,7 @@ const InfiniteCombobox = React.memo(
           id: 'listBox',
         }}
         ListboxComponent={ListBox}
+        disabled={disabled}
         {...other}
       />
     );

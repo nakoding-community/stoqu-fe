@@ -50,7 +50,8 @@ export default function Router() {
         { path: 'product', element: <ProductPage /> },
         { path: 'stock', element: <StockPage /> },
         { path: 'order', element: <OrderPage /> },
-        { path: 'order/:id', element: <OrderDetailPage /> },
+        // { path: 'order/:id', element: <OrderDetailPage /> },
+        { path: 'order/:id', element: <OrderDetailPageV2 /> },
         { path: 'report/order', element: <ReportPage /> },
         { path: 'report/product', element: <ReportProductPage /> },
         { path: 'settings/user', element: <SettingsUserPage /> },
@@ -84,7 +85,8 @@ const AttributePage = Loadable(lazy(() => import('../pages/AttributePage')));
 const ProductPage = Loadable(lazy(() => import('../pages/ProductPage')));
 const StockPage = Loadable(lazy(() => import('../pages/StockPage')));
 const OrderPage = Loadable(lazy(() => import('../pages/OrderPage')));
-const OrderDetailPage = Loadable(lazy(() => import('../pages/OrderDetailPage')));
+// const OrderDetailPage = Loadable(lazy(() => import('../pages/OrderDetailPage')));
+const OrderDetailPageV2 = Loadable(lazy(() => import('../pages/OrderDetailPageV2')));
 const ReportPage = Loadable(lazy(() => import('../pages/ReportPage')));
 const ReportProductPage = Loadable(lazy(() => import('../pages/ReportProductPage')));
 const SettingsUserPage = Loadable(lazy(() => import('../pages/SettingsUserPage')));

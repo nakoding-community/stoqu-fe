@@ -8,9 +8,7 @@ const useTypes = (queryParams) => {
     return getTypes(queryParams, signal);
   };
 
-  return useQuery([KEY.attribute.types.all, queryParams], fetchTypes, {
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  return useQuery([KEY.attribute.types.all, queryParams], fetchTypes);
 };
 
 const useTypeDetail = (typeId, queryConfig = {}) => {

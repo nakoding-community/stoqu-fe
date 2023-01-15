@@ -7,10 +7,12 @@ import ModalV2 from '../ModaV2';
 import Iconify from '../../Iconify';
 import Scrollbar from '../../Scrollbar';
 import DownloadProductCodePDF from '../../PDF/DownloadProductCodePDF';
-import { getLookupStocks, getLookupStocksProduct } from '../../../client/lookupStocksClient';
+import { getLookupStocksProduct } from '../../../client/lookupStocksClient';
 import { loadMoreValidator } from '../../../utils/helperUtils';
 
-const ModalStockLookup = ({ open, onClose, detailLookupStockData, type = 'stock' }) => {
+import { getStockLookups } from '../../../clientv2/stockLookup';
+
+const ModalStockLookup = ({ open, onClose, detailLookupStockData, type = 'stock', stockRackId, data }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const confirm = useConfirm();
 
@@ -20,19 +22,25 @@ const ModalStockLookup = ({ open, onClose, detailLookupStockData, type = 'stock'
 
   return (
     <ModalV2 open={open} onClose={() => (isDownloading ? confrimHandler() : onClose())}>
-      <Header detailLookupStockData={detailLookupStockData} onClose={onClose} setIsDownloading={setIsDownloading} />
-      <Content detailLookupStockData={detailLookupStockData} type={type} />
+      <Header
+        detailLookupStockData={detailLookupStockData}
+        onClose={onClose}
+        setIsDownloading={setIsDownloading}
+        stockRackId={stockRackId}
+        data={data}
+      />
+      <Content detailLookupStockData={detailLookupStockData} type={type} stockRackId={stockRackId} data={data} />
     </ModalV2>
   );
 };
 
-const Header = ({ detailLookupStockData, onClose, setIsDownloading }) => {
+const Header = ({ onClose, setIsDownloading, stockRackId, data }) => {
   const [valueStrings, setValueStrings] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const getData = async (allData = [], currentPage = 1) => {
-    const { data, meta } = await getLookupStocks({
-      filterProductId: detailLookupStockData?.productId,
+    const { data, meta } = await getStockLookups({
+      stockRackId,
       page: currentPage,
     });
     allData = allData.concat(data);
@@ -72,7 +80,7 @@ const Header = ({ detailLookupStockData, onClose, setIsDownloading }) => {
   );
 };
 
-const Content = ({ detailLookupStockData, type }) => {
+const Content = ({ type, stockRackId, data }) => {
   const [search, setSearch] = useState('');
   const [searchDebounce] = useDebounce(search, 300);
 
@@ -90,7 +98,7 @@ const Content = ({ detailLookupStockData, type }) => {
   let queryFn = () => {};
   switch (type) {
     case 'stock':
-      queryFn = getLookupStocks;
+      queryFn = getStockLookups;
       break;
     case 'product':
       queryFn = getLookupStocksProduct;
@@ -100,7 +108,7 @@ const Content = ({ detailLookupStockData, type }) => {
   }
 
   const getLookupStocksHandler = async () => {
-    const query = { filterProductId: detailLookupStockData?.productId, page: currentPage, search };
+    const query = { stockRackId, page: currentPage, search };
     const { data, meta } = await queryFn(query);
     setListProducts(data || []);
     setTotalPage(meta?.info?.totalPage);
@@ -108,12 +116,12 @@ const Content = ({ detailLookupStockData, type }) => {
 
   const loadMoreLookupStocksHandler = async (page) => {
     const query = {
-      filterProductId: detailLookupStockData?.productId || detailLookupStockData?.id,
+      stockRackId,
       page,
       search,
       pageSize: 5,
     };
-    const { data, meta } = await getLookupStocks(query);
+    const { data, meta } = await getStockLookups(query);
     if (data) {
       setListProducts((prev) => [...prev, ...data]);
       setTotalPage(meta?.info?.totalPage);
@@ -143,7 +151,7 @@ const Content = ({ detailLookupStockData, type }) => {
       return listProducts?.map((product) => (
         <SelectedData
           title={product?.code}
-          subTitle={`Sisa: ${product?.name}`}
+          subTitle={`Sisa: ${product?.remainingValue}`}
           key={product?.id}
           sx={{ marginBottom: '12px' }}
           withDelete={false}
@@ -154,18 +162,13 @@ const Content = ({ detailLookupStockData, type }) => {
     return search ? 'Data tidak ditemukan' : 'Tidak ada data';
   };
 
-  const getTitle = () => {
-    if (type === 'stock') {
-      return `${detailLookupStockData?.brand?.brand} - ${detailLookupStockData?.variant?.variant} ${detailLookupStockData?.type?.value} ${detailLookupStockData?.type?.unit?.unit}`;
-    }
-
-    return `${detailLookupStockData?.brand} - ${detailLookupStockData?.variant} ${detailLookupStockData?.type}`;
-  };
-
   return (
     <ModalV2.Content>
       <Stack spacing={3} sx={{ p: 3 }}>
-        <SelectedData title={getTitle()} withDelete={false} />
+        <SelectedData
+          title={`${data?.brandName} - ${data?.variantName} - ${data?.packetValue}${data?.unitName}`}
+          withDelete={false}
+        />
 
         <TextField label="Cari Produk" value={search} onChange={onChangeSearchHandler} />
         <Scrollbar sx={{ height: { sm: '300px' } }} onScroll={onScrollHandler}>

@@ -8,9 +8,7 @@ const useAttributeBrands = (queryParams) => {
     return getBrands(queryParams, signal);
   };
 
-  return useQuery([KEY.attribute.brands.all, queryParams], fetchBrands, {
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  return useQuery([KEY.attribute.brands.all, queryParams], fetchBrands);
 };
 
 const useAttributeBrandDetail = (brandId, queryConfig = {}) => {
@@ -19,7 +17,6 @@ const useAttributeBrandDetail = (brandId, queryConfig = {}) => {
   };
 
   return useQuery([KEY.attribute.brands.detail, brandId], fetchBrandDetail, {
-    staleTime: 5 * 60 * 1000, // 5 minutes
     ...queryConfig,
   });
 };

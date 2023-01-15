@@ -16,9 +16,17 @@ const DialogForm = ({ detailStockData }) => {
   return (
     <Stack>
       <Stack spacing={3} sx={{ p: 3 }}>
-        <TextField id="code" value={detailStockData?.product?.code} label="Kode" variant="outlined" disabled />
         <TextField
-          value={detailStockData?.brand?.brand}
+          value={detailStockData?.productName}
+          type="text"
+          id="brand"
+          label="Nama Produk"
+          variant="outlined"
+          disabled
+        />
+        <TextField id="code" value={detailStockData?.productCode} label="Kode" variant="outlined" disabled />
+        <TextField
+          value={detailStockData?.brandName}
           type="text"
           id="brand"
           label="Brand"
@@ -26,7 +34,7 @@ const DialogForm = ({ detailStockData }) => {
           disabled
         />
         <TextField
-          value={detailStockData?.variant?.variant}
+          value={detailStockData?.variantName}
           type="text"
           id="variant"
           label="Varian"
@@ -34,7 +42,7 @@ const DialogForm = ({ detailStockData }) => {
           disabled
         />
         <TextField
-          value={`${detailStockData?.type?.value} ${detailStockData?.type?.unit?.unit}`}
+          value={`${detailStockData?.packetValue} ${detailStockData?.unitName}`}
           type="text"
           id="type"
           label="Tipe"

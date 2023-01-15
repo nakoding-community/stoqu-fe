@@ -6,15 +6,14 @@ import { toast } from 'react-toastify';
 import { Box, Stack, Typography, IconButton, Tabs, Tab, TextField, DialogActions, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useTheme, alpha } from '@mui/material/styles';
+import isEmpty from 'lodash/isEmpty';
 import InfiniteCombobox from '../../combobox/InfiniteCombobox';
 import Modal from '../Modal';
-import Iconify from '../../Iconify';
 import useTabs from '../../../hooks/useTabs';
 
-import { createStockTransaction } from '../../../client/stocksClient';
-import { getProductCountEstimation } from '../../../client/productsClient';
-
 import KEY from '../../../constant/queryKey';
+import Iconify from '../../Iconify';
+import { getStocks, stockTransaction } from '../../../clientv2/stockClient';
 
 // eslint-disable-next-line react/prop-types
 function ModalStockTransaction({ open, onClose, getStocksHandler, showModalSuccessCreateTrxHandler }) {
@@ -32,98 +31,86 @@ function ModalStockTransaction({ open, onClose, getStocksHandler, showModalSucce
 function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandler }) {
   const confirm = useConfirm();
   const queryClient = useQueryClient();
+  const theme = useTheme();
 
   const { currentTab, onChangeTab } = useTabs('in');
 
   const [orderId, setOrderId] = useState('');
-  const [orderCode, setOrderCode] = useState('');
   const [orderLabel, setOrderLabel] = useState('');
 
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [productId, setProductId] = useState('');
   const [productLabel, setProductLabel] = useState('');
+
+  const [rackId, setRackId] = useState('');
+  const [rackLabel, setRackLabel] = useState('');
+
+  const [quantity, setQuantity] = useState('');
+
+  const [lookupStocks, setLookupStocks] = useState([]);
 
   const TABS = [
     { value: 'in', label: 'Masuk' },
     { value: 'out', label: 'Keluar' },
   ];
 
+  const isButtonDisabled = () => {
+    if (currentTab === 'in') {
+      return isEmpty(productId) || isEmpty(rackId) || isEmpty(quantity);
+    }
+
+    if (currentTab === 'out') {
+      return isEmpty(productId) || isEmpty(rackId) || isEmpty(quantity) || isEmpty(lookupStocks);
+    }
+  };
+
   const onChangeOrderHandler = (e) => {
     setOrderId(e?.id);
-    setOrderCode(e?.code);
     setOrderLabel(e?.label);
   };
 
-  const isProductAlreadySelected = (id) => {
-    return selectedProducts?.filter((sel) => sel?.id === id)?.length > 0;
+  const onChangeProductHandler = (e) => {
+    setProductId(e?.id);
+    setProductLabel(e?.label);
+    setLookupStocks([]);
   };
 
-  const isButtonDisabled = () => {
-    if (selectedProducts?.length === 0) {
-      return true;
-    }
-
-    return (
-      selectedProducts?.filter(
-        (sel) =>
-          sel?.quantity === '' ||
-          parseFloat(sel?.quantity) === 0 ||
-          sel?.quantity === null ||
-          sel?.quantity === undefined
-      )?.length > 0
-    );
+  const onChangeRackHandler = (e) => {
+    setRackId(e?.id);
+    setRackLabel(e?.label);
+    setLookupStocks([]);
   };
 
-  const getProductCountEstimationHandler = async (productCode) => {
-    const { data } = await getProductCountEstimation(orderCode, productCode);
-    if (data) {
-      return data?.count;
-    }
+  const onChangeLookupStocksHandler = (e) => {
+    setLookupStocks([...lookupStocks, e]);
   };
 
-  const onChangeProductHandler = async (e) => {
-    if (e && !isProductAlreadySelected(e?.id)) {
-      let estimateQuantity = 0;
-      if (currentTab === 'in') {
-        const countEstimate = await getProductCountEstimationHandler(e?.code);
-        estimateQuantity = countEstimate;
-      }
-      const product = {
-        id: e?.id,
-        productName: `${e?.brand?.brand} - ${e?.variant?.variant} ${e?.type?.value} ${e?.type?.unit?.unit}`,
-        productCode: e?.code,
-        quantity: '',
-        estimateQuantity,
-      };
-
-      setProductLabel(e?.label);
-      setSelectedProducts((prev) => [...prev, product]);
-    }
-  };
-
-  const getRestructuedProduct = () => {
-    return selectedProducts?.map((product) => {
-      return {
-        id: product?.id,
-        quantity: parseInt(product?.quantity),
-        estimateQuantity: parseInt(product?.estimateQuantity),
-      };
-    });
+  const removeLookupHandler = (item) => {
+    const newData = lookupStocks?.filter((data) => data?.id !== item?.id);
+    setLookupStocks(newData);
   };
 
   const submitModalHandler = async () => {
     const body = {
+      orderTrxId: '',
+      products: [
+        {
+          id: productId,
+          quantity: parseInt(quantity),
+          rackId,
+          stockLookupIds: lookupStocks?.map((stock) => stock?.id),
+          stockTrxItemLookup_ids: [],
+        },
+      ],
       trxType: currentTab,
-      orderTrxId: orderId,
-      products: getRestructuedProduct(),
     };
 
-    const { data, isSuccess } = await createStockTransaction(body);
+    const { data, isSuccess } = await stockTransaction(body);
     if (isSuccess) {
       onClose();
       toast.success(`Berhasil membuat transaksi`);
 
-      await getStocksHandler();
-      queryClient.invalidateQueries([KEY.stocks.histories.all]);
+      getStocksHandler();
+      queryClient.invalidateQueries(['stock-histories', 'list']);
 
       // need timeout because be need time to refetch data
       setTimeout(() => {
@@ -142,8 +129,6 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
   useEffect(() => {
     setOrderId('');
-    setOrderCode('');
-    setSelectedProducts([]);
     setOrderLabel('');
     setProductLabel('');
   }, [currentTab]);
@@ -179,26 +164,84 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
           onChange={onChangeOrderHandler}
           disabled={currentTab === 'out'}
           labelText={orderLabel}
+          required
         />
         <InfiniteCombobox
-          value={selectedProducts?.[0]?.id}
-          label="Cari Produk"
-          type="products"
+          label="Cari Produk *"
           onChange={onChangeProductHandler}
           required
-          excludeIds={selectedProducts?.map(({ id }) => id)}
+          value={productId}
           labelText={productLabel}
+          queryFunction={getStocks}
+          restructureOptions={(options) =>
+            options?.map((option) => {
+              return {
+                id: option?.productId,
+                label: `${option?.productCode} - ${option?.brandName} - ${option?.variantName} - ${option?.packetValue}${option?.unitName}`,
+              };
+            })
+          }
         />
-        {selectedProducts?.map((product, index) => (
-          <SelectedProduct
-            key={product?.id}
-            index={index}
-            selectedProducts={selectedProducts}
-            setSelectedProducts={setSelectedProducts}
-            currentTab={currentTab}
-            {...product}
+        <InfiniteCombobox
+          label="Cari Rak *"
+          type="racks"
+          onChange={onChangeRackHandler}
+          required
+          value={rackId}
+          labelText={rackLabel}
+        />
+        <TextField
+          label="Jumlah"
+          variant="outlined"
+          size="small"
+          sx={{ marginBottom: '8px' }}
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          required
+        />
+
+        {currentTab === 'out' && (
+          <InfiniteCombobox
+            label="Lookup *"
+            type="lookupStocks"
+            onChange={onChangeLookupStocksHandler}
+            required
+            additionalQuery={{ productId, rackId }}
           />
-        ))}
+        )}
+        {currentTab === 'out' && (
+          <>
+            {lookupStocks?.map((lookupStock) => (
+              <Stack direction="row" alignItems={'center'} key={lookupStock?.id}>
+                <Box
+                  sx={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: '16px',
+                    color: theme.palette.success.dark,
+                    backgroundColor: alpha(theme.palette.success.main, 0.16),
+                  }}
+                >
+                  <Iconify icon="mdi:office-building-settings" sx={{ width: '20px', height: '20px' }} />
+                </Box>
+                <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
+                  <Box>
+                    <Typography variant="body1">{lookupStock?.label}</Typography>
+                  </Box>
+                  <Stack flexDirection="row" alignItems={'center'}>
+                    <IconButton size="small" color="error" onClick={() => removeLookupHandler(lookupStock)}>
+                      <Iconify icon="eva:trash-2-outline" />
+                    </IconButton>
+                  </Stack>
+                </Stack>
+              </Stack>
+            ))}
+          </>
+        )}
       </Stack>
       <DialogActions>
         <Button variant="outlined" color="inherit" onClick={onClose}>
@@ -212,100 +255,5 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
     </Stack>
   );
 }
-
-const SelectedProduct = ({
-  index,
-  productCode,
-  productName,
-  quantity,
-  estimateQuantity,
-  selectedProducts,
-  setSelectedProducts,
-  currentTab,
-}) => {
-  const theme = useTheme();
-
-  const [productQuantity, setProductQuantity] = useState(quantity);
-  const [productEstimateQuantity, setProductEstimateQuantity] = useState(estimateQuantity);
-
-  const onChangeProductQuantityHandler = (e) => {
-    const inputValue = e.target.value;
-    setProductQuantity(inputValue);
-
-    const newSelectedProducts = [...selectedProducts];
-    newSelectedProducts[index].quantity = inputValue;
-    setSelectedProducts(newSelectedProducts);
-  };
-
-  const onChangeProductEstimateQuantityHandler = (e) => {
-    const inputValue = e.target.value;
-    setProductEstimateQuantity(inputValue);
-
-    const newSelectedProducts = [...selectedProducts];
-    newSelectedProducts[index].estimateQuantity = inputValue;
-    setSelectedProducts(newSelectedProducts);
-  };
-
-  const onDeleteProductHandler = () => {
-    const newSelectedProducts = [...selectedProducts];
-    newSelectedProducts.splice(index, 1);
-    setSelectedProducts(newSelectedProducts);
-  };
-
-  return (
-    <Stack direction="row" alignItems={'center'}>
-      <Box
-        sx={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: '16px',
-          color: theme.palette.success.dark,
-          backgroundColor: alpha(theme.palette.success.main, 0.16),
-        }}
-      >
-        <Iconify icon="mdi:office-building-settings" sx={{ width: '20px', height: '20px' }} />
-      </Box>
-      <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
-        <Box>
-          <Typography variant="body1">{productName}</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {productCode}
-          </Typography>
-        </Box>
-        <Stack width={'50%'} flexDirection="row" alignItems={'center'}>
-          <Box>
-            <TextField
-              id="outlined-basic"
-              label="Jumlah Aktual"
-              variant="outlined"
-              size="small"
-              sx={{ marginBottom: '8px' }}
-              value={productQuantity}
-              onChange={onChangeProductQuantityHandler}
-              required
-            />
-            {currentTab === 'in' && (
-              <TextField
-                id="outlined-basic"
-                label="Jumlah Estimasi"
-                variant="outlined"
-                size="small"
-                value={productEstimateQuantity}
-                onChange={onChangeProductEstimateQuantityHandler}
-              />
-            )}
-          </Box>
-          <IconButton size="small" color="error" onClick={onDeleteProductHandler}>
-            <Iconify icon="eva:trash-2-outline" />
-          </IconButton>
-        </Stack>
-      </Stack>
-    </Stack>
-  );
-};
 
 export default ModalStockTransaction;

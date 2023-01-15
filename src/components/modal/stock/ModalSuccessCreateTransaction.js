@@ -32,13 +32,13 @@ const Header = ({ createdTrxData, setIsDownloading, onClose }) => {
   const downloadPDFData = async () => {
     setIsDownloading(true);
     setLoading(true);
-    const codeProducts = products?.map((product) => {
-      return product?.lookups?.map((lookup) => {
-        return lookup?.code;
+    const codeProducts = products?.flatMap((product) => {
+      return product?.lookupCodes?.map((lookup) => {
+        return lookup;
       });
     });
 
-    setValueStrings(codeProducts[0]);
+    setValueStrings(codeProducts);
     setLoading(false);
   };
 
@@ -60,9 +60,7 @@ const Header = ({ createdTrxData, setIsDownloading, onClose }) => {
   );
 };
 
-const Content = ({ createdTrxData, type }) => {
-  const theme = useTheme();
-
+const Content = ({ createdTrxData }) => {
   const { products } = createdTrxData || {};
 
   return (
@@ -71,21 +69,8 @@ const Content = ({ createdTrxData, type }) => {
         <Stack spacing={3} sx={{ p: 3 }}>
           {products?.map((product, index) => (
             <React.Fragment key={index}>
-              {type === 'transaction' && (
-                <Typography
-                  variant="body1"
-                  sx={{
-                    marginRight: '8px',
-                    borderLeft: `5px solid ${theme.palette.success.main}`,
-                    borderRadius: '4px',
-                    paddingLeft: '16px',
-                  }}
-                >
-                  {`${index + 1}. ${product?.product?.name || product?.item?.stockTrxId}`}
-                </Typography>
-              )}
-              {product?.lookups?.map((lookup, index) => (
-                <Alert key={index}>{`${index + 1}. ${lookup?.code}`}</Alert>
+              {product?.lookupCodes?.map((lookup, index) => (
+                <Alert key={index}>{`${index + 1}. ${lookup}`}</Alert>
               ))}
             </React.Fragment>
           ))}

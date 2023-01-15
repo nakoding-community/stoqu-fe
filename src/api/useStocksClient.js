@@ -8,9 +8,7 @@ const useStockHistories = (queryParams) => {
     return getStocksHistory(queryParams, signal);
   };
 
-  return useQuery([KEY.stocks.histories.all, queryParams], fetchStockHistories, {
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  return useQuery([KEY.stocks.histories.all, queryParams], fetchStockHistories);
 };
 
 export { useStockHistories };

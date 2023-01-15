@@ -30,6 +30,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import InfiniteCombobox from '../combobox/InfiniteCombobox';
 import Label from '../Label';
 import { appendSortQuery } from '../../utils/helperUtils';
+import ModalStockRack from '../modal/stock/ModalStockRack';
+import ModalStockMovement from '../modal/stock/ModalStockMovement';
 
 const LIMIT = 5;
 
@@ -40,6 +42,8 @@ const StockList = ({
   closeTransactionStockModalHandler,
   showConversionStockModalHandler,
   setTotalStock,
+  showStockMovementModal,
+  setShowStockMovementModal,
 }) => {
   const [brandId, setBrandId] = useState('');
   const [filterBrandLabel, setFilterBrandLabel] = useState('');
@@ -66,6 +70,9 @@ const StockList = ({
   const [modalCreatedTrxType, setModalCreatedTrxType] = useState(null);
   const [createdTrxData, setCreatedTrxData] = useState(null);
 
+  const [showStockRackModal, setShowStockRackModal] = useState(false);
+  const [rackData, setRackData] = useState(null);
+
   const [editConversionStockData, setEditConversionStockData] = useState(null);
 
   const onCloseConversionStockModalHandler = () => {
@@ -90,16 +97,6 @@ const StockList = ({
     setModalCreatedTrxType(null);
   };
 
-  const showLookupStockModalHandler = (data) => {
-    setShowLookupStockModal(true);
-    setDetailLookupStockData(data);
-  };
-
-  const closeLookupStockModalHandler = () => {
-    setShowLookupStockModal(false);
-    setDetailLookupStockData(null);
-  };
-
   const showModalDetailStockHandler = (data) => {
     setShowModalDetailStock(true);
     setDetailStockData(data);
@@ -108,6 +105,20 @@ const StockList = ({
   const closeModalDetailStockHandler = () => {
     setShowModalDetailStock(false);
     setDetailStockData(null);
+  };
+
+  const showStockRackModalHandler = (data) => {
+    setShowStockRackModal(true);
+    setRackData(data);
+  };
+
+  const closeStockRackModalHandler = () => {
+    setShowStockRackModal(false);
+    setRackData(null);
+  };
+
+  const closeStockMovementModalHandler = () => {
+    setShowStockMovementModal(false);
   };
 
   const rowsPerPageChangeHandler = (e) => {
@@ -194,6 +205,7 @@ const StockList = ({
                 {stocks.map((row, index) => (
                   <TableRow key={row.id}>
                     <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                    <TableCell>{row?.productName}</TableCell>
                     <TableCell>{row?.productCode}</TableCell>
                     <TableCell>{row?.brandName}</TableCell>
                     <TableCell>{row?.variantName}</TableCell>
@@ -219,14 +231,9 @@ const StockList = ({
                           <Iconify icon="eva:edit-fill" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Konversi Stok">
-                        <IconButton size="small" color="info" onClick={() => onClickEditConversionStockData(row)}>
-                          <Iconify icon="eva:arrow-forward-outline" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Lookup Stok">
-                        <IconButton size="small" color="success" onClick={() => showLookupStockModalHandler(row)}>
-                          <Iconify icon="eva:search-outline" />
+                      <Tooltip title="Rak">
+                        <IconButton size="small" color="info" onClick={() => showStockRackModalHandler(row)}>
+                          <Iconify icon="eva:bar-chart-outline" />
                         </IconButton>
                       </Tooltip>
                     </TableCell>
@@ -261,11 +268,6 @@ const StockList = ({
         getStocksHandler={getStocksHandler}
         showModalSuccessCreateTrxHandler={showModalSuccessCreateTrxHandler}
       />
-      <ModalStockLookup
-        open={showLookupStockModal}
-        onClose={closeLookupStockModalHandler}
-        detailLookupStockData={detailLookupStockData}
-      />
       <ModalDetailStock
         open={showModalDetailStock}
         onClose={closeModalDetailStockHandler}
@@ -277,6 +279,13 @@ const StockList = ({
         onClose={closeModalSuccessCreateTrxHandler}
         createdTrxData={createdTrxData}
         type={modalCreatedTrxType}
+      />
+      <ModalStockRack open={showStockRackModal} onClose={closeStockRackModalHandler} data={rackData} />
+
+      <ModalStockMovement
+        open={showStockMovementModal}
+        onClose={closeStockMovementModalHandler}
+        getStocksHandler={getStocksHandler}
       />
     </>
   );
@@ -291,6 +300,11 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
     {
       id: 'no',
       label: 'No',
+      withSort: false,
+    },
+    {
+      id: 'productName',
+      label: 'Nama Produk',
       withSort: false,
     },
     {

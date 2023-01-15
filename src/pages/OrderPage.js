@@ -68,7 +68,7 @@ export default function OrderPage() {
 
   const [filterStatus, setFilterStatus] = useState('');
 
-  const [listenToFirebase, setListenToFirebase] = useState(true);
+  const [listenToFirebase, setListenToFirebase] = useState(false);
 
   const rowsPerPageChangeHandler = (e) => {
     setRowPerPage(e.target.value);
@@ -95,7 +95,7 @@ export default function OrderPage() {
   const navigateToDetailPageHandler = (id, isRead) => {
     navigate(`/dashboard/order/${id}`);
     // eslint-disable-next-line no-unused-expressions
-    !isRead && readOrder(id);
+    // !isRead && readOrder(id);
   };
 
   const getDataFirebase = async () => {

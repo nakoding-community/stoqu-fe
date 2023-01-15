@@ -36,6 +36,7 @@ import { useAttributeBrands } from '../../api/useAttributeBrandClient';
 import KEY from '../../constant/queryKey';
 import TableRowSkeleton from '../skeleton/TableRowSkeleton';
 import { appendSortQuery } from '../../utils/helperUtils';
+import InfiniteCombobox from '../combobox/InfiniteCombobox';
 
 const AttributeBrand = () => {
   const queryClient = useQueryClient();
@@ -57,6 +58,9 @@ const AttributeBrand = () => {
 
   const [showModalBrand, setShowModalBrand] = useState(false);
   const [showModalVariant, setShowModalVariant] = useState(false);
+
+  const [supplierId, setSupplierId] = useState(null);
+  const [supplierLabel, setSupplierLabel] = useState('');
 
   const resetState = () => {
     setEditBrandData(null);
@@ -98,6 +102,12 @@ const AttributeBrand = () => {
     setPage(newValue);
   };
 
+  const onChangeFilterSupplier = (e) => {
+    setSupplierId(e?.id);
+    setSupplierLabel(e?.label);
+    setPage(0);
+  };
+
   const getRestructuredBrands = (data = []) => {
     const restructuredData = [];
 
@@ -129,6 +139,7 @@ const AttributeBrand = () => {
     page: page + 1,
     pageSize: rowsPerPage,
     search: searchDebounce,
+    supplierId,
     ...(order && appendSortQuery(order, orderBy)),
   };
 
@@ -157,7 +168,7 @@ const AttributeBrand = () => {
       />
 
       <Card>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 2.5, px: 3 }}>
+        <Stack direction="row" alignItems="center" sx={{ py: 2.5, px: 3 }}>
           <TextField
             value={search}
             onChange={onChangeSearchHandler}
@@ -169,6 +180,14 @@ const AttributeBrand = () => {
                 </InputAdornment>
               ),
             }}
+            sx={{ marginRight: '16px' }}
+          />
+          <InfiniteCombobox
+            label="Cari supplier"
+            type="users"
+            sx={{ width: '300px', marginRight: '20px' }}
+            onChange={onChangeFilterSupplier}
+            labelText={supplierLabel}
           />
         </Stack>
 
