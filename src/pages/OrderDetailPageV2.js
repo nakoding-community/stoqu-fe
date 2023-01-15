@@ -49,7 +49,7 @@ const OrderDetailWrapper = () => {
       productId: item?.productId,
       rackId: item?.rackId,
       status: item?.status,
-      stockLookups: [], // ashandi todo
+      stockLookups: item?.orderTrxItemLookups?.map((lookup) => ({ ...lookup, action: 'update' })),
       total: item?.total,
       totalPacked: item?.totalPacked,
 

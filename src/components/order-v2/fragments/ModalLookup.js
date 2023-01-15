@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import cloneDeep from 'lodash/cloneDeep';
+
 import {
   Stack,
   IconButton,
@@ -58,7 +60,7 @@ const DialogForm = ({ onClose, showModalSelectLookup, setShowModalSelectLookup, 
     const itemIndex = state.payloadBody.items.findIndex((item) => item.uuid === productDetail?.uuid);
     return {
       immerSetState: state.immerSetState,
-      stockLookups: state.payloadBody.items[itemIndex].stockLookups,
+      stockLookups: state.payloadBody.items[itemIndex].stockLookups?.filter((lookup) => lookup?.action !== 'delete'),
     };
   });
 
@@ -72,9 +74,17 @@ const DialogForm = ({ onClose, showModalSelectLookup, setShowModalSelectLookup, 
   const onClickDeleteLookup = (deleteLookup) => {
     immerSetState((draft) => {
       const itemIndex = draft.payloadBody.items.findIndex((item) => item.uuid === productDetail?.uuid);
-      const newStockLookups = draft.payloadBody.items[itemIndex].stockLookups.filter(
-        (lookup) => lookup?.id !== deleteLookup?.id
-      );
+
+      let newStockLookups = cloneDeep(draft.payloadBody.items[itemIndex].stockLookups);
+      const lookupIndex = newStockLookups?.findIndex((lookup) => lookup?.id === deleteLookup?.id);
+      const lookupItem = newStockLookups[lookupIndex];
+
+      if (lookupItem?.action === 'insert') {
+        newStockLookups = newStockLookups?.filter((lookup) => lookup?.id !== deleteLookup?.id);
+      } else {
+        newStockLookups[lookupIndex].action = 'delete';
+      }
+
       draft.payloadBody.items[itemIndex].stockLookups = newStockLookups;
     });
   };

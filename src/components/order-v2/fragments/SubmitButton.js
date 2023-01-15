@@ -30,7 +30,10 @@ const SubmitButton = () => {
       productId: item?.productId,
       rackId: item?.rackId,
       status: item?.status,
-      stockLookups: item?.stockLookups,
+      stockLookups: item?.stockLookups?.map((lookup) => ({
+        id: lookup?.id,
+        action: lookup?.action || 'insert',
+      })),
       total: parseInt(item?.total),
     }));
 
