@@ -69,6 +69,16 @@ const DialogForm = ({ onClose, showModalSelectLookup, setShowModalSelectLookup, 
     });
   };
 
+  const onClickDeleteLookup = (deleteLookup) => {
+    immerSetState((draft) => {
+      const itemIndex = draft.payloadBody.items.findIndex((item) => item.uuid === productDetail?.uuid);
+      const newStockLookups = draft.payloadBody.items[itemIndex].stockLookups.filter(
+        (lookup) => lookup?.id !== deleteLookup?.id
+      );
+      draft.payloadBody.items[itemIndex].stockLookups = newStockLookups;
+    });
+  };
+
   return (
     <>
       <Stack component="form">
@@ -83,19 +93,27 @@ const DialogForm = ({ onClose, showModalSelectLookup, setShowModalSelectLookup, 
                 </TableRow>
               </TableHead>
               <TableBody>
-                {stockLookups?.map((lookup, index) => (
-                  <TableRow key={lookup?.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{lookup?.code}</TableCell>
-                    <TableCell>
-                      <Tooltip title="Hapus Lookup">
-                        <IconButton size="small" color="error">
-                          <Iconify icon="eva:trash-2-outline" />
-                        </IconButton>
-                      </Tooltip>
+                {stockLookups?.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} sx={{ textAlign: 'center' }}>
+                      Tidak ada data
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  stockLookups?.map((lookup, index) => (
+                    <TableRow key={lookup?.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{lookup?.code}</TableCell>
+                      <TableCell>
+                        <Tooltip title="Hapus Lookup">
+                          <IconButton size="small" color="error" onClick={() => onClickDeleteLookup(lookup)}>
+                            <Iconify icon="eva:trash-2-outline" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>
