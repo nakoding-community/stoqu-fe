@@ -39,7 +39,6 @@ export const getSidebarConfig = ({ count }) => {
               {count?.totalStock || 0}
             </Label>
           ),
-          disabled: true, // Temporary disabled page
         },
         {
           title: 'Pesanan',
@@ -50,7 +49,6 @@ export const getSidebarConfig = ({ count }) => {
               {count?.totalOrder || 0}
             </Label>
           ),
-          disabled: true, // Temporary disabled page
         },
         {
           title: 'Laporan',
@@ -101,7 +99,6 @@ const sidebarConfig = [
             +2
           </Label>
         ),
-        disabled: true, // Temporary disabled page
       },
       {
         title: 'Pesanan',
@@ -112,7 +109,6 @@ const sidebarConfig = [
             +2
           </Label>
         ),
-        disabled: true, // Temporary disabled page
       },
       { title: 'Laporan', path: '/dashboard/report', icon: ICONS.analytics },
       {
