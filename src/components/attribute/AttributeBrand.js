@@ -30,6 +30,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 
 import { ModalCreateEditBrand } from '../modal/brand/ModalCreateEditBrand';
 import { deleteVariant } from '../../client/variantsClient';
+import { deleteBrand } from '../../clientv2/brandClient';
 import { ModalCreateEditVariant } from '../modal/variant/ModalCreateEditVariant';
 import { useAttributeBrands } from '../../api/useAttributeBrandClient';
 
@@ -277,7 +278,17 @@ const TableRowComponent = ({
       const { isSuccess } = await deleteVariant(id);
       if (isSuccess) {
         toast.success('Berhasil menghapus variant');
-        queryClient.invalidateQueries(['brands']);
+        queryClient.refetchQueries(['brands']);
+      }
+    });
+  };
+
+  const onClickDeleteBrandHandler = (id) => {
+    confirm().then(async () => {
+      const { isSuccess } = await deleteBrand(id);
+      if (isSuccess) {
+        toast.success('Berhasil menghapus brand');
+        queryClient.refetchQueries(['brands']);
       }
     });
   };
@@ -321,7 +332,7 @@ const TableRowComponent = ({
       </TableCell>
       <TableCell>
         {row?.no && (
-          <>
+          <Box sx={{ display: 'flex' }}>
             <Tooltip title="Edit Brand">
               <IconButton size="small" color="warning" onClick={() => onClickEditBrandHandler(row)}>
                 <Iconify icon="eva:edit-fill" />
@@ -332,7 +343,12 @@ const TableRowComponent = ({
                 <Iconify icon="eva:plus-outline" />
               </IconButton>
             </Tooltip>
-          </>
+            <Tooltip title="Delete Brand">
+              <IconButton size="small" color="error" onClick={() => onClickDeleteBrandHandler(row?.brandId)}>
+                <Iconify icon="eva:trash-2-outline" />
+              </IconButton>
+            </Tooltip>
+          </Box>
         )}
       </TableCell>
     </TableRow>
