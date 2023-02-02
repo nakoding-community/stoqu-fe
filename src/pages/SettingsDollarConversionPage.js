@@ -20,7 +20,6 @@ export default function SettingsDollarConversionPage() {
   const { currentTab: filterStatus, onChangeTab: onFilterStatus, setCurrentTab } = useTabs('auto');
 
   const [currencyData, setCurrencyData] = useState(null);
-  console.log('currencyData', currencyData);
   const [valueIdr, setValueIdr] = useState('');
 
   const { mutate: editCurrency } = useEditCurrency(currencyData?.id);

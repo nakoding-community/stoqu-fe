@@ -44,7 +44,6 @@ const onSuccess = (response) => {
 };
 
 const onError = (error) => {
-  console.log('ERROR', error);
   if (error?.code !== 'ERR_CANCELED') {
     toast.error(capitalize(error?.response?.data?.meta?.message || 'Something went wrong'));
   }

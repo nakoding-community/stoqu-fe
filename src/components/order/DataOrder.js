@@ -47,8 +47,6 @@ const DataOrder = () => {
     notes,
   } = createOrderState;
 
-  console.log('isReady', isReady);
-
   const isCreatePage = location.pathname.includes('new');
 
   const onChangeInputLinkPayment = (e) => {
@@ -83,7 +81,6 @@ const DataOrder = () => {
     }
   };
 
-  console.log('isUserAbleToEdit', isUserAbleToEdit);
   return (
     <>
       <Card>
