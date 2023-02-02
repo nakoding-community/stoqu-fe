@@ -255,11 +255,11 @@ const TableRowComponent = ({ row, number, setEditData, setEditId, showModalHandl
       <TableCell>{`${productDetail?.packetValue} ${productDetail?.unitName}`}</TableCell>
       <TableCell>{productDetail?.supplierName}</TableCell>
       <TableCell>{productDetail?.variantUniqueCode}</TableCell>
-      <TableCell>
+      {/* <TableCell>
         <Label variant={'ghost'} color={'success'}>
           {convertToRupiah(productDetail?.priceFinal)}
         </Label>
-      </TableCell>
+      </TableCell> */}
       <TableCell>
         <Tooltip title="Edit Produk">
           <IconButton size="small" color="warning" onClick={() => onClickEditHandler(productDetail)}>
@@ -322,11 +322,11 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       label: 'Kode Unik',
       withSort: false,
     },
-    {
-      id: 'price_idr',
-      label: 'Harga',
-      withSort: true,
-    },
+    // {
+    //   id: 'price_idr',
+    //   label: 'Harga',
+    //   withSort: true,
+    // },
     {
       id: 'action',
       label: 'Aksi',

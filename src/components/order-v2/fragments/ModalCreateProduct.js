@@ -137,13 +137,13 @@ const DialogForm = ({ onClose, productDetail }) => {
             });
           }}
         />
-        <TextField
+        {/* <TextField
           value={parseFloat(formData?.total || 0) * productPrice}
           id="outlined-basic"
           label="Estimasi Harga"
           variant="outlined"
           disabled
-        />
+        /> */}
         <TextField
           value={formData?.price}
           id="outlined-basic"

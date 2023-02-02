@@ -27,16 +27,23 @@ const DialogForm = ({ onClose, editData, editId }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { name, brandId, variantId, typeId, priceIdr, priceUsd, estimatePriceIdr, labelText } = formState;
+  const {
+    name,
+    brandId,
+    variantId,
+    typeId,
+    priceIdr,
+    priceUsd,
+    // estimatePriceIdr,
+    labelText,
+  } = formState;
 
   const isButtonDisabled = editData
     ? name === '' || priceUsd === '' || priceIdr === ''
-    : brandId === '' ||
-      variantId === '' ||
-      typeId === '' ||
-      priceIdr === '' ||
-      priceUsd === '' ||
-      estimatePriceIdr === '';
+    : brandId === '' || variantId === '' || typeId === '';
+  // priceIdr === '' ||
+  // priceUsd === '' ||
+  // estimatePriceIdr === '';
 
   const changeLabelText = (newObjValue) => {
     inputChangeHandler('labelText', {
@@ -144,21 +151,21 @@ const DialogForm = ({ onClose, editData, editId }) => {
           disabled={editData !== null}
           labelText={labelText?.type}
         />
-        <TextField
+        {/* <TextField
           type="number"
           label="Harga USD"
           variant="outlined"
           value={priceUsd}
           onChange={(e) => inputChangeHandler('priceUsd', e.target.value)}
-        />
-        <TextField type="number" label="Estimasi Harga" variant="outlined" value={estimatePriceIdr} disabled />
-        <TextField
+        /> */}
+        {/* <TextField type="number" label="Estimasi Harga" variant="outlined" value={estimatePriceIdr} disabled /> */}
+        {/* <TextField
           type="number"
           label="Harga Akhir (*)"
           variant="outlined"
           value={priceIdr}
           onChange={(e) => inputChangeHandler('priceIdr', e.target.value)}
-        />
+        /> */}
       </Stack>
 
       <DialogActions>
@@ -180,7 +187,7 @@ const initialFormInput = {
   variantId: '',
   typeId: '',
   priceUsd: '',
-  priceIdr: '',
+  priceIdr: '1',
   estimatePriceIdr: '',
   labelText: {},
 };
