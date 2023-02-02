@@ -41,19 +41,6 @@ const StockHistory = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowPerPage] = useState(5);
 
-  const [showModal, setShowModal] = useState(false);
-  const [stockData, setStockData] = useState(null);
-
-  const showModalHandler = (data) => {
-    setShowModal(true);
-    setStockData(data);
-  };
-
-  const closeModalHandler = () => {
-    setShowModal(false);
-    setStockData(null);
-  };
-
   const rowsPerPageChangeHandler = (e) => {
     setRowPerPage(e.target.value);
   };
@@ -113,24 +100,7 @@ const StockHistory = () => {
                   <TableRowSkeleton countCell={6} />
                 ) : (
                   stocks?.map((row, index) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-                      <TableCell>{moment(row?.createdAt).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
-                      <TableCell>{row?.code}</TableCell>
-                      <TableCell>
-                        <Label variant={'ghost'} color={row?.trxType === 'in' ? 'success' : 'error'}>
-                          {row?.trxType}
-                        </Label>
-                      </TableCell>
-                      <TableCell>{row?.orderTrx?.code}</TableCell>
-                      <TableCell>
-                        <Tooltip title="Detail History">
-                          <IconButton size="small" color="warning" onClick={() => showModalHandler(row)}>
-                            <Iconify icon="eva:edit-fill" />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
+                    <TableRowComponent key={row?.id} row={row} index={index} page={page} rowsPerPage={rowsPerPage} />
                   ))
                 )}
               </TableBody>
@@ -148,13 +118,51 @@ const StockHistory = () => {
             onRowsPerPageChange={rowsPerPageChangeHandler}
           />
         </Box>
-        <ModalItems open={showModal} onClose={closeModalHandler} stockData={stockData} />
       </Card>
     </>
   );
 };
 
-const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
+const TableRowComponent = React.memo(({ row, index, page, rowsPerPage }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [stockData, setStockData] = useState(null);
+
+  const showModalHandler = (data) => {
+    setShowModal(true);
+    setStockData(data);
+  };
+
+  const closeModalHandler = () => {
+    setShowModal(false);
+    setStockData(null);
+  };
+
+  return (
+    <>
+      <TableRow>
+        <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+        <TableCell>{moment(row?.createdAt).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
+        <TableCell>{row?.code}</TableCell>
+        <TableCell>
+          <Label variant={'ghost'} color={row?.trxType === 'in' ? 'success' : 'error'}>
+            {row?.trxType}
+          </Label>
+        </TableCell>
+        <TableCell>{row?.orderTrx?.code}</TableCell>
+        <TableCell>
+          <Tooltip title="Detail History">
+            <IconButton size="small" color="warning" onClick={() => showModalHandler(row)}>
+              <Iconify icon="eva:edit-fill" />
+            </IconButton>
+          </Tooltip>
+        </TableCell>
+      </TableRow>
+      <ModalItems open={showModal} onClose={closeModalHandler} stockData={stockData} />
+    </>
+  );
+});
+
+const TableHeadComponent = React.memo(({ orderBy, order, onSortHandler }) => {
   const onClickSortHandler = (property) => {
     onSortHandler(property);
   };
@@ -216,6 +224,6 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       </TableRow>
     </TableHead>
   );
-};
+});
 
 export default StockHistory;

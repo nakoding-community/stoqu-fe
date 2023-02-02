@@ -27,9 +27,7 @@ function ModalItems({ open, onClose, stockData }) {
 }
 
 function ModalContent({ stockData }) {
-  console.log('stockData', stockData);
-
-  const products = stockData?.stockTrxItems || [];
+  const products = stockData?.stockLookups || [];
   const [showModal, setShowModal] = useState(false);
   const [lookupData, setLookupData] = useState(null);
 
@@ -58,17 +56,17 @@ function ModalContent({ stockData }) {
           <TableBody>
             {products?.map((row) => (
               <TableRow key={row?.id}>
+                <TableCell>{`${row?.product?.brandName} - ${row?.product?.variantName}`}</TableCell>
                 <TableCell>
-                  {`${row?.product?.code} - ${row?.product?.variant?.brand?.brand} - ${row?.product?.variant?.variant}`}
-                </TableCell>
-                <TableCell>
-                  {row?.convertType && (
+                  {row?.convertType ? (
                     <Label variant={'ghost'} color={row?.convertType === 'origin' ? 'success' : 'warning'}>
                       {row?.convertType}
                     </Label>
+                  ) : (
+                    '-'
                   )}
                 </TableCell>
-                <TableCell>{`${row?.product?.type?.value} ${row?.product?.type?.unit?.unit}`}</TableCell>
+                <TableCell>{`${row?.product?.packetValue} ${row?.product?.unitName}`}</TableCell>
                 <TableCell>
                   <Tooltip title="Lookup items">
                     <IconButton size="small" color="success" onClick={() => showModalHandler(row)}>

@@ -26,14 +26,7 @@ const ModalLookups = ({ open, onClose, lookupData }) => {
     confirm({ title: 'Perhatian!', description: 'Mohon tunggu hingga proses pengambilan data selesai' });
   };
 
-  const lookups =
-    lookupData?.stockTrxItemLookups?.map((lookup) => {
-      return {
-        id: lookup?.id,
-        code: lookup?.code,
-        value: `${lookup?.remainingTypeValue} ${lookupData?.product?.type?.unit?.unit}`,
-      };
-    }) || [];
+  const lookups = lookupData?.stockTrxItemLookups || [];
 
   return (
     <ModalV2 open={open} onClose={() => (isDownloading ? confrimHandler() : onClose())}>
@@ -81,7 +74,7 @@ const Content = ({ lookups }) => {
   const onChangeSearchHandler = (e) => {
     const newLookups = lookups?.filter((lookup) => {
       const inputValue = e.target.value?.toLowerCase();
-      return lookup?.code?.toLowerCase()?.includes(inputValue) || lookup?.value?.toLowerCase()?.includes(inputValue);
+      return lookup?.code?.toLowerCase()?.includes(inputValue);
     });
 
     setListLookups(newLookups);
@@ -106,7 +99,8 @@ const Content = ({ lookups }) => {
             <TableHead>
               <TableRow>
                 <TableCell>Kode</TableCell>
-                <TableCell>Value</TableCell>
+                <TableCell>Value Sebelum</TableCell>
+                <TableCell>Value Sesudah</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -114,7 +108,8 @@ const Content = ({ lookups }) => {
                 listLookups?.map((row) => (
                   <TableRow key={row?.id}>
                     <TableCell>{row?.code}</TableCell>
-                    <TableCell>{`${row?.value}`}</TableCell>
+                    <TableCell>{`${row?.remainingValueBefore}`}</TableCell>
+                    <TableCell>{`${row?.remainingValue}`}</TableCell>
                   </TableRow>
                 ))
               ) : (
