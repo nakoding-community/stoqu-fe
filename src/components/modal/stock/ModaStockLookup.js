@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useConfirm } from 'material-ui-confirm';
-import { Box, Stack, Typography, IconButton, TextField, DialogTitle } from '@mui/material';
+import { Box, Stack, Typography, TextField, DialogTitle, IconButton, Tooltip } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 import ModalV2 from '../ModaV2';
 import Iconify from '../../Iconify';
@@ -11,6 +11,7 @@ import { getLookupStocksProduct } from '../../../client/lookupStocksClient';
 import { loadMoreValidator } from '../../../utils/helperUtils';
 
 import { getStockLookups } from '../../../clientv2/stockLookup';
+import Label from '../../Label';
 
 const ModalStockLookup = ({ open, onClose, detailLookupStockData, type = 'stock', stockRackId, data }) => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -150,11 +151,12 @@ const Content = ({ type, stockRackId, data }) => {
     if (listProducts?.length > 0) {
       return listProducts?.map((product) => (
         <SelectedData
+          product={product}
           title={product?.code}
-          subTitle={`Sisa: ${product?.remainingValue}`}
           key={product?.id}
           sx={{ marginBottom: '12px' }}
-          withDelete={false}
+          withBadge
+          withEdit
         />
       ));
     }
@@ -165,10 +167,7 @@ const Content = ({ type, stockRackId, data }) => {
   return (
     <ModalV2.Content>
       <Stack spacing={3} sx={{ p: 3 }}>
-        <SelectedData
-          title={`${data?.brandName} - ${data?.variantName} - ${data?.packetValue}${data?.unitName}`}
-          withDelete={false}
-        />
+        <SelectedData title={`${data?.brandName} - ${data?.variantName} - ${data?.packetValue}${data?.unitName}`} />
 
         <TextField label="Cari Produk" value={search} onChange={onChangeSearchHandler} />
         <Scrollbar sx={{ height: { sm: '300px' } }} onScroll={onScrollHandler}>
@@ -179,8 +178,16 @@ const Content = ({ type, stockRackId, data }) => {
   );
 };
 
-const SelectedData = ({ title, subTitle, withDelete = true, sx = {} }) => {
+const SelectedData = ({ title, sx = {}, withBadge, withEdit, product }) => {
   const theme = useTheme();
+  const [value, setValue] = useState(product?.remainingValue);
+  const [isSeal, setIsSeal] = useState(product?.isSeal);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const onSaveValue = (e) => {
+    setIsEditing(false);
+  };
+
   return (
     <>
       <Stack direction="row" alignItems={'center'} sx={sx}>
@@ -202,14 +209,35 @@ const SelectedData = ({ title, subTitle, withDelete = true, sx = {} }) => {
         <Stack width="100%" direction="row" alignItems={'center'} justifyContent="space-between">
           <Box>
             <Typography variant="body1">{title}</Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {subTitle}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {isEditing ? (
+                <TextField
+                  size="small"
+                  autoFocus
+                  value={value}
+                  onBlur={onSaveValue}
+                  onChange={(e) => setValue(e.target.value)}
+                />
+              ) : (
+                <>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {`Sisa: ${value}`}
+                  </Typography>
+                  {withEdit && (
+                    <Tooltip title="Edit Value">
+                      <IconButton size="small" color="warning" onClick={() => setIsEditing(true)}>
+                        <Iconify icon="eva:edit-fill" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </>
+              )}
+            </Box>
           </Box>
-          {withDelete && (
-            <IconButton size="small" color="error">
-              <Iconify icon="eva:trash-2-outline" />
-            </IconButton>
+          {withBadge && (
+            <Label variant="ghost" color={isSeal ? 'error' : 'success'}>
+              {isSeal ? 'Segel' : 'Tidak Segel'}
+            </Label>
           )}
         </Stack>
       </Stack>
