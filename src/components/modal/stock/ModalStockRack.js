@@ -4,17 +4,17 @@ import Modal from '../Modal';
 import Iconify from '../../Iconify';
 import ModalStockLookup from './ModaStockLookup';
 
-const ModalStockRack = ({ open, onClose, data }) => {
+const ModalStockRack = ({ open, onClose, data, getStocksHandler }) => {
   const title = 'Stok Rak';
 
   return (
     <Modal title={title} open={open} onClose={onClose} maxWidth="md">
-      <DialogForm data={data} />
+      <DialogForm data={data} getStocksHandler={getStocksHandler} />
     </Modal>
   );
 };
 
-const DialogForm = ({ data }) => {
+const DialogForm = ({ data, getStocksHandler }) => {
   const [showLookupStockModal, setShowLookupStockModal] = useState(false);
   const [stockRackId, setStockRackId] = useState(null);
 
@@ -71,6 +71,7 @@ const DialogForm = ({ data }) => {
           setStockRackId(null);
         }}
         detailLookupStockData={data}
+        getStocksHandler={getStocksHandler}
       />
     </>
   );

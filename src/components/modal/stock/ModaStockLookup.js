@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useConfirm } from 'material-ui-confirm';
+import parseInt from 'lodash/parseInt';
 import { Box, Stack, Typography, TextField, DialogTitle, IconButton, Tooltip } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 import ModalV2 from '../ModaV2';
@@ -10,10 +11,18 @@ import DownloadProductCodePDF from '../../PDF/DownloadProductCodePDF';
 import { getLookupStocksProduct } from '../../../client/lookupStocksClient';
 import { loadMoreValidator } from '../../../utils/helperUtils';
 
-import { getStockLookups } from '../../../clientv2/stockLookup';
+import { getStockLookups, updateStockLookup } from '../../../clientv2/stockLookup';
 import Label from '../../Label';
 
-const ModalStockLookup = ({ open, onClose, detailLookupStockData, type = 'stock', stockRackId, data }) => {
+const ModalStockLookup = ({
+  open,
+  onClose,
+  detailLookupStockData,
+  type = 'stock',
+  stockRackId,
+  data,
+  getStocksHandler,
+}) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const confirm = useConfirm();
 
@@ -30,7 +39,13 @@ const ModalStockLookup = ({ open, onClose, detailLookupStockData, type = 'stock'
         stockRackId={stockRackId}
         data={data}
       />
-      <Content detailLookupStockData={detailLookupStockData} type={type} stockRackId={stockRackId} data={data} />
+      <Content
+        detailLookupStockData={detailLookupStockData}
+        type={type}
+        stockRackId={stockRackId}
+        data={data}
+        getStocksHandler={getStocksHandler}
+      />
     </ModalV2>
   );
 };
@@ -81,7 +96,7 @@ const Header = ({ onClose, setIsDownloading, stockRackId, data }) => {
   );
 };
 
-const Content = ({ type, stockRackId, data }) => {
+const Content = ({ type, stockRackId, data, getStocksHandler }) => {
   const [search, setSearch] = useState('');
   const [searchDebounce] = useDebounce(search, 300);
 
@@ -157,6 +172,7 @@ const Content = ({ type, stockRackId, data }) => {
           sx={{ marginBottom: '12px' }}
           withBadge
           withEdit
+          getStocksHandler={getStocksHandler}
         />
       ));
     }
@@ -167,7 +183,10 @@ const Content = ({ type, stockRackId, data }) => {
   return (
     <ModalV2.Content>
       <Stack spacing={3} sx={{ p: 3 }}>
-        <SelectedData title={`${data?.brandName} - ${data?.variantName} - ${data?.packetValue}${data?.unitName}`} />
+        <SelectedData
+          title={`${data?.brandName} - ${data?.variantName} - ${data?.packetValue}${data?.unitName}`}
+          showTitle={false}
+        />
 
         <TextField label="Cari Produk" value={search} onChange={onChangeSearchHandler} />
         <Scrollbar sx={{ height: { sm: '300px' } }} onScroll={onScrollHandler}>
@@ -178,14 +197,32 @@ const Content = ({ type, stockRackId, data }) => {
   );
 };
 
-const SelectedData = ({ title, sx = {}, withBadge, withEdit, product }) => {
+const SelectedData = ({ title, sx = {}, withBadge, withEdit, product, showTitle = true, getStocksHandler }) => {
   const theme = useTheme();
   const [value, setValue] = useState(product?.remainingValue);
-  const [isSeal, setIsSeal] = useState(product?.isSeal);
   const [isEditing, setIsEditing] = useState(false);
 
-  const onSaveValue = (e) => {
+  const onSaveValue = async () => {
     setIsEditing(false);
+
+    const body = {
+      id: product?.id,
+      isSeal: value === product?.value,
+      remainingValue: parseInt(value),
+      remainingValueBefore: product?.remainingValue,
+      value: product?.value,
+    };
+
+    const { isSuccess } = await updateStockLookup(product?.id, body);
+    if (isSuccess) {
+      getStocksHandler();
+    }
+  };
+
+  const onChangeValue = (e) => {
+    if (e.target.value > product?.value) return;
+
+    setValue(e.target.value);
   };
 
   return (
@@ -216,13 +253,16 @@ const SelectedData = ({ title, sx = {}, withBadge, withEdit, product }) => {
                   autoFocus
                   value={value}
                   onBlur={onSaveValue}
-                  onChange={(e) => setValue(e.target.value)}
+                  onChange={onChangeValue}
+                  type="number"
                 />
               ) : (
                 <>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {`Sisa: ${value}`}
-                  </Typography>
+                  {showTitle && (
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {`Sisa: ${value}`}
+                    </Typography>
+                  )}
                   {withEdit && (
                     <Tooltip title="Edit Value">
                       <IconButton size="small" color="warning" onClick={() => setIsEditing(true)}>
@@ -235,8 +275,8 @@ const SelectedData = ({ title, sx = {}, withBadge, withEdit, product }) => {
             </Box>
           </Box>
           {withBadge && (
-            <Label variant="ghost" color={isSeal ? 'error' : 'success'}>
-              {isSeal ? 'Segel' : 'Tidak Segel'}
+            <Label variant="ghost" color={product?.isSeal ? 'error' : 'success'}>
+              {product?.isSeal ? 'Segel' : 'Tidak Segel'}
             </Label>
           )}
         </Stack>

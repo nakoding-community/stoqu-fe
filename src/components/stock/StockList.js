@@ -280,7 +280,12 @@ const StockList = ({
         createdTrxData={createdTrxData}
         type={modalCreatedTrxType}
       />
-      <ModalStockRack open={showStockRackModal} onClose={closeStockRackModalHandler} data={rackData} />
+      <ModalStockRack
+        open={showStockRackModal}
+        onClose={closeStockRackModalHandler}
+        data={rackData}
+        getStocksHandler={getStocksHandler}
+      />
 
       <ModalStockMovement
         open={showStockMovementModal}
