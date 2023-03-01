@@ -11,6 +11,7 @@ import Iconify from '../components/Iconify';
 import HeaderBreadcrumbs from '../components/HeaderBreadcrumbs';
 import StockList from '../components/stock/StockList';
 import StockHistory from '../components/stock/StockHistory';
+import { useGetDashboardCount } from '../hooks/api/useDashboard';
 
 export default function StockApp() {
   const { themeStretch } = useSettings();
@@ -19,7 +20,7 @@ export default function StockApp() {
 
   const [showStockMovementModal, setShowStockMovementModal] = useState(false);
 
-  const [totalStock, setTotalStock] = useState(0);
+  const { data } = useGetDashboardCount();
 
   const showConversionStockModalHandler = () => {
     setShowConversionStockModal(true);
@@ -70,7 +71,7 @@ export default function StockApp() {
               </Button>
             </>
           }
-          badgeCount={totalStock}
+          badgeCount={data?.data?.totalStock}
         />
         <StockList
           showConversionStockModal={showConversionStockModal}
@@ -78,7 +79,6 @@ export default function StockApp() {
           closeConversionStockModalHandler={closeConversionStockModalHandler}
           showTransactionStockModal={showTransactionStockModal}
           closeTransactionStockModalHandler={closeTransactionStockModalHandler}
-          setTotalStock={setTotalStock}
           showStockMovementModal={showStockMovementModal}
           setShowStockMovementModal={setShowStockMovementModal}
         />

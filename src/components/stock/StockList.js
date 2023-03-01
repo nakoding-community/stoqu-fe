@@ -41,7 +41,6 @@ const StockList = ({
   showTransactionStockModal,
   closeTransactionStockModalHandler,
   showConversionStockModalHandler,
-  setTotalStock,
   showStockMovementModal,
   setShowStockMovementModal,
 }) => {
@@ -158,7 +157,6 @@ const StockList = ({
     const { data, meta } = await getStocks(query);
     setStocks(data || []);
     setPaginationMeta(meta?.info);
-    setTotalStock(meta?.info?.count);
   };
 
   useEffect(() => {
