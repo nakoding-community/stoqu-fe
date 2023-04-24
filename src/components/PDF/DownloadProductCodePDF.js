@@ -38,7 +38,7 @@ const DownloadProductCodePDF = ({ valueStrings, isLoading, onClick, onClose, set
       return 'Loading document..';
     }
 
-    return 'Download PDF';
+    return 'Download QR';
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ const DownloadProductCodePDF = ({ valueStrings, isLoading, onClick, onClose, set
 
       <Button
         variant="outlined"
-        startIcon={<Iconify icon="eva:download-fill" />}
+        startIcon={<Iconify icon="ion:qr-code" />}
         onClick={() => !isLoading && !isLoadingDocument && onClick()}
       >
         {getButtonText()}
