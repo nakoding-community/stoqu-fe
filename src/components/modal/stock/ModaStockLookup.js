@@ -222,6 +222,7 @@ const SelectedData = ({
       remainingValue: parseInt(value),
       remainingValueBefore: product?.remainingValue,
       value: product?.value,
+      stockRackId: product?.stockRackId,
     };
 
     const { isSuccess } = await updateStockLookup(product?.id, body);
