@@ -1,44 +1,65 @@
+/* eslint-disable no-plusplus */
 import React, { useState } from 'react';
 import { useConfirm } from 'material-ui-confirm';
 
-import { Stack, Typography, Alert, Box, DialogTitle } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { Stack, Alert, Box, DialogTitle } from '@mui/material';
 
 import ModalV2 from '../ModaV2';
 import DownloadProductCodePDF from '../../PDF/DownloadProductCodePDF';
 
-const ModalSuccessCreateTransaction = ({ open, onClose, createdTrxData, type = 'transaction' }) => {
+const ModalSuccessCreateTransaction = ({
+  open,
+  onClose,
+  createdTrxData,
+  type = 'transaction',
+  productData,
+  quantity,
+}) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const confirm = useConfirm();
 
-  const confrimHandler = (e) => {
+  const confrimHandler = () => {
     confirm({ title: 'Perhatian!', description: 'Mohon tunggu hingga proses pengambilan data selesai' });
   };
 
   return (
     <ModalV2 open={open} onClose={() => (isDownloading ? confrimHandler() : onClose())}>
-      <Header createdTrxData={createdTrxData} setIsDownloading={setIsDownloading} onClose={onClose} />
+      <Header
+        createdTrxData={createdTrxData}
+        setIsDownloading={setIsDownloading}
+        onClose={onClose}
+        productData={productData}
+        quantity={quantity}
+      />
       <Content createdTrxData={createdTrxData} type={type} />
     </ModalV2>
   );
 };
 
-const Header = ({ createdTrxData, setIsDownloading, onClose }) => {
+const Header = ({ createdTrxData, setIsDownloading, onClose, productData, quantity }) => {
   const [valueStrings, setValueStrings] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const { products } = createdTrxData || {};
+  // const { products } = createdTrxData || {};
 
   const downloadPDFData = async () => {
     setIsDownloading(true);
     setLoading(true);
-    const codeProducts = products?.flatMap((product) => {
-      return product?.lookupCodes?.map((lookup) => {
-        return lookup;
-      });
-    });
 
-    setValueStrings(codeProducts);
+    // const codeProducts = products?.flatMap((product) => {
+    //   return product?.lookupCodes?.map((lookup) => {
+    //     return lookup;
+    //   });
+    // });
+
+    const tempValueStrings = [];
+
+    for (let i = 0; i < quantity; i++) {
+      tempValueStrings.push(productData?.productCode);
+    }
+
+    setValueStrings(tempValueStrings);
+
     setLoading(false);
   };
 

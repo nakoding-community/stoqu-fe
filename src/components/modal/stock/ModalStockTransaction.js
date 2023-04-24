@@ -48,6 +48,8 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
   const [lookupStocks, setLookupStocks] = useState([]);
 
+  const [productData, setProductData] = useState(null);
+
   const TABS = [
     { value: 'in', label: 'Masuk' },
     { value: 'out', label: 'Keluar' },
@@ -71,6 +73,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
   const onChangeProductHandler = (e) => {
     setProductId(e?.id);
     setProductLabel(e?.label);
+    setProductData(e);
     setLookupStocks([]);
   };
 
@@ -114,7 +117,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
       // need timeout because be need time to refetch data
       setTimeout(() => {
-        showModalSuccessCreateTrxHandler(data, 'transaction');
+        showModalSuccessCreateTrxHandler(data, 'transaction', productData, quantity);
       }, 250);
     }
   };
@@ -176,6 +179,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
           restructureOptions={(options) =>
             options?.map((option) => {
               return {
+                ...option,
                 id: option?.productId,
                 label: `${option?.productCode} - ${option?.brandName} - ${option?.variantName} - ${option?.packetValue}${option?.unitName}`,
               };

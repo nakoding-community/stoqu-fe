@@ -73,6 +73,9 @@ const StockList = ({
 
   const [editConversionStockData, setEditConversionStockData] = useState(null);
 
+  const [productData, setProductData] = useState(null);
+  const [quantity, setQuantity] = useState('');
+
   const showModalDownloadProductCodeHandler = (row) => {
     setDetailData(row);
     setShowModalDownloadProductCode(true);
@@ -88,10 +91,13 @@ const StockList = ({
     closeConversionStockModalHandler();
   };
 
-  const showModalSuccessCreateTrxHandler = (data, type) => {
+  const showModalSuccessCreateTrxHandler = (data, type, productData, quantity) => {
     setShowModalCreatedTrx(true);
     setCreatedTrxData(data);
     setModalCreatedTrxType(type);
+
+    setProductData(productData);
+    setQuantity(quantity);
   };
 
   const closeModalSuccessCreateTrxHandler = () => {
@@ -290,6 +296,8 @@ const StockList = ({
         onClose={closeModalSuccessCreateTrxHandler}
         createdTrxData={createdTrxData}
         type={modalCreatedTrxType}
+        productData={productData}
+        quantity={quantity}
       />
       <ModalStockRack
         open={showStockRackModal}
