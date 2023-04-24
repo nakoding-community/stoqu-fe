@@ -47,6 +47,7 @@ const TableComponent = ({ setShowModalCreateProduct, setProductDetail, productDe
           <TableHead>
             <TableRow>
               <TableCell>No</TableCell>
+              <TableCell>Kode</TableCell>
               <TableCell>Brand</TableCell>
               <TableCell>Varian</TableCell>
               <TableCell>Paket</TableCell>
@@ -62,6 +63,7 @@ const TableComponent = ({ setShowModalCreateProduct, setProductDetail, productDe
               ?.map((row, index) => (
                 <TableRow key={row.id}>
                   <TableCell>{index + 1}</TableCell>
+                  <TableCell>{row?.product?.code}</TableCell>
                   <TableCell>{row?.product?.brandName || row?.product?.brand?.name}</TableCell>
                   <TableCell>{row?.product?.variantName || row?.product?.variant?.name}</TableCell>
                   <TableCell>
