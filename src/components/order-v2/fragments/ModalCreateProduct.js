@@ -37,8 +37,6 @@ const DialogForm = ({ onClose, productDetail }) => {
 
   const isCreate = isEmpty(productDetail);
 
-  const productPrice = parseFloat(formData?.selectedProduct?.priceFinal || 0);
-
   const immerSetState = useCreateOrder((state) => state.immerSetState);
 
   const save = (e) => {
@@ -137,13 +135,6 @@ const DialogForm = ({ onClose, productDetail }) => {
             });
           }}
         />
-        {/* <TextField
-          value={parseFloat(formData?.total || 0) * productPrice}
-          id="outlined-basic"
-          label="Estimasi Harga"
-          variant="outlined"
-          disabled
-        /> */}
         <TextField
           value={formData?.price}
           id="outlined-basic"

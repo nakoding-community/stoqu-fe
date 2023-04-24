@@ -151,7 +151,7 @@ const InfiniteCombobox = React.memo(
             return {
               ...option,
               id: option?.id,
-              label: option?.name,
+              label: `${option?.code} - ${option?.brandName} - ${option?.variantName} - ${option?.packetValue}${option?.unitName} - ${option?.supplierName}`,
             };
           });
         case 'units':
