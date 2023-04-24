@@ -7,7 +7,7 @@ import Iconify from '../Iconify';
 import QRGenerator from '../QRCode/QRGenerator';
 import PDFResult from './PDFResult';
 
-const DownloadProductCodePDF = ({ valueStrings, isLoading, onClick, onClose, setIsDownloading }) => {
+const DownloadProductCodePDF = ({ valueStrings, isLoading, onClick, setIsDownloading, useButton = true }) => {
   const [isReady, setIsReady] = useState(false);
   const [isLoadingDocument, setIsLoadingDocument] = useState(false);
 
@@ -66,13 +66,15 @@ const DownloadProductCodePDF = ({ valueStrings, isLoading, onClick, onClose, set
           </div>
         ))}
 
-      <Button
-        variant="outlined"
-        startIcon={<Iconify icon="ion:qr-code" />}
-        onClick={() => !isLoading && !isLoadingDocument && onClick()}
-      >
-        {getButtonText()}
-      </Button>
+      {useButton && (
+        <Button
+          variant="outlined"
+          startIcon={<Iconify icon="ion:qr-code" />}
+          onClick={() => !isLoading && !isLoadingDocument && onClick()}
+        >
+          {getButtonText()}
+        </Button>
+      )}
     </>
   );
 };

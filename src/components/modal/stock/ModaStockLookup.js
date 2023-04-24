@@ -83,13 +83,13 @@ const Header = ({ onClose, setIsDownloading, stockRackId, data }) => {
       <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <Box>Lookup Stok</Box>
-          <DownloadProductCodePDF
+          {/* <DownloadProductCodePDF
             onClick={downloadPDFData}
             valueStrings={valueStrings}
             isLoading={loading}
             onClose={onClose}
             setIsDownloading={setIsDownloading}
-          />
+          /> */}
         </DialogTitle>
       </Box>
     </ModalV2.Header>
@@ -172,6 +172,7 @@ const Content = ({ type, stockRackId, data, getStocksHandler }) => {
           sx={{ marginBottom: '12px' }}
           withBadge
           withEdit
+          withDownloadIcon
           getStocksHandler={getStocksHandler}
         />
       ));
@@ -197,10 +198,20 @@ const Content = ({ type, stockRackId, data, getStocksHandler }) => {
   );
 };
 
-const SelectedData = ({ title, sx = {}, withBadge, withEdit, product, showTitle = true, getStocksHandler }) => {
+const SelectedData = ({
+  title,
+  sx = {},
+  withBadge,
+  withEdit,
+  product,
+  showTitle = true,
+  getStocksHandler,
+  withDownloadIcon,
+}) => {
   const theme = useTheme();
   const [value, setValue] = useState(product?.remainingValue);
   const [isEditing, setIsEditing] = useState(false);
+  const [valueStrings, setValueStrings] = useState(null);
 
   const onSaveValue = async () => {
     setIsEditing(false);
@@ -223,6 +234,14 @@ const SelectedData = ({ title, sx = {}, withBadge, withEdit, product, showTitle 
     if (e.target.value > product?.value) return;
 
     setValue(e.target.value);
+  };
+
+  const onClickDownload = () => {
+    setValueStrings([title]);
+
+    setTimeout(() => {
+      setValueStrings([]);
+    }, 250);
   };
 
   return (
@@ -274,12 +293,23 @@ const SelectedData = ({ title, sx = {}, withBadge, withEdit, product, showTitle 
               )}
             </Box>
           </Box>
-          {withBadge && (
-            <Label variant="ghost" color={product?.isSeal ? 'error' : 'success'}>
-              {product?.isSeal ? 'Segel' : 'Tidak Segel'}
-            </Label>
-          )}
+          <Box>
+            {withBadge && (
+              <Label variant="ghost" color={product?.isSeal ? 'error' : 'success'} sx={{ marginRight: '8px' }}>
+                {product?.isSeal ? 'Segel' : 'Tidak Segel'}
+              </Label>
+            )}
+            {withDownloadIcon && (
+              <Tooltip title="Download QR Code">
+                <IconButton size="small" color="success" onClick={() => onClickDownload()}>
+                  <Iconify icon="ion:qr-code" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
         </Stack>
+
+        <DownloadProductCodePDF useButton={false} valueStrings={valueStrings} />
       </Stack>
     </>
   );
