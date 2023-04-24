@@ -24,7 +24,6 @@ import Iconify from '../Iconify';
 import Scrollbar from '../Scrollbar';
 import ModalStockConversion from '../modal/stock/ModalStockConversion';
 import ModalStockTransaction from '../modal/stock/ModalStockTransaction';
-import ModalStockLookup from '../modal/stock/ModaStockLookup';
 import ModalSuccessCreateTransaction from '../modal/stock/ModalSuccessCreateTransaction';
 import ConditionalWrapper from '../ConditionalWrapper';
 import InfiniteCombobox from '../combobox/InfiniteCombobox';
@@ -32,6 +31,7 @@ import Label from '../Label';
 import { appendSortQuery } from '../../utils/helperUtils';
 import ModalStockRack from '../modal/stock/ModalStockRack';
 import ModalStockMovement from '../modal/stock/ModalStockMovement';
+import ModalDownloadProductCode from '../PDF/ModalDownloadProductCode';
 
 const LIMIT = 5;
 
@@ -40,7 +40,6 @@ const StockList = ({
   closeConversionStockModalHandler,
   showTransactionStockModal,
   closeTransactionStockModalHandler,
-  showConversionStockModalHandler,
   showStockMovementModal,
   setShowStockMovementModal,
 }) => {
@@ -62,9 +61,6 @@ const StockList = ({
   const [showModalDetailStock, setShowModalDetailStock] = useState(false);
   const [detailStockData, setDetailStockData] = useState(null);
 
-  const [showLookupStockModal, setShowLookupStockModal] = useState(false);
-  const [detailLookupStockData, setDetailLookupStockData] = useState(null);
-
   const [showModalCreatedTrx, setShowModalCreatedTrx] = useState(false);
   const [modalCreatedTrxType, setModalCreatedTrxType] = useState(null);
   const [createdTrxData, setCreatedTrxData] = useState(null);
@@ -72,16 +68,24 @@ const StockList = ({
   const [showStockRackModal, setShowStockRackModal] = useState(false);
   const [rackData, setRackData] = useState(null);
 
+  const [showModalDownloadProductCode, setShowModalDownloadProductCode] = useState(false);
+  const [detailData, setDetailData] = useState(null);
+
   const [editConversionStockData, setEditConversionStockData] = useState(null);
+
+  const showModalDownloadProductCodeHandler = (row) => {
+    setDetailData(row);
+    setShowModalDownloadProductCode(true);
+  };
+
+  const closeModalDownloadProductCodeHandler = () => {
+    setDetailData(null);
+    setShowModalDownloadProductCode(false);
+  };
 
   const onCloseConversionStockModalHandler = () => {
     setEditConversionStockData(null);
     closeConversionStockModalHandler();
-  };
-
-  const onClickEditConversionStockData = (data) => {
-    setEditConversionStockData(data);
-    showConversionStockModalHandler();
   };
 
   const showModalSuccessCreateTrxHandler = (data, type) => {
@@ -234,6 +238,15 @@ const StockList = ({
                           <Iconify icon="eva:bar-chart-outline" />
                         </IconButton>
                       </Tooltip>
+                      <Tooltip title="Download QR Code">
+                        <IconButton
+                          size="small"
+                          color="success"
+                          onClick={() => showModalDownloadProductCodeHandler(row)}
+                        >
+                          <Iconify icon="ion:qr-code" />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -289,6 +302,12 @@ const StockList = ({
         open={showStockMovementModal}
         onClose={closeStockMovementModalHandler}
         getStocksHandler={getStocksHandler}
+      />
+
+      <ModalDownloadProductCode
+        detailData={detailData}
+        open={showModalDownloadProductCode}
+        onClose={closeModalDownloadProductCodeHandler}
       />
     </>
   );
