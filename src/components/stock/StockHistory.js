@@ -74,13 +74,13 @@ const StockHistory = () => {
 
   return (
     <>
-      <HeaderBreadcrumbs heading="Stok History" links={[]} />
+      <HeaderBreadcrumbs heading="Stok Histori" links={[]} />
       <Card>
         <Stack direction="row" alignItems="center" sx={{ py: 2.5, px: 3 }}>
           <TextField
             value={search}
             onChange={onChangeSearchHandler}
-            placeholder="Search stock..."
+            placeholder="Cari stok..."
             sx={{ width: '100%' }}
             InputProps={{
               startAdornment: (
