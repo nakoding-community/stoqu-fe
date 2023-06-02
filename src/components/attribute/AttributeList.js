@@ -255,7 +255,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
     {
       id: 'unitName',
       label: 'Unit',
-      withSort: true,
+      withSort: false,
     },
     {
       id: 'value',
