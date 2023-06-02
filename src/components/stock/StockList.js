@@ -194,7 +194,7 @@ const StockList = ({
           <TextField
             value={search}
             onChange={onChangeSearchHandler}
-            placeholder="Cari stock..."
+            placeholder="Cari stok..."
             sx={{ width: '100%' }}
             InputProps={{
               startAdornment: (
