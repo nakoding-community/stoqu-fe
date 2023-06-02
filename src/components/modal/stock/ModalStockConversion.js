@@ -3,7 +3,7 @@ import parseInt from 'lodash/parseInt';
 import isEmpty from 'lodash/isEmpty';
 import { useQueryClient } from '@tanstack/react-query';
 import { useConfirm } from 'material-ui-confirm';
-import { Box, Stack, Typography, IconButton, TextField, DialogActions, Button } from '@mui/material';
+import { Box, Stack, Typography, IconButton, TextField, DialogActions, Button, Tooltip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useTheme, alpha } from '@mui/material/styles';
 import { toast } from 'react-toastify';
@@ -11,6 +11,7 @@ import InfiniteCombobox from '../../combobox/InfiniteCombobox';
 import Modal from '../Modal';
 import Iconify from '../../Iconify';
 import { getStocks, stockConvertion } from '../../../clientv2/stockClient';
+import DownloadProductCodePDF from '../../PDF/DownloadProductCodePDF';
 
 // eslint-disable-next-line react/prop-types
 function ModalStockConversion({
@@ -41,12 +42,14 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
 
   const [productId, setProductId] = useState('');
   const [productLabel, setProductLabel] = useState('');
+  const [productData, setProductData] = useState(null);
 
   const [rackId, setRackId] = useState('');
   const [rackLabel, setRackLabel] = useState('');
 
   const [lookupStocks, setLookupStocks] = useState([]);
-
+  const [valueStrings, setValueStrings] = useState(null);
+  
   const [packetId, setPacketId] = useState('');
   const [packetLabel, setPacketLabel] = useState('');
 
@@ -56,6 +59,7 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
   const onChangeProductHandler = (e) => {
     setProductId(e?.id);
     setProductLabel(e?.label);
+    setProductData(e);
     setLookupStocks([]);
   };
 
@@ -104,7 +108,7 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
 
       // need timeout because be need time to refetch data
       setTimeout(() => {
-        showModalSuccessCreateTrxHandler(data, 'conversion');
+        showModalSuccessCreateTrxHandler(data, 'conversion', productData, quantity);
       }, 250);
     }
   };
@@ -115,6 +119,14 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
     confirm().then(() => {
       submitModalHandler(e);
     });
+  };
+
+  const onClickDownload = (code) => {
+    setValueStrings([code]);
+
+    setTimeout(() => {
+      setValueStrings([]);
+    }, 250);
   };
 
   return (
@@ -130,6 +142,7 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
           restructureOptions={(options) =>
             options?.map((option) => {
               return {
+                ...option,
                 id: option?.productId,
                 label: `${option?.productCode} - ${option?.brandName} - ${option?.variantName} - ${option?.packetValue}${option?.unitName}`,
               };
@@ -176,10 +189,16 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
                 <Typography variant="body1">{lookupStock?.label}</Typography>
               </Box>
               <Stack flexDirection="row" alignItems={'center'}>
+                <Tooltip title="Download QR Code">
+                  <IconButton size="small" color="success" onClick={() => onClickDownload(lookupStock?.label)}>
+                    <Iconify icon="ion:qr-code" />
+                  </IconButton>
+                </Tooltip>
                 <IconButton size="small" color="error" onClick={() => removeLookupHandler(lookupStock)}>
                   <Iconify icon="eva:trash-2-outline" />
                 </IconButton>
               </Stack>
+              <DownloadProductCodePDF useButton={false} valueStrings={valueStrings} />
             </Stack>
           </Stack>
         ))}

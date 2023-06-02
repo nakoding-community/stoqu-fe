@@ -298,29 +298,29 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       withSort: true,
     },
     {
-      id: 'brand',
+      id: 'brand_name',
       label: 'Brand',
       withSort: true,
     },
     {
-      id: 'variant',
+      id: 'variant_name',
       label: 'Varian',
       withSort: true,
     },
     {
-      id: 'packet',
+      id: 'packet_value',
       label: 'Paket',
       withSort: true,
     },
     {
       id: 'supplier_name',
       label: 'Nama Supplier',
-      withSort: false,
+      withSort: true,
     },
     {
-      id: 'code_unique',
+      id: 'variant_unique_code',
       label: 'Kode Unik',
-      withSort: false,
+      withSort: true,
     },
     // {
     //   id: 'price_idr',

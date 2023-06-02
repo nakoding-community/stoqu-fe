@@ -372,7 +372,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       withSort: true,
     },
     {
-      id: 'brand',
+      id: 'name',
       label: 'Brand',
       withSort: true,
     },
@@ -397,7 +397,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       withSort: false,
     },
     {
-      id: 'code_unique',
+      id: 'unique_code',
       label: 'Kode Unik',
       withSort: false,
     },

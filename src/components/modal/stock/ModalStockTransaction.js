@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useConfirm } from 'material-ui-confirm';
 import parseInt from 'lodash/parseInt';
 import { toast } from 'react-toastify';
-import { Box, Stack, Typography, IconButton, Tabs, Tab, TextField, DialogActions, Button } from '@mui/material';
+import { Box, Stack, Typography, IconButton, Tabs, Tab, TextField, DialogActions, Button, Tooltip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useTheme, alpha } from '@mui/material/styles';
 import isEmpty from 'lodash/isEmpty';
@@ -14,6 +14,7 @@ import useTabs from '../../../hooks/useTabs';
 import KEY from '../../../constant/queryKey';
 import Iconify from '../../Iconify';
 import { getStocks, stockTransaction } from '../../../clientv2/stockClient';
+import DownloadProductCodePDF from '../../PDF/DownloadProductCodePDF';
 
 // eslint-disable-next-line react/prop-types
 function ModalStockTransaction({ open, onClose, getStocksHandler, showModalSuccessCreateTrxHandler }) {
@@ -40,6 +41,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
   const [productId, setProductId] = useState('');
   const [productLabel, setProductLabel] = useState('');
+  const [productData, setProductData] = useState(null);
 
   const [rackId, setRackId] = useState('');
   const [rackLabel, setRackLabel] = useState('');
@@ -47,8 +49,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
   const [quantity, setQuantity] = useState('');
 
   const [lookupStocks, setLookupStocks] = useState([]);
-
-  const [productData, setProductData] = useState(null);
+  const [valueStrings, setValueStrings] = useState(null);
 
   const TABS = [
     { value: 'in', label: 'Masuk' },
@@ -128,6 +129,14 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
     confirm().then(() => {
       submitModalHandler(e);
     });
+  };
+
+  const onClickDownload = (code) => {
+    setValueStrings([code]);
+
+    setTimeout(() => {
+      setValueStrings([]);
+    }, 250);
   };
 
   useEffect(() => {
@@ -237,11 +246,17 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
                     <Typography variant="body1">{lookupStock?.label}</Typography>
                   </Box>
                   <Stack flexDirection="row" alignItems={'center'}>
+                    <Tooltip title="Download QR Code">
+                      <IconButton size="small" color="success" onClick={() => onClickDownload(lookupStock?.label)}>
+                        <Iconify icon="ion:qr-code" />
+                      </IconButton>
+                    </Tooltip>
                     <IconButton size="small" color="error" onClick={() => removeLookupHandler(lookupStock)}>
                       <Iconify icon="eva:trash-2-outline" />
                     </IconButton>
                   </Stack>
                 </Stack>
+                <DownloadProductCodePDF useButton={false} valueStrings={valueStrings} />
               </Stack>
             ))}
           </>
@@ -251,7 +266,6 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
         <Button variant="outlined" color="inherit" onClick={onClose}>
           Close
         </Button>
-
         <LoadingButton type="submit" variant="contained" loading={false} disabled={isButtonDisabled()}>
           Save
         </LoadingButton>
