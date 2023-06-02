@@ -91,9 +91,9 @@ export default function SettingsUserPage() {
     setOrderBy(property);
   };
 
-  const appendSortQuery = () => {
+  const appendSortQuery = (order, orderBy) => {
     return {
-      [order === 'asc' ? 'ascField' : 'dscField']: orderBy,
+      sortBy: order === 'asc' ? orderBy : `-${orderBy}`,
     };
   };
 
@@ -103,7 +103,7 @@ export default function SettingsUserPage() {
       pageSize: rowsPerPage,
       search,
       filterRole: roleLabel,
-      ...(order && appendSortQuery()),
+      ...(order && appendSortQuery(order, orderBy)),
     };
 
     const { data, meta } = await getUsers(query);

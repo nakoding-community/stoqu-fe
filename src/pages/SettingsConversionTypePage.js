@@ -215,17 +215,17 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
     {
       id: 'origin',
       label: 'Tipe Awal',
-      withSort: true,
+      withSort: false,
     },
     {
       id: 'destination',
       label: 'Tipe Akhir',
-      withSort: true,
+      withSort: false,
     },
     {
       id: 'total',
       label: 'Total Konversi',
-      withSort: true,
+      withSort: false,
     },
     {
       id: 'action',

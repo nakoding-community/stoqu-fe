@@ -181,12 +181,12 @@ const TableHeadComponent = React.memo(({ orderBy, order, onSortHandler }) => {
     {
       id: 'code',
       label: 'Kode',
-      withSort: true,
+      withSort: false,
     },
     {
       id: 'trx_type',
       label: 'Jenis Transaksi',
-      withSort: true,
+      withSort: false,
     },
     {
       id: 'order_code',

@@ -158,9 +158,9 @@ export default function ReportPage() {
     setOrderBy(property);
   };
 
-  const appendSortQuery = () => {
+  const appendSortQuery = (order, orderBy) => {
     return {
-      [order === 'asc' ? 'ascField' : 'dscField']: orderBy,
+      sortBy: order === 'asc' ? orderBy : `-${orderBy}`,
     };
   };
 
@@ -175,7 +175,7 @@ export default function ReportPage() {
     page: page + 1,
     pageSize: rowsPerPage,
     category: filterType,
-    ...(order && appendSortQuery()),
+    ...(order && appendSortQuery(order, orderBy)),
     ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
     ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
   };

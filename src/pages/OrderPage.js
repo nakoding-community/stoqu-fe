@@ -118,9 +118,9 @@ export default function OrderPage() {
     unsubscribe.current = unsubscribeFirebase;
   };
 
-  const appendSortQuery = () => {
+  const appendSortQuery = (order, orderBy) => {
     return {
-      [order === 'asc' ? 'ascField' : 'dscField']: orderBy,
+      sortBy: order === 'asc' ? orderBy : `-${orderBy}`,
     };
   };
 
@@ -133,7 +133,7 @@ export default function OrderPage() {
         pageSize: rowsPerPage,
         search,
         filterStatus,
-        ...(order && appendSortQuery()),
+        ...(order && appendSortQuery(order, orderBy)),
       };
 
       const { data, meta } = await getOrders(query);

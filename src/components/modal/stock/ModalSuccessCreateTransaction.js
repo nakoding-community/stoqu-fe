@@ -31,7 +31,7 @@ const ModalSuccessCreateTransaction = ({
         productData={productData}
         quantity={quantity}
       />
-      <Content createdTrxData={createdTrxData} type={type} />
+      <Content createdTrxData={createdTrxData} quantity={quantity} type={type} />
     </ModalV2>
   );
 };
@@ -40,26 +40,19 @@ const Header = ({ createdTrxData, setIsDownloading, onClose, productData, quanti
   const [valueStrings, setValueStrings] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // const { products } = createdTrxData || {};
+  const { products } = createdTrxData || {};
 
   const downloadPDFData = async () => {
     setIsDownloading(true);
     setLoading(true);
 
-    // const codeProducts = products?.flatMap((product) => {
-    //   return product?.lookupCodes?.map((lookup) => {
-    //     return lookup;
-    //   });
-    // });
-
+    const codeProduct = products?.length > 0 && products[0].lookupCodes?.length > 0 && products[0].lookupCodes[0] || '';
     const tempValueStrings = [];
-
     for (let i = 0; i < quantity; i++) {
-      tempValueStrings.push(productData?.productCode);
+      tempValueStrings.push(codeProduct);
     }
 
     setValueStrings(tempValueStrings);
-
     setLoading(false);
   };
 
@@ -81,7 +74,7 @@ const Header = ({ createdTrxData, setIsDownloading, onClose, productData, quanti
   );
 };
 
-const Content = ({ createdTrxData }) => {
+const Content = ({ createdTrxData, quantity }) => {
   const { products } = createdTrxData || {};
 
   return (
@@ -91,7 +84,7 @@ const Content = ({ createdTrxData }) => {
           {products?.map((product, index) => (
             <React.Fragment key={index}>
               {product?.lookupCodes?.map((lookup, index) => (
-                <Alert key={index}>{`${index + 1}. ${lookup}`}</Alert>
+                <Alert key={index}>{lookup} (Total: {quantity})</Alert>
               ))}
             </React.Fragment>
           ))}
