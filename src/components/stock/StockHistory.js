@@ -148,7 +148,7 @@ const TableRowComponent = React.memo(({ row, index, page, rowsPerPage }) => {
             {row?.trxType}
           </Label>
         </TableCell>
-        <TableCell>{row?.orderTrx?.code}</TableCell>
+        <TableCell>{row?.orderCode}</TableCell>
         <TableCell>
           <Tooltip title="Detail History">
             <IconButton size="small" color="warning" onClick={() => showModalHandler(row)}>

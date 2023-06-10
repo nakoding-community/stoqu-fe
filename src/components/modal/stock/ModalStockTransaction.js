@@ -15,6 +15,7 @@ import KEY from '../../../constant/queryKey';
 import Iconify from '../../Iconify';
 import { getStocks, stockTransaction } from '../../../clientv2/stockClient';
 import DownloadProductCodePDF from '../../PDF/DownloadProductCodePDF';
+import { getOrders } from '../../../clientv2/orderClient';
 
 // eslint-disable-next-line react/prop-types
 function ModalStockTransaction({ open, onClose, getStocksHandler, showModalSuccessCreateTrxHandler }) {
@@ -36,7 +37,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
   const { currentTab, onChangeTab } = useTabs('in');
 
-  const [orderId, setOrderId] = useState('');
+  const [orderTrxId, setOrderTrxId] = useState('');
   const [orderLabel, setOrderLabel] = useState('');
 
   const [productId, setProductId] = useState('');
@@ -67,7 +68,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
   };
 
   const onChangeOrderHandler = (e) => {
-    setOrderId(e?.id);
+    setOrderTrxId(e?.id);
     setOrderLabel(e?.label);
   };
 
@@ -95,7 +96,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
 
   const submitModalHandler = async () => {
     const body = {
-      orderTrxId: '',
+      orderTrxId,
       products: [
         {
           id: productId,
@@ -140,7 +141,7 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
   };
 
   useEffect(() => {
-    setOrderId('');
+    setOrderTrxId('');
     setOrderLabel('');
     setProductLabel('');
   }, [currentTab]);
@@ -170,13 +171,22 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
           ))}
         </Tabs>
         <InfiniteCombobox
-          value={orderId}
+          value={orderTrxId}
           label="Cari Pesanan"
           type="orders"
           onChange={onChangeOrderHandler}
-          disabled={currentTab === 'out'}
           labelText={orderLabel}
           required
+          queryFunction={getOrders}
+          restructureOptions={(options) =>
+            options?.map((option) => {
+              return {
+                ...option,
+                id: option?.id,
+                label: `${option?.code}`,
+              };
+            })
+          }
         />
         <InfiniteCombobox
           label="Cari Produk *"
