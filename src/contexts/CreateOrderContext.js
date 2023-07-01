@@ -33,8 +33,8 @@ const CreateOrderContextProvider = ({ children }) => {
     shipmentType: '',
     shipmentNumber: '',
     shipmentPrice: '',
-    stockStatus: 'normal',
-    status: 'progress',
+    stockStatus: 'NORMAL',
+    status: 'PROGRESS',
     items: [],
   };
 
@@ -56,7 +56,7 @@ const CreateOrderContextProvider = ({ children }) => {
       createOrderState?.items?.filter((item) => item?.stock === 'not_available' || item?.stock === 'need_convert')
         ?.length > 0;
 
-    changeCreateOrderState('stockStatus', isAbnormal ? 'abnormal' : 'normal');
+    changeCreateOrderState('stockStatus', isAbnormal ? 'ABNORMAL' : 'NORMAL');
   };
 
   const getDetailOrderHandler = async () => {

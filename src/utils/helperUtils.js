@@ -33,16 +33,16 @@ export const convertToRupiah = (number) => {
 
 export const getStatusColor = (status) => {
   switch (status) {
-    case 'pending':
+    case 'PENDING':
       return 'warning';
-    case 'progress':
+    case 'PROGRESS':
       return 'info';
-    case 'complete':
-    case 'completed':
-      return 'primary';
-    case 'canceled':
+    case 'COMPLETE':
+    case 'COMPLETED':
+      return 'success';
+    case 'CANCELED':
       return 'error';
-    case 'need_convert':
+    case 'NEED_CONVERT':
       return 'warning';
     default:
       break;

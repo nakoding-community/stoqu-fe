@@ -21,15 +21,15 @@ import { useGetStockLookups } from '../../../hooks/api/useStockLookup';
 import Scrollbar from '../../Scrollbar';
 import { loadMoreValidator } from '../../../utils/helperUtils';
 
-export const ModalSelectLookup = ({ open, onClose, saveCallback, selectedLookups }) => {
+export const ModalSelectLookup = ({ open, onClose, saveCallback, selectedLookups, productDetail }) => {
   return (
     <Modal title={'Pilih Lookup'} open={open} onClose={onClose}>
-      <DialogForm onClose={onClose} saveCallback={saveCallback} selectedLookups={selectedLookups} />
+      <DialogForm onClose={onClose} saveCallback={saveCallback} selectedLookups={selectedLookups} productDetail={productDetail} />
     </Modal>
   );
 };
 
-const DialogForm = ({ onClose, saveCallback, selectedLookups }) => {
+const DialogForm = ({ onClose, saveCallback, selectedLookups, productDetail }) => {
   const [lookups, setLookups] = useState([]);
   const [search, setSearch] = useState('');
   const [searchDebounce] = useDebounce(search, 250);
@@ -37,6 +37,8 @@ const DialogForm = ({ onClose, saveCallback, selectedLookups }) => {
   const params = {
     pageSize: 10,
     page: 1,
+    rackId: productDetail.rackId,
+    productId: productDetail.product.id,
     ...(searchDebounce && { search: searchDebounce }),
   };
 

@@ -19,7 +19,7 @@ export default function NavbarDocs() {
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           Butuh Bantuan?
-          <br /> Periksalah dokumentasi kami
+          <br /> Silahkan lihat dokumentasi
         </Typography>
       </div>
 

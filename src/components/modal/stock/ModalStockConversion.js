@@ -204,7 +204,7 @@ const DialogForm = ({ onClose, getStocksHandler, editConversionStockData, showMo
         ))}
 
         <InfiniteCombobox
-          label="Paket Destination (*)"
+          label="Paket Tujuan (*)"
           type="types"
           onChange={onChangePacketHandler}
           labelText={packetLabel}

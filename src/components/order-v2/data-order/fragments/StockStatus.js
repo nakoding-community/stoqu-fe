@@ -15,14 +15,14 @@ const StockStatus = () => {
 
   const getStockStatus = () => {
     if (isCreatePage) {
-      return 'abnormal';
+      return 'NORMAL';
     }
 
     const abnormal = items?.filter((item) => {
       return item?.total !== item?.totalPacked;
     });
 
-    return abnormal?.length > 0 ? 'abnormal' : 'normal';
+    return abnormal?.length > 0 ? 'ABNORMAL' : 'NORMAL';
   };
 
   const stockStatus = getStockStatus();
@@ -30,12 +30,12 @@ const StockStatus = () => {
   return (
     <Box sx={{ marginBottom: '20px' }}>
       <Typography variant="body1">Status Stok</Typography>
-      <Label variant="ghost" color={stockStatus === 'normal' ? 'primary' : 'error'}>
+      <Label variant="ghost" color={stockStatus === 'NORMAL' ? 'success' : 'default'}>
         {startCase(stockStatus)}
       </Label>
       <Typography variant="body2" sx={{ marginTop: '8px' }} color="error">
         {' '}
-        Sesuai dengan kesedian stok yang dipilih!
+        Sesuai dengan kesedian stok!
       </Typography>
     </Box>
   );

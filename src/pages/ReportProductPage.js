@@ -46,7 +46,7 @@ const RowBrandTemplate = ({ row, index, page, rowsPerPage }) => {
     <TableRow>
       <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
       <TableCell>{row?.brandName}</TableCell>
-      <TableCell>{row?.typeName}</TableCell>
+      <TableCell>{row?.packetName}</TableCell>
       <TableCell>{row?.count}</TableCell>
     </TableRow>
   );
@@ -57,18 +57,18 @@ const RowVariantTemplate = ({ row, index, page, rowsPerPage }) => {
     <TableRow>
       <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
       <TableCell>{row?.brandName}</TableCell>
-      <TableCell>{row?.typeName}</TableCell>
+      <TableCell>{row?.packetName}</TableCell>
       <TableCell>{row?.variantName}</TableCell>
       <TableCell>{row?.count}</TableCell>
     </TableRow>
   );
 };
 
-const RowTypeTemplate = ({ row, index, page, rowsPerPage }) => {
+const RowPacketTemplate = ({ row, index, page, rowsPerPage }) => {
   return (
     <TableRow>
       <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-      <TableCell>{row?.typeName}</TableCell>
+      <TableCell>{row?.packetName}</TableCell>
       <TableCell>{row?.count}</TableCell>
     </TableRow>
   );
@@ -87,28 +87,28 @@ export default function ReportPage() {
 
   const [dateFilter, setDateFilter] = useState([moment().subtract(7, 'd'), moment()]);
 
-  const [filterType, setFilterType] = useState('brand');
+  const [category, setCategory] = useState('brand');
 
   const rowTemplate = {
     brand: RowBrandTemplate,
     variant: RowVariantTemplate,
-    type: RowTypeTemplate,
+    packet: RowPacketTemplate,
   };
 
   const downloadXLSFile = async () => {
     const token = localStorage.getItem('accessToken');
 
     const config = {
-      url: `${HOST_API}reports/orders/excel`,
+      url: `${HOST_API}/reports/order-products/excel`,
       headers: {
         'Content-Type': 'blob',
         Authorization: token !== null ? `Bearer ${token}` : ``,
       },
       responseType: 'arraybuffer',
       params: {
-        start_date: moment(dateFilter[0]).format('YYYY-MM-DD'),
-        end_date: moment(dateFilter[1]).format('YYYY-MM-DD'),
-        category: filterType,
+        start_date: moment(dateFilter[0]).hours(0).minutes(0).seconds(0).format('YYYY-MM-DD HH:mm:ss'),
+        end_date: moment(dateFilter[1]).hours(23).minutes(59).seconds(59).format('YYYY-MM-DD HH:mm:ss'),
+        category,
       },
     };
 
@@ -165,8 +165,9 @@ export default function ReportPage() {
   };
 
   const appeendFilterDateQuery = (key) => {
+    const dateFilterValue = key === 'startDate' ? moment(dateFilter[0]).hours(0).minutes(0).seconds(0) : moment(dateFilter[1]).hours(23).minutes(59).seconds(59)
     return {
-      [key]: moment(key === 'startDate' ? dateFilter[0] : dateFilter[1]).format('YYYY-MM-DD'),
+      [key]: moment(dateFilterValue).format('YYYY-MM-DD HH:mm:ss'),
     };
   };
 
@@ -174,7 +175,7 @@ export default function ReportPage() {
   const params = {
     page: page + 1,
     pageSize: rowsPerPage,
-    category: filterType,
+    category,
     ...(order && appendSortQuery(order, orderBy)),
     ...(dateFilter?.length === 2 && dateFilter[0] && appeendFilterDateQuery('startDate')),
     ...(dateFilter?.length === 2 && dateFilter[1] && appeendFilterDateQuery('endDate')),
@@ -228,7 +229,7 @@ export default function ReportPage() {
                     <Typography variant="subtitle2">
                       {meta?.info?.count}{' '}
                       <Box component="span" sx={{ color: 'text.secondary', typography: 'body2' }}>
-                        {filterType}
+                        {category}
                       </Box>
                     </Typography>
                   </Stack>
@@ -271,15 +272,15 @@ export default function ReportPage() {
               )}
             />
             <InfiniteCombobox
-              value={filterType}
-              label="Tipe"
+              value={category}
+              label="Kategori"
               useStaticOption
               staticOptions={[
                 { id: 'brand', label: 'Brand' },
                 { id: 'variant', label: 'Variant' },
-                { id: 'type', label: 'Tipe' },
+                { id: 'packet', label: 'Paket' },
               ]}
-              onChange={(e) => setFilterType(e?.id)}
+              onChange={(e) => setCategory(e?.id)}
               sx={{ width: '100%', marginRight: '20px' }}
             />
             <Stack width="100%" direction="row" alignItems="center" justifyContent="space-between">
@@ -292,10 +293,10 @@ export default function ReportPage() {
           <Scrollbar>
             <TableContainer sx={{ minWidth: 720 }}>
               <Table>
-                <TableHeadComponent orderBy={orderBy} order={order} onSortHandler={onSortHandler} type={filterType} />
+                <TableHeadComponent orderBy={orderBy} order={order} onSortHandler={onSortHandler} type={category} />
                 <TableBody>
                   {orders?.map((row, index) => {
-                    const TableRowComponent = rowTemplate[filterType];
+                    const TableRowComponent = rowTemplate[category];
                     return (
                       <TableRowComponent key={index} row={row} index={index} page={page} rowsPerPage={rowsPerPage} />
                     );
@@ -336,12 +337,12 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler, type }) => {
       },
       {
         id: 'brand_name',
-        label: 'Nama Brand',
+        label: 'Brand',
         withSort: false,
       },
       {
         id: 'type_name',
-        label: 'Tipe',
+        label: 'Paket',
         withSort: false,
       },
       {
@@ -358,17 +359,17 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler, type }) => {
       },
       {
         id: 'brand_name',
-        label: 'Nama Brand',
+        label: 'Brand',
         withSort: false,
       },
       {
         id: 'type_name',
-        label: 'Tipe',
+        label: 'Paket',
         withSort: false,
       },
       {
         id: 'variant_name',
-        label: 'Nama Varian',
+        label: 'Varian',
         withSort: false,
       },
       {
@@ -377,7 +378,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler, type }) => {
         withSort: false,
       },
     ],
-    type: [
+    packet: [
       {
         id: 'no',
         label: 'No',
@@ -385,7 +386,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler, type }) => {
       },
       {
         id: 'type_name',
-        label: 'Tipe',
+        label: 'Paket',
         withSort: false,
       },
       {

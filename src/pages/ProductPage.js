@@ -249,7 +249,7 @@ const TableRowComponent = ({ row, number, setEditData, setEditId, showModalHandl
     <TableRow>
       <TableCell>{number}</TableCell>
       <TableCell>{productDetail?.code}</TableCell>
-      <TableCell>{productDetail?.name}</TableCell>
+      {/* <TableCell>{productDetail?.name}</TableCell> */}
       <TableCell>{productDetail?.brandName}</TableCell>
       <TableCell>{productDetail?.variantName}</TableCell>
       <TableCell>{`${productDetail?.packetValue} ${productDetail?.unitName}`}</TableCell>
@@ -292,11 +292,11 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       label: 'Kode',
       withSort: true,
     },
-    {
-      id: 'name',
-      label: 'Nama Produk',
-      withSort: true,
-    },
+    // {
+    //   id: 'name',
+    //   label: 'Nama Produk',
+    //   withSort: true,
+    // },
     {
       id: 'brand_name',
       label: 'Brand',
