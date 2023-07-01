@@ -7,6 +7,7 @@ import { Box, Stack, Drawer } from '@mui/material';
 // hooks
 import useResponsive from '../../../hooks/useResponsive';
 import useCollapseDrawer from '../../../hooks/useCollapseDrawer';
+import useAuth from '../../../hooks/useAuth';
 // utils
 import cssStyles from '../../../utils/cssStyles';
 // config
@@ -16,7 +17,7 @@ import Logo from '../../../components/Logo';
 import Scrollbar from '../../../components/Scrollbar';
 import { NavSectionVertical } from '../../../components/nav-section';
 //
-import { getSidebarConfig } from './NavConfig';
+import { getSidebarConfig, getSidebarConfigByRole } from './NavConfig';
 import NavbarDocs from './NavbarDocs';
 import NavbarAccount from './NavbarAccount';
 import CollapseButton from './CollapseButton';
@@ -49,9 +50,11 @@ export default function NavbarVertical({ isOpenSidebar, onCloseSidebar }) {
 
   // ** Fetch data on mount
   const { data } = useGetDashboardCount();
+  const { user } = useAuth();
 
-  const navData = getSidebarConfig({ count: data?.data });
-
+  let navData = getSidebarConfig({ count: data?.data });  
+  navData = getSidebarConfigByRole(navData, user.role)
+  
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
     useCollapseDrawer();
 

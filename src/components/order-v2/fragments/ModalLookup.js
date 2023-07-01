@@ -140,6 +140,7 @@ const DialogForm = ({ onClose, showModalSelectLookup, setShowModalSelectLookup, 
         onClose={() => setShowModalSelectLookup(false)}
         saveCallback={onClickSaveSelectedLookups}
         selectedLookups={stockLookups}
+        productDetail={productDetail}
       />
     </>
   );

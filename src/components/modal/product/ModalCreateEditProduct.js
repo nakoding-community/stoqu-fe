@@ -109,13 +109,13 @@ const DialogForm = ({ onClose, editData, editId }) => {
   return (
     <Stack component="form" onSubmit={submitModalHandler}>
       <Stack spacing={3} sx={{ p: 3 }}>
-        <TextField
+        {/* <TextField
           type="text"
           label="Nama Produk"
           variant="outlined"
           value={name}
           onChange={(e) => inputChangeHandler('name', e.target.value)}
-        />
+        /> */}
         <InfiniteCombobox
           value={brandId}
           label="Cari Brand (*)"

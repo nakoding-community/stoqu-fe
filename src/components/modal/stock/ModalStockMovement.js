@@ -126,7 +126,7 @@ function DialogForm({ onClose, getStocksHandler }) {
           labelText={rackOriginLabel}
         />
         <InfiniteCombobox
-          label="Rak Destination *"
+          label="Rak Tujuan *"
           type="racks"
           onChange={onChangeRackDestinationHandler}
           required

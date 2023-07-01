@@ -258,7 +258,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
     },
     {
       id: 'phone',
-      label: 'No. Handphone',
+      label: 'No. HP',
       withSort: true,
     },
     {

@@ -12,6 +12,7 @@ const ICONS = {
   invoiceCheck: getIcon('mdi:invoice-check'),
   analytics: getIcon('mdi:google-analytics'),
   cog: getIcon('mdi:cog'),
+  user: getIcon('mdi:user'),
 };
 
 export const getSidebarConfig = ({ count }) => {
@@ -60,11 +61,15 @@ export const getSidebarConfig = ({ count }) => {
           ],
         },
         {
+          title: 'Pengguna',
+          path: '/dashboard/settings/user',
+          icon: ICONS.user,
+        },
+        {
           title: 'Pengaturan',
           path: '/dashboard/settings',
           icon: ICONS.cog,
           children: [
-            { title: 'Pengguna', path: '/dashboard/settings/user' },
             { title: 'Konversi Dollar', path: '/dashboard/settings/dollar-conversion' },
             { title: 'Pengingat Stok', path: '/dashboard/settings/remaind-stock' },
             { title: 'Tipe Konversi', path: '/dashboard/settings/conversion-type' },
@@ -74,6 +79,17 @@ export const getSidebarConfig = ({ count }) => {
     },
   ];
 };
+
+export const getSidebarConfigByRole = (items, role) => {
+  let whitelist = ['Dasbor']
+  if (role === "admin") whitelist = ['Dasbor', 'Atribut', 'Produk', 'Stok', 'Pesanan', 'Laporan', 'Pengguna', 'Pengaturan']
+  if (role === "admin-stock") whitelist = ['Dasbor', 'Atribut', 'Produk', 'Stok', 'Pesanan', 'Laporan', 'Pengaturan']
+  if (role === "admin-order") whitelist = ['Dasbor', 'Stok', 'Pesanan', 'Laporan']
+
+  items[0].items = items[0]?.items?.filter((data) => whitelist.includes(data?.title))
+  
+  return items
+}
 
 const sidebarConfig = [
   {

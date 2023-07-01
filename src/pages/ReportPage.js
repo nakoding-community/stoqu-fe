@@ -63,15 +63,15 @@ export default function ReportPage() {
     const token = localStorage.getItem('accessToken');
 
     const config = {
-      url: `${HOST_API}reports/orders/excel`,
+      url: `${HOST_API}/reports/orders/excel`,
       headers: {
         'Content-Type': 'blob',
         Authorization: token !== null ? `Bearer ${token}` : ``,
       },
       responseType: 'arraybuffer',
       params: {
-        start_date: moment(dateFilter[0]).format('YYYY-MM-DD'),
-        end_date: moment(dateFilter[1]).format('YYYY-MM-DD'),
+        start_date: moment(dateFilter[0]).hours(0).minutes(0).seconds(0).format('YYYY-MM-DD HH:mm:ss'),
+        end_date: moment(dateFilter[1]).hours(23).minutes(59).seconds(59).format('YYYY-MM-DD HH:mm:ss'),
       },
     };
 
@@ -122,8 +122,9 @@ export default function ReportPage() {
   };
 
   const appeendFilterDateQuery = (key) => {
+    const dateFilterValue = key === 'startDate' ? moment(dateFilter[0]).hours(0).minutes(0).seconds(0) : moment(dateFilter[1]).hours(23).minutes(59).seconds(59)
     return {
-      [key]: moment(key === 'startDate' ? dateFilter[0] : dateFilter[1]).format('YYYY-MM-DD'),
+      [key]: moment(dateFilterValue).format('YYYY-MM-DD HH:mm:ss'),
     };
   };
 
@@ -357,7 +358,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
     },
     {
       id: 'customerPhone',
-      label: 'No. Handphone',
+      label: 'No. HP',
       withSort: true,
     },
     {

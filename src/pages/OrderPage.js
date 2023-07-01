@@ -238,9 +238,9 @@ export default function OrderPage() {
                         {(row?.TrxType || row?.trxType) && (
                           <Label
                             variant={'ghost'}
-                            color={(row?.TrxType || row?.trxType) === 'in' ? 'success' : 'error'}
+                            color={(row?.TrxType || row?.trxType) === 'in' ? 'info' : 'success'}
                           >
-                            {row?.TrxType || row?.trxType}
+                            {row?.TrxType || row?.trxType === 'in' ? 'MASUK' : 'KELUAR'}
                           </Label>
                         )}
                       </TableCell>
@@ -259,16 +259,18 @@ export default function OrderPage() {
                           </Label>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {(row?.StockStatus || row?.stockStatus) && (
-                          <Label
-                            variant={'ghost'}
-                            color={(row?.StockStatus || row?.stockStatus) !== 'normal' ? 'error' : 'success'}
-                          >
-                            {startCase(row?.StockStatus || row?.stockStatus)}
-                          </Label>
-                        )}
-                      </TableCell>
+                      {
+                        // <TableCell>
+                        //   {(row?.StockStatus || row?.stockStatus) && (
+                        //     <Label
+                        //       variant={'ghost'}
+                        //       color={(row?.StockStatus || row?.stockStatus) !== 'NORMAL' ? 'default' : 'success'}
+                        //     >
+                        //       {startCase(row?.StockStatus || row?.stockStatus)}
+                        //     </Label>
+                        //   )}
+                        // </TableCell>
+                      }
                       <TableCell>
                         <Tooltip title="Edit Pesanan">
                           <IconButton
@@ -342,7 +344,7 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
     },
     {
       id: 'phone_number',
-      label: 'No. Handphone',
+      label: 'No. HP',
       withSort: true,
     },
     {
@@ -355,11 +357,11 @@ const TableHeadComponent = ({ orderBy, order, onSortHandler }) => {
       label: 'Status',
       withSort: true,
     },
-    {
-      id: 'stock_status',
-      label: 'Stok Status',
-      withSort: true,
-    },
+    // {
+    //   id: 'stock_status',
+    //   label: 'Stok Status',
+    //   withSort: true,
+    // },
     {
       id: 'action',
       label: 'Aksi',

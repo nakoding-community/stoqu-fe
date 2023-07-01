@@ -16,14 +16,14 @@ const DialogForm = ({ detailStockData }) => {
   return (
     <Stack>
       <Stack spacing={3} sx={{ p: 3 }}>
-        <TextField
+        {/* <TextField
           value={detailStockData?.productName}
           type="text"
           id="brand"
           label="Nama Produk"
           variant="outlined"
           disabled
-        />
+        /> */}
         <TextField id="code" value={detailStockData?.productCode} label="Kode" variant="outlined" disabled />
         <TextField
           value={detailStockData?.brandName}

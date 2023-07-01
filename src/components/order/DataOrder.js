@@ -267,17 +267,18 @@ const DataOrder = () => {
                   maxRows={4}
                 />
               )}
+            
               <Box sx={{ marginBottom: '20px' }}>
                 <Typography variant="body1">Status Stok</Typography>
-                <Label variant="ghost" color={stockStatus === 'normal' ? 'primary' : 'error'}>
+                <Label variant="ghost" color={stockStatus === 'NORMAL' ? 'primary' : 'error'}>
                   {startCase(stockStatus)}
                 </Label>
                 <Typography variant="body2" sx={{ marginTop: '8px' }} color="error">
                   {' '}
-                  Sesuai dengan kesedian stok yang dipilih!
+                  Sesuai dengan kesedian stok!
                 </Typography>
               </Box>
-
+            
               <Box>
                 {showComboboxStatus ? (
                   <InfiniteCombobox
