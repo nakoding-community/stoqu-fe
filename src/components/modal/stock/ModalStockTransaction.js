@@ -16,6 +16,9 @@ import Iconify from '../../Iconify';
 import { getStocks, stockTransaction } from '../../../clientv2/stockClient';
 import DownloadProductCodePDF from '../../PDF/DownloadProductCodePDF';
 import { getOrders } from '../../../clientv2/orderClient';
+import Label from '../../Label';
+
+import { useGetOrderById } from '../../../api/userOrder';
 
 // eslint-disable-next-line react/prop-types
 function ModalStockTransaction({ open, onClose, getStocksHandler, showModalSuccessCreateTrxHandler }) {
@@ -52,6 +55,12 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
   const [lookupStocks, setLookupStocks] = useState([]);
   const [valueStrings, setValueStrings] = useState(null);
 
+  const [quantityOrdered, setQuantityOrdered] = useState(null);
+
+  const { data, isFetched } = useGetOrderById(orderTrxId, {
+    enabled: orderTrxId !== "",
+  });
+
   const TABS = [
     { value: 'in', label: 'Masuk' },
     { value: 'out', label: 'Keluar' },
@@ -67,8 +76,14 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
     }
   };
 
+  const findQuantityOrdered = () => {
+    setQuantityOrdered(null);
+    const item = data?.data?.items?.find(item => item?.product?.id === productId);
+    setQuantityOrdered(item?.total);
+  }
+
   const onChangeOrderHandler = (e) => {
-    setOrderTrxId(e?.id);
+    setOrderTrxId(e?.id || '');
     setOrderLabel(e?.label);
   };
 
@@ -146,6 +161,10 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
     setProductLabel('');
   }, [currentTab]);
 
+  useEffect(() => {
+    findQuantityOrdered();
+  }, [data, productId]);
+
   return (
     <Stack component="form" onSubmit={confrimHandler}>
       <Stack spacing={3} sx={{ p: 3 }}>
@@ -222,6 +241,14 @@ function DialogForm({ onClose, getStocksHandler, showModalSuccessCreateTrxHandle
           onChange={(e) => setQuantity(e.target.value)}
           required
         />
+
+        {quantityOrdered &&
+          <Box>
+            <Label variant="ghost" color="primary">
+              Jumlah dipesan : {quantityOrdered} 
+            </Label>
+          </Box>
+        }
 
         {currentTab === 'out' && (
           <InfiniteCombobox
